@@ -1,3 +1,175 @@
+import sys, os, re
+from datetime import datetime # do not remove or del used in print
+
+
+### PRE-INIT
+from openteab.globals import openteab, roblox, FROM_TOP
+
+#### STATIC DEFINITIONS ####
+retry = 0 # used for import tester
+WORKING_DIR       = os.path.abspath(os.path.dirname(sys.argv[0]))
+virtual_dir_abs   = "'"+openteab.venv+"'"
+requirements_path = ".\\requirements.txt"
+
+local_python      = openteab.python_exe
+local_pip         = openteab.pip_exe
+
+LOG_DIR = openteab.venv + "/logs/"
+LATEST_LOG = LOG_DIR + "/latest.log"
+
+python_print = print #for when we replace python base print with our logging one
+
+# #function that runs on python close
+# def onPythonClose():
+#     #flush and close log file
+#     log_file.flush()
+#     log_file.close()
+
+# #register event
+# import atexit;
+# atexit.register(onPythonClose)
+
+#reroute for logging
+
+#temp quick print stuff
+def print(*args, **kwargs):
+    new_kwargs = kwargs.copy();
+    if new_kwargs.__contains__("type"): new_kwargs.pop("type")
+    python_print(*args,**new_kwargs); output = []; type = kwargs.pop("type", "PRINT"); output.append(datetime.today().strftime('[%d-%m-%Y %H:%M:%S] ' + '[' + type + '] '))
+    def write(data):
+        if not isinstance(data, str): data = str(data)
+        output.append(data)
+    sep = kwargs.pop("sep", None); end = kwargs.pop("end", None); newline = "\n"; space = " "
+    if sep is None: sep = space
+    if end is None: end = newline
+    for i, arg in enumerate(args):
+        if i: write(sep)
+        write(arg)
+    write(end)
+    return None
+def print_warning(*args,**kwargs): kwargs["type"] = "WARNING"; print(*args, **kwargs)
+def print_exception(*args,**kwargs): kwargs["type"] = "EXCEPTION"; print(*args, **kwargs)
+def print_error(*args,**kwargs): kwargs["type"] = "ERROR"; print(*args, **kwargs)
+def print_log(*args,**kwargs): kwargs["type"] = "LOG"; print(*args, **kwargs)
+def popup_warn(message, style=0, title="WARNING"): import ctypes; ctypes.windll.user32.MessageBoxW(0, message, title, style); del ctypes
+
+print("Log Opened!", type="INIT")
+### LOGGER ###
+
+### VIRTUAL ENVORIMENT ###
+def active_venv():
+    #script location
+    activatorpy = openteab.venv_activate_this
+    activator   = openteab.venv_activate
+    
+    #enter virtual enviroment
+    activator_command = activator + " & "
+    
+    #install requirements.txt
+    UpgradePip = (
+        "" + activator_command +
+        # upgrade pip
+        "" + local_python + " -m pip install --upgrade pip" )
+    
+    #install requirements.txt
+    InstallRequirements = (
+        #enter virtual enviroment
+        "" + activator_command +
+        #install requirements
+        "" + local_pip + " install --no-input -r " + requirements_path)
+    from subprocess import run
+    
+    #check if we are in an venv if not we make and enter one. this keeps the main python install clean
+    if not (sys.prefix != (getattr(sys, "base_prefix", None) or getattr(sys, "real_prefix", None) or sys.prefix)) or not os.path.exists(openteab.venv + "/pyvenv.cfg"):
+        print_log("FORCING VIRTUAL ENVIROMENT")
+        from venv import EnvBuilder
+        
+        #check if path exists
+        if not (os.path.exists(openteab.venv) and os.path.exists(openteab.venv + "/pyvenv.cfg")):
+            #build venv
+            virtual = EnvBuilder(with_pip=True)
+            virtual.create(env_dir="./" + openteab.venv)
+        
+        from gzip import decompress
+        from base64 import b64decode
+        from re import match, sub
+        
+        #if we do not have a copy of the script locally we make one
+        if not os.path.exists(activatorpy):
+            #grab copy of activate script from github if its not avalible on system
+            with open(activatorpy, "w") as activate_filepy:
+            # this script is manually shrunk, gzip compressed and base64 encoded to fit neatly into a "small" string.
+            # To see both the original and shrunk code, check this [repo folder]{@link https://github.com/FishSol-Development/FishSol-v2-1-/code_reference }
+            # specifically [./code_reference/activate_this.py] and [./code_reference/activate_this.small.py] for details or if you are on the snippet at the bottom of the page
+                activate_filepy.write(decompress(b64decode("H4sIAAAAAAAC/z1RwW7jIBC9+yt8G2gcpN4qIw45VNqVut2om+3FtSxsjx0SBxBDV83fF5xtT7wZ5vHmPabgLqWj0ly8C7H0Oh5LTaWv0P4zwdl"
+                                                           "cmCq3CX0uSP4fJRMxN44VXSmDWS5qFnm0iOFaD8oL3VOuWddNZsGu4wV+DOhj+awv+BiCC5l4rp2C8G79FWTQhrDcEWGIxtl1hl1oVjCZj68tYe"
+                                                           "M2IG+HSMRuFckSHPiUHZ0LneRHE2wSYgOXvdJNvV3QMvgzBOMjAd/et/KkYL87/ABpmlOrSJycsazR1Z0RM0Z2qgC4IL+YyIi3XFoFrz9fDn93T"
+                                                           "93j82um2Vb1+dhAt3/5/Wt/gFYBJGde9JpwXaDnElUWv+XDiyndT6WxIMTbk+nfcphbr4eznpHgW7Aek4uAelkN+tt2upo4l0ehxzHTkkk2ihEH"
+                                                           "NyKD9zhtH4CbCQCXlOTIi6WpW7U0WLebBLGV8/pk5wOmTPOXrUB+AdV/AqZng0UVAgAA")).decode())
+                activate_filepy.close() #close the file
+        if not os.path.exists(activator):
+            with open(activator, "w") as activate_file:
+                activate_file.write(decompress("H4sIAAAAAAAA/52SUWuDMBDH3/0UN+1D++CKe+xwYKlgoVVpbGEbQ6RGDJS0aJSx0u8+1NTGpboxXyR3/+R+d/ePcbRnpIwYhvEEzgoAAEngHXQK"
+                                               "6ugceqtFuFtugq21Cn0rcGb6RYUPeAaWYlqrq6/KmH3yVoU/T8eM1eI2VtAcM5Du1fmEDOO8Bo7nOt7a7oFq8zJa56oE2GYHMbuqhCg/aecWaual"
+                                               "H3nkDTnhzt6gpefeZ06jPAU9g6cXmMa4nNLicPjTLJDRMwRkyN03YqltZAz2y9OcpFFck7a7u/E9VHgNjwkqPdIY5ywrKp/hO4jNS3oCcevFa6GL"
+                                               "cotB9yFFKG1qmiYcNU1TeE8in2QyUx1VP1XhB0E8RfuMnFg+4wrRusIOhizYYxZTuiaMU/BUQnihr6qQgBYulsiar+zQ33hrP/itcLN/ceV1aPxY"
+                                               "YlpOoJsSnNDW/4+V79o4Id8Ru3CgbQQAAA==").decode())
+                activate_file.close()
+            with open(activator, "r") as text_file:
+                all_lines = text_file.readlines()
+                text_file.close()
+                for index, line in enumerate(all_lines):
+                    if match("VIRTUAL_ENV=\#\#\#VIRTUAL_ENV\#\#\#", line):
+                        all_lines[index] = sub("\#\#\#VIRTUAL_ENV\#\#\#", "'" + virtual_dir_abs + "'", line)
+                        break
+            with open(activator, "w") as text_file:
+                text_file.writelines(all_lines)
+                text_file.close()
+        
+            #we no longer need to use these so to save memory get rid of them
+        del b64decode, decompress, EnvBuilder, match, sub
+        
+        #run command and output to print
+        try:
+            print_log("this might take a while!")
+            print_log("running command: '" + UpgradePip + "'")
+            process = run(UpgradePip, cwd=WORKING_DIR, shell=True, check=True, encoding="UTF-8")
+            print_log("running command: '" + InstallRequirements + "'")
+            process = run(InstallRequirements, cwd=WORKING_DIR, shell=True, check=True, encoding="UTF-8")
+            if not process.stdout == '':
+                print_log(process.stdout)
+        except Exception as exception:
+            print_exception(exception)
+        
+        #open a %CWD%\\%virtual_dir%\\Scripts\\activate_this.py as a TextIOWrapper
+        with open(openteab.venv_activate_this) as f:
+            # read file and compile the code for exec and execute it in script
+            exec(compile(f.read(), activatorpy, 'exec'), dict(__file__=activatorpy))
+        #check if we are now in a virtual enviroment!
+        if not sys.prefix != (getattr(sys, "base_prefix", None) or getattr(sys, "real_prefix", None) or sys.prefix):
+            #throw error message
+            print_exception("WE ARE NOT IN A VIRTUAL ENVIROMENT PLEASE CONTANCT THE DEVS!")
+            exit()
+        else:
+            print_log("WE ARE IN A VIRTUAL ENVIROMENT")
+    else:
+        try:
+            print_log("this might take a while!")
+            print_log("running command: '" + UpgradePip + "'")
+            run(UpgradePip, cwd=WORKING_DIR, shell=True, check=True, encoding="UTF-8")
+            print_log("running command: '" + InstallRequirements + "'")
+            run(InstallRequirements, cwd=WORKING_DIR, shell=True, check=True, encoding="UTF-8")
+        except Exception as exception:
+            print_exception(exception)
+    del run
+active_venv()
+del sys, os
+#### END OF VENV LOADER ###
+
+
+
+### END OF PRE-INIT
+
 import traceback
 import pygetwindow as gw
 from tkinter import messagebox, filedialog, simpledialog
@@ -9,8 +181,7 @@ import logging
 import shutil, glob
 import atexit
 import difflib
-import json, requests, time, os, threading, re, webbrowser, random, keyboard, pyautogui, easyocr, autoit, psutil, \
-    locale, win32gui, win32process, win32con, ctypes, queue, mouse, sys
+import json, requests, time, os, threading, re, webbrowser, random, keyboard, pyautogui, easyocr, autoit, psutil, locale, win32gui, win32process, win32con, ctypes, queue, mouse, sys
 
 current_ver = "v2.1.0-hotfix1"
 
@@ -18,8 +189,8 @@ def apply_fast_flags(version=None, force=False):
     config_paths = [
         "config.json",
         "source_code/config.json",
-        os.path.join(os.path.dirname(__file__), "config.json"),
-        os.path.join(os.path.dirname(__file__), "source_code/config.json")
+        FROM_TOP("config.json"),
+        FROM_TOP("source_code/config.json")
     ]
     config = {}
     config_path = None
@@ -41,7 +212,7 @@ def apply_fast_flags(version=None, force=False):
 
     applied_versions = set(config.get("fastflags_applied_versions", []))
 
-    versions_directory = os.path.expandvars(r"%localappdata%\Roblox\Versions")
+    versions_directory = os.path.expandvars(roblox.versions)
     if not os.path.exists(versions_directory):
         logging.error("Roblox Versions directory not found: %s", versions_directory)
         print(f"Roblox versions directory not found: {versions_directory}")
@@ -415,7 +586,7 @@ class BiomePresence():
         except locale.Error:
             locale.setlocale(locale.LC_ALL, '')
 
-        self.logs_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'Roblox', 'logs')
+        self.logs_dir = roblox.logs
         self.config = self.load_config()
         self.config["enable_auto_craft"] = False
         raw_webhook = self.config.get("webhook_url", "")
@@ -502,15 +673,14 @@ class BiomePresence():
         self.last_snowman_claim = datetime.min
         self._obby_running = False
         self.last_obby_claim = datetime.min
-        screenshot_dir = os.path.join(os.getcwd(), "images")
+        screenshot_dir = openteab.screenshots
         try:
-            if os.path.exists(screenshot_dir):
-                for fname in os.listdir(screenshot_dir):
-                    if fname.startswith(("merchant_", "aura_", "inventory_", "quest", "remote_")):
-                        try:
-                            os.remove(os.path.join(screenshot_dir, fname))
-                        except Exception:
-                            pass
+            for fname in os.listdir(screenshot_dir):
+                if fname.startswith(("merchant_", "aura_", "inventory_", "quest", "remote_")):
+                    try:
+                        os.remove(os.path.join(screenshot_dir, fname))
+                    except Exception:
+                        pass
         except Exception as e:
             try:
                 self.error_logging(e, "Error deleting merchant images on startup")
@@ -542,59 +712,10 @@ class BiomePresence():
         return []
 
     def load_biome_data(self):
-        url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/biomes_data.json"
-        eventUrl = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/active_events.json"
+        url = openteab.biome_url
+        eventUrl = openteab.biome_eventUrl
 
-        default_biome_data = {
-            "NORMAL": {
-                "color": "0xffffff",
-                "thumbnail_url": "fuck is this for??"
-            },
-            "WINDY": {
-                "color": "0x9ae5ff",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/WINDY.png"
-            },
-            "RAINY": {
-                "color": "0x027cbd",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/RAINY.png"
-            },
-            "SNOWY": {
-                "color": "0xDceff9",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/SNOWY.png"
-            },
-            "SAND STORM": {
-                "color": "0x8F7057",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/SAND%20STORM.png"
-            },
-            "HELL": {
-                "color": "0xff4719",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/HELL.png"
-            },
-            "STARFALL": {
-                "color": "0x011ab7",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/STARFALL.png"
-            },
-            "CORRUPTION": {
-                "color": "0x6d32a8",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/CORRUPTION.png"
-            },
-            "NULL": {
-                "color": "0x838383",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/NULL.png"
-            },
-            "GLITCHED": {
-                "color": "0xbfff00",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/GLITCHED.png"
-            },
-            "DREAMSPACE": {
-                "color": "0xea9dda",
-                "thumbnail_url": "https://maxstellar.github.io/biome_thumb/DREAMSPACE.png"
-            },
-            "CYBERSPACE": {
-                "color": "0x0A1A3D",
-                "thumbnail_url": "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/images/CYBERSPACE.png"
-            }
-        }
+        default_biome_data = openteab.default_biome_data
 
         try:
             r = requests.get(url, timeout=10)
@@ -638,17 +759,14 @@ class BiomePresence():
 
     def initialize_paths_and_files(self):
         try:
-            paths_folder = os.path.join(os.getcwd(), "paths")
-            if not os.path.exists(paths_folder):
-                os.makedirs(paths_folder, exist_ok=True)
-                print(f"Created paths folder: {paths_folder}")
+            paths_folder = openteab.paths
             
-            snowman_file = os.path.join(paths_folder, "snowman.json")
+            snowman_file = openteab.snowman_path
             if not os.path.exists(snowman_file):
                 print("Downloading snowman.json file...")
                 try:
                     response = requests.get(
-                        "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/paths/snowman.json",
+                        openteab.snowman_path_url,
                         timeout=15
                     )
                     response.raise_for_status()
@@ -662,12 +780,12 @@ class BiomePresence():
                     print(f"Warning: Could not download snowman.json: {e}")
             else:
                 print(f"snowman.json already exists at: {snowman_file}")
-            obby_file = os.path.join(paths_folder, "obby.json")
+            obby_file = openteab.obby_path
             if not os.path.exists(obby_file):
                 print("Downloading obby.json file...")
                 try:
                     response = requests.get(
-                        "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/paths/obby.json",
+                        openteab.obby_path_url,
                         timeout=15
                     )
                     response.raise_for_status()
@@ -714,7 +832,7 @@ class BiomePresence():
             return ""
 
     def load_notice_tab(self):
-        url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/noticetabcontents.txt"
+        url = openteab.notice_tab_contents_coteab
         data = ""
         try:
             r = requests.get(url, timeout=10)
@@ -940,8 +1058,8 @@ class BiomePresence():
             config_paths = [
                 "config.json",
                 "source_code/config.json",
-                os.path.join(os.path.dirname(__file__), "config.json"),
-                os.path.join(os.path.dirname(__file__), "source_code/config.json")
+                FROM_TOP("config.json"),
+                FROM_TOP("source_code/config.json")
             ]
 
             for path in config_paths:
@@ -1251,7 +1369,7 @@ class BiomePresence():
         if dont_ask_again: return
 
         try:
-            response = requests.get("https://api.github.com/repos/xVapure/Noteab-Macro/releases/latest")
+            response = requests.get(openteab.update_url_api_coteab)
             response.raise_for_status()
             latest_release = response.json()
             latest_version = latest_release['tag_name']
@@ -1425,7 +1543,7 @@ class BiomePresence():
             font=('Segoe UI', 9, 'underline')
         )
         placeholder_link.pack(anchor="w", pady=(0, 15))
-        placeholder_link.bind("<Button-1>", lambda e: webbrowser.open_new("https://www.youtube.com/watch?v=y3gocH9Hd18"))
+        placeholder_link.bind("<Button-1>", lambda e: webbrowser.open_new(openteab.macro_calibration_youtube_long))
 
         calib_frame = ttk.Frame(scrollable_frame)
         calib_frame.pack(fill="x", padx=10)
@@ -1510,7 +1628,7 @@ class BiomePresence():
         link = ttk.Label(frame, text="Setup tutorial", foreground="royalblue", cursor="hand2")
         link.configure(font=('Segoe UI', 9, 'underline'))
         link.pack(anchor="w", padx=8, pady=(6,0))
-        link.bind("<Button-1>", lambda e: webbrowser.open_new("https://youtu.be/y3gocH9Hd18"))
+        link.bind("<Button-1>", lambda e: webbrowser.open_new(openteab.macro_calibration_youtube_short))
         self.remote_status_label = ttk.Label(frame, text="Bot: stopped")
         self.remote_status_label.pack(anchor="w", padx=8, pady=(6,0))
         self.remote_command_queue = queue.Queue()
@@ -2345,7 +2463,7 @@ class BiomePresence():
             if not urls:
                 return
             content = ""
-            icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+            icon_url = openteab.icon_url
             current_utc_time = datetime.now(timezone.utc)
             current_utc_time.replace(microsecond=0).isoformat(timespec='seconds') + 'Z'
             current_utc_time = str(current_utc_time)
@@ -2395,7 +2513,7 @@ class BiomePresence():
     def create_donations_tab(self, frame):
         t1 = "Our projects are 100% free to use and you're allowed to recycle any fraction of our code with proper credits. However, if you want to support our team, you can help us by purchasing any of the gamepasses below :)"
         t2 = """It helps us out a lot mentally, any donations above 100 Robux will get you on the appreciation list below, 500 Robux will give you the permission to leave a special message on the appreciation list (must be sfw though) & 1000 Robux will give you access to early Coteab macro releases (beta vers) :D Normally we will check donations history daily, but if your Roblox username isn't displayed here please DM "@criticize." on Discord. The appreciation list also takes up to 5 minutes to update due to Github."""
-        link = "https://www.roblox.com/games/18203398779/Medival-castle#!/store"
+        link = openteab.donations.link
         ttk.Label(frame, text=t1, justify="left", wraplength=700).pack(padx=10, pady=(12, 6), anchor="w")
         ttk.Label(frame, text=t2, justify="left", wraplength=700).pack(padx=10, pady=(0, 6), anchor="w")
         link_label = ttk.Label(frame, text=link, foreground="royalblue", cursor="hand2", wraplength=700)
@@ -2406,7 +2524,7 @@ class BiomePresence():
         hall.pack(fill='both', expand=True, padx=5, pady=5)
         txt = ttk.Text(hall, height=14, wrap="word")
         txt.pack(fill="both", expand=True, padx=8, pady=8)
-        url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/appreciation_list.txt"
+        url = openteab.donations.url
         try:
             r = requests.get(url, timeout=10)
             r.raise_for_status()
@@ -2550,7 +2668,7 @@ class BiomePresence():
             messagebox.showerror("Background", f"Failed to clear background: {e}")
 
     def open_customize_biome_embed(self):
-        event_url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/main/active_events.json"
+        event_url = openteab.event_url
         try:
             r = requests.get(event_url, timeout=5)
             r.raise_for_status()
@@ -2588,7 +2706,7 @@ class BiomePresence():
             vars_map[biome] = (cvar, tvar)
             ttk.Entry(inner, textvariable=cvar, width=20).grid(row=i, column=1, padx=6, pady=6)
             ttk.Entry(inner, textvariable=tvar, width=60).grid(row=i, column=2, padx=6, pady=6)
-        link = "https://www.rapidtables.com/convert/color/index.html"
+        link = openteab.event_link_rapidtables
         link_label = ttk.Label(win, text="Click here to get colour code", foreground="royalblue", cursor="hand2")
         link_label.configure(font=('Segoe UI', 9, 'underline'))
         link_label.pack(side="bottom", pady=8)
@@ -2975,7 +3093,7 @@ class BiomePresence():
     def create_notice_tab(self, frame):
         txt = ttk.Text(frame, height=14, wrap="word")
         txt.pack(fill="both", expand=True, padx=5, pady=(5, 90))
-        notice_url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/noticetabcontents.txt"
+        notice_url = openteab.notice_tab_contents_coteab
         try:
             r = requests.get(notice_url, timeout=10)
             r.raise_for_status()
@@ -2988,7 +3106,7 @@ class BiomePresence():
         bottom_frame = ttk.Frame(frame)
         bottom_frame.pack(side="bottom", fill="x", padx=5, pady=5)
 
-        discord_link = "https://discord.gg/fw6q274Nrt"
+        discord_link = openteab.coteab_discord
         discord_label = ttk.Label(
             bottom_frame,
             text="JOIN OUR DEVELOPMENT SERVER TO KEEP IN TOUCH WITH THE LATEST 'C'OTEAB MACRO UPDATES, WE OFFER AN ACTIVE COMMUNITY AND MACRO SUPPORT! (CLICK HERE)",
@@ -3004,12 +3122,18 @@ class BiomePresence():
         update_label.pack(side="top", fill="x", anchor="w", padx=5)
 
         def _open_releases(_=None):
-            webbrowser.open_new("https://github.com/xVapure/Noteab-Macro/releases/latest")
+            webbrowser.open_new(openteab.update_url_coteab)
+            
+        def _open_releases_version(version):
+            if version < "2.1.0h1":
+                webbrowser.open_new(openteab.update_url_coteab)
+            else:
+                webbrowser.open_new(openteab.update_url)
 
         def _check_latest():
             current_version = current_ver
             try:
-                response = requests.get("https://api.github.com/repos/xVapure/Noteab-Macro/releases/latest", timeout=10)
+                response = requests.get(openteab.update_url_api_coteab, timeout=10)
                 response.raise_for_status()
                 latest_release = response.json()
                 latest_version = latest_release.get("tag_name") or latest_release.get("name") or ""
@@ -3294,7 +3418,7 @@ class BiomePresence():
             if not urls:
                 return
             content = ""
-            icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+            icon_url = openteab.icon_url
             current_utc_time = datetime.now(timezone.utc)
             current_utc_time.replace(microsecond=0).isoformat(timespec='seconds') + 'Z'
             current_utc_time = str(current_utc_time)
@@ -3534,7 +3658,7 @@ class BiomePresence():
             time.sleep(0.1)
             autoit.mouse_up("right")
             time.sleep(0.2)
-            snowman_file = os.path.join("paths", "snowman.json")
+            snowman_file = openteab.snowman_path
             if os.path.exists(snowman_file):
                 self._run_snowman_macro(snowman_file)
             
@@ -3695,7 +3819,7 @@ class BiomePresence():
             autoit.mouse_up("right")
             time.sleep(0.2)
 
-            obby_file = os.path.join("paths", "obby.json")
+            obby_file = openteab.obby_path
             if os.path.exists(obby_file):
                 self._run_obby_macro(obby_file)
 
@@ -4349,7 +4473,7 @@ class BiomePresence():
         except Exception:
             pass
 
-    def _potion_thread_launcher(self, file_name, potions_directory="crafting_files_do_not_open", stop_after=None):
+    def _potion_thread_launcher(self, file_name, potions_directory=openteab.crafting_files, stop_after=None):
         try:
             path = os.path.join(potions_directory, file_name)
             with open(path, "r", encoding="utf-8") as f:
@@ -4938,8 +5062,7 @@ class BiomePresence():
         update_glitch()
 
     def create_credit_tab(self, credits_frame):
-        current_dir = os.getcwd()
-        images_dir = os.path.join(current_dir, "images")
+        images_dir = openteab.images
         credit_paths = [
             os.path.join(images_dir, "tea.png"),
             os.path.join(images_dir, "devteam.png"),
@@ -5012,7 +5135,7 @@ class BiomePresence():
         discord_label = ttk.Label(noteab_frame, text="""Join the Coteab Discord server!!!""", foreground="royalblue", cursor="hand2")
         discord_label.configure(font=('Segoe UI', 9, 'underline'))
         discord_label.pack()
-        discord_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://discord.gg/fw6q274Nrt"))
+        discord_label.bind("<Button-1>", lambda e: webbrowser.open_new(openteab.coteab_discord))
 
         github_label = ttk.Label(noteab_frame, text="""GitHub: Coteab Macro!""", foreground="#03cafc", cursor="hand2")
         github_label.pack()
@@ -5272,8 +5395,7 @@ class BiomePresence():
         private_server_pattern = r"^https:\/\/www\.roblox\.com\/games\/(\d+)\/?$"
         second_ps_pattern = r"^https:\/\/www\.roblox\.com\/games\/(\d+)\/?$\?privateServerLinkCode=\w+$"
 
-        return re.match(share_pattern, link) or re.match(private_server_pattern, link) or re.match(second_ps_pattern,
-                                                                                                   link)
+        return re.match(share_pattern, link) or re.match(private_server_pattern, link) or re.match(second_ps_pattern, link)
 
     def show_reconnect_info(self):
         messagebox.showinfo(
@@ -5442,7 +5564,7 @@ class BiomePresence():
             return file.readlines()
 
     def load_auras_json(self):
-        url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/auras.json"
+        url = openteab.auras_json
         try:
             r = requests.get(url, timeout=10)
             r.raise_for_status()
@@ -6338,7 +6460,7 @@ class BiomePresence():
             if not urls:
                 return
             content = ""
-            icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+            icon_url = openteab.icon_url
             current_utc_time = datetime.now(timezone.utc)
             current_utc_time.replace(microsecond=0).isoformat(timespec='seconds') + 'Z'
             current_utc_time = str(current_utc_time)
@@ -6370,7 +6492,7 @@ class BiomePresence():
             if not urls:
                 return
             content = ""
-            icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+            icon_url = openteab.icon_url
             current_utc_time = datetime.now(timezone.utc)
             current_utc_time.replace(microsecond=0).isoformat(timespec='seconds') + 'Z'
             current_utc_time = str(current_utc_time)
@@ -6875,7 +6997,7 @@ class BiomePresence():
         current_utc_time = datetime.now(timezone.utc)
         current_utc_time.replace(microsecond=0).isoformat(timespec='seconds') + 'Z'
         current_utc_time = str(current_utc_time)
-        icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+        icon_url = openteab.icon_url
         content = ""
         if event_type == "start" and biome in rare_biomes:
             content = "@everyone"
@@ -6912,11 +7034,7 @@ class BiomePresence():
         if not urls:
             print("Webhook URL is missing/not included in the config.json")
             return
-        merchant_thumbnails = {
-            "Mari": "https://raw.githubusercontent.com/vexthecoder/OysterDetector/refs/heads/main/mari.png",
-            "Jester": "https://raw.githubusercontent.com/vexthecoder/OysterDetector/refs/heads/main/jester.png",
-            "Rin": "https://raw.githubusercontent.com/vexthecoder/OysterDetector/refs/heads/main/rin.png"
-        }
+        merchant_thumbnails = openteab.merchant_thumbnails
         if merchant_name == "Mari":
             ping_id = self.mari_user_id_var.get() if hasattr(self, 'mari_user_id_var') else self.config.get("mari_user_id", "")
             ping_enabled = self.ping_mari_var.get() if hasattr(self, 'ping_mari_var') else self.config.get("ping_mari", False)
@@ -6931,7 +7049,7 @@ class BiomePresence():
             ping_enabled = False
         content = f"<@{ping_id}>" if (source == 'logs', 'ocr' and ping_enabled and ping_id) else ""
         ps_link = self.config.get("private_server_link", "").replace("\n", "")
-        icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+        icon_url = openteab.icon_url
         current_utc_time = datetime.now(timezone.utc)
         current_utc_time.replace(microsecond=0).isoformat(timespec='seconds') + 'Z'
         current_utc_time = str(current_utc_time)
@@ -7018,11 +7136,11 @@ class BiomePresence():
         if not urls:
             print("Webhook URL is missing/not included in the config.json")
             return
-        eden_image = "https://raw.githubusercontent.com/vexthecoder/OysterDetector/refs/heads/main/eden.png"
+        eden_image = openteab.eden_thumbnail
         aura_user_id = self.aura_user_id_var.get() if hasattr(self, 'aura_user_id_var') else self.config.get(
             "aura_user_id", "")
         content = f"<@{aura_user_id}>" if aura_user_id else ""
-        icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+        icon_url = openteab.icon_url
         embed = {
             "title": "Eden Detected!",
             "description": f"The Devourer of the Void, Eden has appeared somewhere in The Limbo.",
@@ -7047,7 +7165,7 @@ class BiomePresence():
         if not urls:
             print("Webhook URL is missing/not included in the config.json")
             return
-        icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+        icon_url = openteab.icon_url
         ping_minimum = int(self.config.get("ping_minimum", "100000"))
         color = 0xffffff
         if rarity is not None:
@@ -7117,7 +7235,7 @@ class BiomePresence():
                 return
             default_color = 3066993 if "started" in status.lower() else 15158332
             embed_color = color if color is not None else default_color
-            icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+            icon_url = openteab.icon_url
             if "started" in status.lower():
                 n = len(urls)
                 status = f"{status} ({n} webhook{'s' if n != 1 else ''} active)"
@@ -7136,7 +7254,7 @@ class BiomePresence():
                 "fields": [
                     {
                         "name": "Join our Discord:",
-                        "value": "https://discord.gg/fw6q274Nrt",
+                        "value": openteab.coteab_discord,
                         "inline": False
                     }
                 ]
@@ -7157,7 +7275,7 @@ class BiomePresence():
             urls = self.get_webhook_list()
             if not urls:
                 return
-            icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+            icon_url = openteab.icon_url
             current_utc_time = datetime.now(timezone.utc)
             current_utc_time.replace(microsecond=0).isoformat(timespec='seconds') + 'Z'
             current_utc_time = str(current_utc_time)
@@ -7178,7 +7296,7 @@ class BiomePresence():
                     },
                     {
                         "name": "Join our Discord:",
-                        "value": "https://discord.gg/fw6q274Nrt",
+                        "value": openteab.coteab_discord,
                         "inline": False
                     }
                 ]
