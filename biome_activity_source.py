@@ -1152,7 +1152,7 @@ class BiomePresence():
                     if hasattr(self, "potion_file_var"):
                         self.potion_file_var.set(config.get("potion_last_file", ""))
                 try:
-                    self._refresh_potion_files("crafting_files_do_not_open")
+                    self._refresh_potion_files(openteab.crafting_files)
                 except Exception:
                     pass
             except Exception:
@@ -4043,7 +4043,7 @@ class BiomePresence():
         enable_aura_screenshot_check.grid(row=6, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
     def create_potion_craft_tab(self, frame):
-        potions_directory = "crafting_files_do_not_open"
+        potions_directory = openteab.crafting_files
         os.makedirs(potions_directory, exist_ok=True)
         frame_label = ttk.LabelFrame(frame, text="Auto Potion Crafting")
         frame_label.pack(fill='both', expand=True, padx=5, pady=5)
@@ -4251,7 +4251,7 @@ class BiomePresence():
         except Exception:
             pass
 
-    def _refresh_potion_files(self, potions_directory="crafting_files_do_not_open"):
+    def _refresh_potion_files(self, potions_directory=openteab.crafting_files):
         try:
             os.makedirs(potions_directory, exist_ok=True)
             files = sorted([f for f in os.listdir(potions_directory) if f.lower().endswith(".json")])
@@ -4379,12 +4379,12 @@ class BiomePresence():
         except Exception:
             pass
 
-        pot_dir = "crafting_files_do_not_open"
+        pot_dir = openteab.crafting_files
         try:
             os.makedirs(pot_dir, exist_ok=True)
         except Exception:
             pass
-        pot_dir = "crafting_files_do_not_open"
+        
         os.makedirs(pot_dir, exist_ok=True)
 
         try:
@@ -4637,7 +4637,7 @@ class BiomePresence():
                                 current_file = order[idx % len(order)]
                                 if not current_file:
                                     break
-                                t = threading.Thread(target=self._potion_thread_launcher, args=(current_file, "crafting_files_do_not_open", interval), daemon=True)
+                                t = threading.Thread(target=self._potion_thread_launcher, args=(current_file, openteab.crafting_files, interval), daemon=True)
                                 t.start()
                                 t.join()
                                 idx += 1
