@@ -181,6 +181,8 @@ import logging
 import shutil, glob
 import atexit
 import difflib
+#moved in base_support.py
+import itertools
 import json, requests, time, os, threading, re, webbrowser, random, keyboard, pyautogui, easyocr, autoit, psutil, locale, win32gui, win32process, win32con, ctypes, queue, mouse, sys
 
 current_ver = "v2.1.0-hotfix2"
@@ -405,6 +407,7 @@ def fuzzy_match_any(text, candidates, threshold=0.6):
                 pass
     return False
 
+#moved to base_support.py #L66
 def fuzzy_correct_item_name(text, mapping, threshold=0.6):
     try:
         import difflib
@@ -454,6 +457,7 @@ def fuzzy_correct_item_name(text, mapping, threshold=0.6):
 
     return text
 
+#moved to base_support.py #L115
 class SnippingWidget:
     def __init__(self, root, config_key=None, callback=None):
         self.root = root
@@ -508,8 +512,8 @@ class SnippingWidget:
 
             if self.callback:
                 self.callback(region)
-import itertools
-
+                
+#moved to base_support.py #L494
 class ActionScheduler:
     def __init__(self, owner, worker_name="ActionScheduler"):
         self.owner = owner

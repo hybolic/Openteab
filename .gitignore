@@ -1,2 +1,7 @@
 /openteab/.python
 config.json
+macro_logs.txt
+error_logs.txt
+/openteab/frontend/node_modules
+/openteab/__pycache__
+/openteab/main/__pycache__
