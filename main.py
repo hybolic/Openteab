@@ -165,6 +165,9 @@ def active_venv():
             print_exception(exception)
     del run
 active_venv()
+
+#TODO: add compiler for frontend
+
 del sys, os
 #### END OF VENV LOADER ###
 
@@ -190,12 +193,24 @@ from openteab.globals import openteab
 
 # i added this so we can easily change macro version upon releases without having to change multiple back-end & front-end behaviours
 # for future people that is reading the open source code, hello :p
-current_version = "v2.1.2"
+current_version = "v2.1.4"
 os.environ["COTEAB_MACRO_VERSION"] = current_version
-# UPDATE_LATEST_RELEASE_API_URL = "https://api.github.com/repos/xVapure/Noteab-Macro/releases/latest"
-# os.environ["COTEAB_UPDATE_API_URL"] = UPDATE_LATEST_RELEASE_API_URL
-# os.environ["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"] = "--disable-gpu --no-sandbox" # disable gpu for webview2
-# os.environ["WEBKIT_DISABLE_COMPOSITING_MODE"] = "0" # disable gpu for webkit
+UPDATE_LATEST_RELEASE_API_URL = openteab.update_url_api_coteab
+os.environ["COTEAB_UPDATE_API_URL"] = UPDATE_LATEST_RELEASE_API_URL
+os.environ["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"] = (
+    "--disable-gpu "
+    "--disable-gpu-compositing "
+    "--disable-software-rasterizer "
+    "--disable-features=HardwareMediaKeyHandling,msWebOOUI,msPdfOOUI "
+    "--no-sandbox "
+)
+os.environ["WEBKIT_DISABLE_COMPOSITING_MODE"] = "1"  # disable gpu for webkit
+_wv2_user_data = os.path.join(
+    os.environ.get("LOCALAPPDATA", os.path.expanduser("~")),
+    "CoteabMacro", "WebView2UserData"
+)
+os.makedirs(_wv2_user_data, exist_ok=True)
+os.environ["WEBVIEW2_USER_DATA_FOLDER"] = _wv2_user_data
 
 try: psutil.Process().nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)
 except Exception: pass
@@ -220,6 +235,17 @@ mimetypes.add_type("application/javascript", ".js")
 
 def get_base_path():
     return sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(os.path.abspath(__file__))
+
+
+# def _get_frontend_dist_dirs() -> list[str]:
+#     base_path = get_base_path()
+#     if getattr(sys, "frozen", False):
+#         return [os.path.join(base_path, "lib", "dist")]
+#     return [
+#         os.path.join(base_path, "frontend", "dist"),
+#         os.path.join(base_path, "lib", "dist"),
+#     ]
+
 
 def get_frontend_entry_url() -> str:
     dist_dir   = os.path.join(openteab.frontend, "dist")
@@ -295,6 +321,10 @@ class Api:
         return load_config()
 
     def save_config(self, config_data):
+        prev_anti_afk = False
+        if self._tracker and hasattr(self._tracker, "config") and isinstance(self._tracker.config, dict):
+            prev_anti_afk = bool(self._tracker.config.get("anti_afk", False))
+
         normalized_config = dict(config_data) if isinstance(config_data, dict) else dict(self.get_config())
         biome_names = []
         if self._tracker and hasattr(self._tracker, "biome_data") and isinstance(self._tracker.biome_data, dict):
@@ -313,11 +343,27 @@ class Api:
             self._tracker.config.update(normalized_config)
             if 'webhook_url' in normalized_config:
                 self._tracker.webhook_urls = normalized_config['webhook_url']
+                try:
+                    if hasattr(self._tracker, "refresh_active_webhook_channels"):
+                        self._tracker.refresh_active_webhook_channels(force=True)
+                except Exception:
+                    pass
             if self._tracker.detection_running:
                 if self._is_fishing_mode_enabled():
                     self._start_fishing_worker()
                 else:
                     self._stop_fishing_worker()
+
+                # Trigger anti-AFK immediately when toggled ON at runtime.
+                if (not prev_anti_afk) and bool(self._tracker.config.get("anti_afk", False)):
+                    try:
+                        threading.Thread(
+                            target=self._tracker.perform_anti_afk_action,
+                            name="Anti-AFK Immediate",
+                            daemon=True,
+                        ).start()
+                    except Exception:
+                        pass
 
     def import_config(self):
         try:
@@ -349,6 +395,11 @@ class Api:
                 self._tracker.config.update(imported)
                 if 'webhook_url' in imported:
                     self._tracker.webhook_urls = imported['webhook_url']
+                try:
+                    if hasattr(self._tracker, "refresh_active_webhook_channels"):
+                        self._tracker.refresh_active_webhook_channels(force=True)
+                except Exception:
+                    pass
 
             return {"success": True, "config": imported}
         except json.JSONDecodeError:
@@ -557,6 +608,7 @@ class Api:
                         run_br_sc_sequence_cb=self._run_fishing_br_sc_sequence,
                         run_merchant_sequence_cb=self._run_fishing_merchant_sequence,
                         activate_roblox_cb=self._tracker.activate_roblox_window,
+                        close_chat_fn=self._tracker.close_chat_if_open,
                         runtime_state=self._fishing_runtime_state,
                     )
                 except Exception as e:
@@ -631,19 +683,63 @@ class Api:
             )
 
     def _request_biome_confirm(self, biome: str):
-        if not self._window:
-            return None
         self._biome_confirm_evt.clear()
         self._biome_confirm_result = None
+        popup_window = None
         try:
-            print(f"[BiomeConfirm] Sending confirm request for biome: {biome}")
-            self._window.evaluate_js(
-                f"if(window.onBiomeConfirmRequest) window.onBiomeConfirmRequest({json.dumps(biome)});"
+            print(f"[BiomeConfirm] Spawning independent popup for biome: {biome}")
+            base = self._get_frontend_url()
+            sep = "&" if "?" in base else "?"
+            url = f"{base}{sep}window=biome_confirm&biome={biome}"
+
+            popup_w, popup_h = 480, 400
+            try:
+                import win32api
+                screen_w = win32api.GetSystemMetrics(0)
+                screen_h = win32api.GetSystemMetrics(1)
+                popup_x = (screen_w - popup_w) // 2
+                popup_y = (screen_h - popup_h) // 2
+            except Exception:
+                popup_x, popup_y = 300, 200
+
+            popup_window = webview.create_window(
+                title=f"⚠️ Rare Biome Detected — {biome} ⚠️",
+                url=url,
+                js_api=self,
+                width=popup_w,
+                height=popup_h,
+                x=popup_x,
+                y=popup_y,
+                resizable=False,
+                on_top=True,
             )
+
+            try:
+                def _flash():
+                    time.sleep(1.0)
+                    try:
+                        hwnd = win32gui.FindWindow(None, f"⚠️ Rare Biome Detected — {biome} ⚠️")
+                        if hwnd:
+                            win32gui.FlashWindowEx(hwnd, win32con.FLASHW_ALL | win32con.FLASHW_TIMERNOFG, 5, 0)
+                    except Exception:
+                        pass
+                threading.Thread(target=_flash, daemon=True).start()
+            except Exception:
+                pass
+
         except Exception as e:
-            print(f"[BiomeConfirm] evaluate_js failed: {e}")
+            print(f"[BiomeConfirm] Failed to create popup window: {e}")
             return None
+
         responded = self._biome_confirm_evt.wait(timeout=10)
+
+        # Close the popup window
+        try:
+            if popup_window:
+                popup_window.destroy()
+        except Exception:
+            pass
+
         if not responded:
             return None
         return self._biome_confirm_result
@@ -759,6 +855,17 @@ class Api:
              pass
          return []
 
+    def check_obby_path_exists(self):
+        try:
+            obby_file = openteab.obby_path
+            if not os.path.isfile(obby_file):
+                return False
+            with open(obby_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return bool(data)
+        except Exception:
+            return False
+
     def replay_recording(self):
          if self._tracker:
              return self._tracker.replay_path_recording("obby", save_dir="paths")
@@ -836,7 +943,7 @@ def launch_app(api_class, tracker: Optional[BiomeTracker] = None) -> BiomeTracke
         height=550,
         min_size=(550, 500),
         resizable=True,
-        frameless=False,
+        frameless=False
     )
     api.set_window(window)
 
@@ -868,7 +975,7 @@ def launch_app(api_class, tracker: Optional[BiomeTracker] = None) -> BiomeTracke
 
     try:
         tracker.append_log("Starting pywebview with edgechromium")
-        webview.start(debug=True, gui="edgechromium", private_mode=True)
+        webview.start(debug=False, gui="edgechromium", private_mode=False)
     except Exception as e:
         print(f"[Webview] edgechromium failed: {e}")
         tracker.append_log(f"edgechromium backend failed: {e} — retrying with default backend...")

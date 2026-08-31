@@ -43,9 +43,17 @@ class Openteab:
     """ ./config_folder/config.json """
     frontend      = None
     """ ./openteab/frontend """
+
     class easyocr:
+        # URLs
+        image_url = "https://i.postimg.cc/FKtqPgBg/teleporter.png"
+        ''' https://i.postimg.cc/FKtqPgBg/teleporter.png '''
+        
         endpoints = ["https://cn-api.easyocr.org/ocr", "https://api.easyocr.org/ocr"]
-        ''' ["https://cn-api.easyocr.org/ocr", "https://api.easyocr.org/ocr"] '''
+        ''' [ "https://cn-api.easyocr.org/ocr", "https://api.easyocr.org/ocr" ] '''
+
+        api_url = endpoints[0]
+        ''' endpoints[0] = "https://api.easyocr.org/ocr" '''
     
     def __FROM_TOP__(self, path):
         paths_folder = join_path(self.cwd, path)

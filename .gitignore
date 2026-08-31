@@ -1,7 +1,22 @@
+#ignore virtual enviroment folder
 /openteab/.python
+
+#ignore logs
+/macro_logs.txt
+/error_logs.txt
+
+#remove configs
 config.json
-macro_logs.txt
-error_logs.txt
+/*/config.json
+
+#remove node_modules folder
 /openteab/frontend/node_modules
+
+#remove __pycache__ folders from github
 /openteab/__pycache__
 /openteab/main/__pycache__
+
+#remove files used for quick compare
+/temp.py
+/temp.json
+/temp.txt

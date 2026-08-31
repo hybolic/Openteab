@@ -5,7 +5,7 @@ import threading
 import autoit
 import keyboard
 import mouse
-#untoched
+
 class RecorderMixin:
     # ── Camera alignment ─────────────────────────────────────────────
     def align_camera(self):
