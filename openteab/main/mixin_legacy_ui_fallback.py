@@ -1,14 +1,14 @@
-
+#TODO: go over and modify to Openteab with new ui stuff
 from .base_support import *
-from openteab.globals import openteab
 
 class GuiMixin:
     def init_gui(self):
         selected_theme = self.config.get("selected_theme", "solar")
         icon_path = openteab.icon_path
 
+
         self.root = ttk.Window(themename=selected_theme)
-        self.set_title_threadsafe(f"Openteab Macro {current_ver} (Idle)")
+        self.set_title_threadsafe(f"Coteab Macro {current_ver} (Idle)")
         self.root.geometry("1000x700")
         self.root.minsize(900, 600)
         try:
@@ -260,7 +260,7 @@ class GuiMixin:
             font=('Segoe UI', 9, 'underline')
         )
         placeholder_link.pack(anchor="w", pady=(0, 15))
-        placeholder_link.bind("<Button-1>", lambda e: webbrowser.open_new(openteab.macro_calibration_youtube_long))
+        placeholder_link.bind("<Button-1>", lambda e: webbrowser.open_new("https://www.youtube.com/watch?v=s2S7Bncx9ns"))
 
         calib_frame = ttk.Frame(scrollable_frame)
         calib_frame.pack(fill="x", padx=10)
@@ -345,7 +345,7 @@ class GuiMixin:
         link = ttk.Label(frame, text="Setup tutorial", foreground="royalblue", cursor="hand2")
         link.configure(font=('Segoe UI', 9, 'underline'))
         link.pack(anchor="w", padx=8, pady=(6,0))
-        link.bind("<Button-1>", lambda e: webbrowser.open_new(openteab.macro_calibration_youtube_long))
+        link.bind("<Button-1>", lambda e: webbrowser.open_new("https://www.youtube.com/watch?v=s2S7Bncx9ns"))
         self.remote_status_label = ttk.Label(frame, text="Bot: stopped")
         self.remote_status_label.pack(anchor="w", padx=8, pady=(6,0))
         self.remote_command_queue = queue.Queue()
@@ -365,7 +365,7 @@ class GuiMixin:
     def create_donations_tab(self, frame):
         t1 = "Our projects are 100% free to use and you're allowed to recycle any fraction of our code with proper credits. However, if you want to support our team, you can help us by purchasing any of the gamepasses below :)"
         t2 = """It helps us out a lot mentally, any donations above 100 Robux will get you on the appreciation list below, 500 Robux will give you the permission to leave a special message on the appreciation list (must be sfw though) & 1000 Robux will give you access to early Coteab macro releases (beta vers) :D Normally we will check donations history daily, but if your Roblox username isn't displayed here please DM "@criticize." on Discord. The appreciation list also takes up to 5 minutes to update due to Github."""
-        link = openteab.donations.link
+        link = "https://www.roblox.com/games/18203398779/Medival-castle#!/store"
         ttk.Label(frame, text=t1, justify="left", wraplength=700).pack(padx=10, pady=(12, 6), anchor="w")
         ttk.Label(frame, text=t2, justify="left", wraplength=700).pack(padx=10, pady=(0, 6), anchor="w")
         link_label = ttk.Label(frame, text=link, foreground="royalblue", cursor="hand2", wraplength=700)
@@ -376,7 +376,7 @@ class GuiMixin:
         hall.pack(fill='both', expand=True, padx=5, pady=5)
         txt = ttk.Text(hall, height=14, wrap="word")
         txt.pack(fill="both", expand=True, padx=8, pady=8)
-        url = openteab.donations.url
+        url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/appreciation_list.txt"
         try:
             r = requests.get(url, timeout=10)
             r.raise_for_status()
@@ -445,7 +445,7 @@ class GuiMixin:
     def create_notice_tab(self, frame):
         txt = ttk.Text(frame, height=14, wrap="word")
         txt.pack(fill="both", expand=True, padx=5, pady=(5, 90))
-        notice_url = openteab.notice_tab_contents
+        notice_url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/noticetabcontents.txt"
         try:
             r = requests.get(notice_url, timeout=10)
             r.raise_for_status()
@@ -458,7 +458,7 @@ class GuiMixin:
         bottom_frame = ttk.Frame(frame)
         bottom_frame.pack(side="bottom", fill="x", padx=5, pady=5)
 
-        discord_link = openteab.coteab_discord
+        discord_link = "https://discord.gg/fw6q274Nrt"
         discord_label = ttk.Label(
             bottom_frame,
             text="JOIN OUR DEVELOPMENT SERVER TO KEEP IN TOUCH WITH THE LATEST 'C'OTEAB MACRO UPDATES, WE OFFER AN ACTIVE COMMUNITY AND MACRO SUPPORT! (CLICK HERE)",
@@ -474,12 +474,12 @@ class GuiMixin:
         update_label.pack(side="top", fill="x", anchor="w", padx=5)
 
         def _open_releases(_=None):
-            webbrowser.open_new(openteab.update_url)
+            webbrowser.open_new("https://github.com/xVapure/Noteab-Macro/releases/latest")
 
         def _check_latest():
             current_version = current_ver
             try:
-                response = requests.get(openteab.update_url_api, timeout=10)
+                response = requests.get("https://api.github.com/repos/xVapure/Noteab-Macro/releases/latest", timeout=10)
                 response.raise_for_status()
                 latest_release = response.json()
                 latest_version = latest_release.get("tag_name") or latest_release.get("name") or ""
@@ -995,6 +995,7 @@ class GuiMixin:
         self.glitch_effect()
 
     def create_credit_tab(self, credits_frame):
+        current_dir = os.getcwd()
         images_dir = openteab.images
         credit_paths = [
             os.path.join(images_dir, "tea.png"),
@@ -1068,11 +1069,11 @@ class GuiMixin:
         discord_label = ttk.Label(noteab_frame, text="""Join the Coteab Discord server!!!""", foreground="royalblue", cursor="hand2")
         discord_label.configure(font=('Segoe UI', 9, 'underline'))
         discord_label.pack()
-        discord_label.bind("<Button-1>", lambda e: webbrowser.open_new(openteab.coteab_discord))
+        discord_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://discord.gg/fw6q274Nrt"))
 
-        github_label = ttk.Label(noteab_frame, text="""GitHub: Openteab Macro!""", foreground="#03cafc", cursor="hand2")
+        github_label = ttk.Label(noteab_frame, text="""GitHub: Coteab Macro!""", foreground="#03cafc", cursor="hand2")
         github_label.pack()
-        github_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/hybolic/Openteab"))
+        github_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/xVapure/Noteab-Macro"))
 
         if maxstellar_image:
             ttk.Label(maxstellar_frame, image=maxstellar_image).pack(pady=5)

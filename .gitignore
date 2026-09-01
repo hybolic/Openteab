@@ -8,18 +8,15 @@
 /openteab/logs
 
 #remove configs
-config.json
-/*/config.json
+**/config.json
 
 #remove node_modules folder
 /openteab/frontend/node_modules
 
 #remove __pycache__ folders from github
-/__pycache__
-/openteab/__pycache__
-/openteab/main/__pycache__
+**/__pycache__/*
 
 #remove files used for quick compare
-/temp.py
-/temp.json
-/temp.txt
+**/temp.py
+**/temp.json
+**/temp.txt

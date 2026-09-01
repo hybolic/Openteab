@@ -1,0 +1,9 @@
+If you having issue of macro only show black/white screen:
+
+1. Go to https://developer.microsoft.com/en-us/microsoft-edge/webview2/?form=MA13LH#download
+2. Choose 'Fixed Version'
+3. Remember to configure 'Select Architecture' as x64 (depends on your PC bit 32-64 bit)
+4. Download and extract the .cab file (using 7-Zip or WinRAR)
+5. Move the extracted 'Microsoft.WebView2.FixedVersionRuntime...' folder directly into this folder.
+
+The macro will automatically detect it on the next launch and should resolve your issue!

@@ -252,3 +252,13 @@ def PreLaunch():
 #### END NPM ####
 PreLaunch()
 del PreLaunch
+
+from openteab.main.base_support import CalibrationManager, rare_biomes
+
+import mimetypes
+from http.server import SimpleHTTPRequestHandler, HTTPServer
+
+#fix stupid module error
+mimetypes.add_type("application/javascript", ".js")
+# mimetypes.add_type("application/javascript", ".ts")
+# mimetypes.add_type("application/javascript", ".tsx")

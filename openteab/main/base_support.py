@@ -13,6 +13,7 @@ import itertools
 import zipfile, subprocess, tempfile
 import keyboard as kb
 import json, requests, time, os, threading, re, webbrowser, random, keyboard, pyautogui, autoit, psutil, locale, win32gui, win32process, win32con, ctypes, queue, mouse, sys, hashlib, winocr, asyncio, win32api, traceback
+from openteab.globals import openteab, roblox
 
 
 current_ver = os.environ.get("OPENTEAB_MACRO_VERSION", "v2.1.0-hotfix2")
@@ -466,7 +467,9 @@ class CalibrationManager:
                     else:
                         value = [region[0], region[1], region[2], region[3]]
 
-                    if self._tracker and hasattr(self._tracker, 'config'):
+                    _is_virtual = config_key.startswith("egg_click_failsafe_")
+
+                    if not _is_virtual and self._tracker and hasattr(self._tracker, 'config'):
                         self._tracker.config[config_key] = value
                         if self._save_fn:
                             self._save_fn(self._tracker.config)

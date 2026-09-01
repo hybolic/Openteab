@@ -2133,9 +2133,9 @@ class BiomePresence():
                             except Exception:
                                 pass
                             try:
-                                if self.check_roblox_procs():
+                                if roblox.check_roblox_procs():
                                     try:
-                                        self.terminate_roblox_processes()
+                                        roblox.terminate_roblox_processes()
                                     except Exception:
                                         pass
                             except Exception:
@@ -2317,7 +2317,7 @@ class BiomePresence():
                 return
             if getattr(self, "macro_idle_mode_var", None) and self.macro_idle_mode_var.get():
                 return
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
             self.activate_roblox_window()
             search_bar = self.config.get("search_bar", [855, 358])
@@ -2374,7 +2374,7 @@ class BiomePresence():
                 return
             if getattr(self, "macro_idle_mode_var", None) and self.macro_idle_mode_var.get():
                 return
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
             self.activate_roblox_window()
             aura_menu = self.config.get("aura_menu", [0, 0])
@@ -3464,7 +3464,7 @@ class BiomePresence():
             if not getattr(self, "auto_claim_quests_var", None) or not self.auto_claim_quests_var.get():
                 return
             if getattr(self, "enable_potion_crafting_var", None) and self.enable_potion_crafting_var.get(): return
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
             self.activate_roblox_window()
             quest_menu = self.config.get("quest_menu", [0, 0])
@@ -3618,7 +3618,7 @@ class BiomePresence():
         try:
             if not getattr(self, "enable_snowman_var", None) or not self.enable_snowman_var.get():
                 return
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
             
             self._snowman_running = True
@@ -3775,7 +3775,7 @@ class BiomePresence():
         try:
             if not getattr(self, "enable_obby_var", None) or not self.enable_obby_var.get():
                 return
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
 
             self._obby_running = True
@@ -3893,7 +3893,7 @@ class BiomePresence():
         try:
             if not getattr(self, "auto_claim_quests_var", None):
                 pass
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
             for _ in range(4):
                 if not self.detection_running:
@@ -5897,7 +5897,7 @@ class BiomePresence():
 
         while self.detection_running:
             try:
-                if not self.check_roblox_procs():
+                if not roblox.check_roblox_procs():
                     self._pause_timer_for_disconnect("Roblox instance closed!")
                     time.sleep(4.5)
 
@@ -5910,7 +5910,7 @@ class BiomePresence():
                             for attempt in range(current_attempt, max_retries + 1):
                                 if not self.detection_running:
                                     break
-                                self.terminate_roblox_processes()
+                                roblox.terminate_roblox_processes()
                                 self.send_webhook_status(f"Reconnecting to your server. hold on bro", color=0xffff00)
                                 self.set_title_threadsafe(
                                     f"""Coteab Macro {current_ver} (Reconnecting)""")
@@ -5919,7 +5919,7 @@ class BiomePresence():
                                 except Exception:
                                     pass
                                 time.sleep(36)
-                                if self.check_roblox_procs():
+                                if roblox.check_roblox_procs():
                                     self.send_webhook_status("Roblox opened. Loading into the games...", color=0x4aff65)
                                     self.has_sent_disconnected_message = False
                                     if not self.reconnect_check_start_button():
@@ -5930,14 +5930,14 @@ class BiomePresence():
                                     self._resume_timer_after_reconnect()
                                     break
                                 time.sleep(1)
-                            if attempt == max_retries and not self.check_roblox_procs():
-                                self.terminate_roblox_processes()
+                            if attempt == max_retries and not roblox.check_roblox_procs():
+                                roblox.terminate_roblox_processes()
                                 self.send_webhook_status("Max retries reached. Reconnecting to public server.",
                                                          color=0xff0000)
                     else:
-                        while self.detection_running and not self.check_roblox_procs():
+                        while self.detection_running and not roblox.check_roblox_procs():
                             time.sleep(1)
-                        if self.check_roblox_procs():
+                        if roblox.check_roblox_procs():
                             self._resume_timer_after_reconnect()
                 else:
                     time.sleep(0.5)
@@ -6012,7 +6012,7 @@ class BiomePresence():
         print(f"Attempting fallback reconnect from attempt {current_attempt}...")
         self.reconnecting_state = True
 
-        self.terminate_roblox_processes()
+        roblox.terminate_roblox_processes()
         self.check_disconnect_loop(current_attempt)
         self.reconnecting_state = False
 
@@ -6361,7 +6361,7 @@ class BiomePresence():
                 interval_min = 5.0
             if (datetime.now() - getattr(self, "last_aura_screenshot_time", datetime.min)) < timedelta(minutes=interval_min):
                 return
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
             self.activate_roblox_window()
             aura_menu = self.config.get("aura_menu", [0, 0])
@@ -6407,7 +6407,7 @@ class BiomePresence():
                 interval_min = 5.0
             if (datetime.now() - getattr(self, "last_inventory_screenshot_time", datetime.min)) < timedelta(minutes=interval_min):
                 return
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
             self.activate_roblox_window()
             search_bar = self.config.get("search_bar", [855, 358])
@@ -6911,13 +6911,11 @@ class BiomePresence():
                 inventory_click_delay = int(self.config.get("inventory_click_delay", "0")) / 1000.0
                 time.sleep(7 + inventory_click_delay)
 
-                screenshot_dir = os.path.join(os.getcwd(), "images")
+                screenshot_dir = openteab.screenshots
                 os.makedirs(screenshot_dir, exist_ok=True)
 
                 item_screenshot = pyautogui.screenshot()
-                screenshot_path = os.path.join(screenshot_dir,
-                                               f"merchant_{merchant_name.lower()}_{int(current_time)}.png")
-                item_screenshot.save(screenshot_path)
+                screenshot_path = openteab.save_screenshot(image=item_screenshot, file=f"merchant_{merchant_name.lower()}_{int(current_time)}.png")
 
                 self.send_merchant_webhook(merchant_name, screenshot_path, source='ocr')
                 self.last_merchant_sent[(merchant_name, 'ocr')] = current_time
@@ -7468,7 +7466,7 @@ class BiomePresence():
     def perform_anti_afk_action(self):
         try:
             if not getattr(self, "anti_afk_var", None) or not self.anti_afk_var.get(): return
-            if not self.check_roblox_procs(): return
+            if not roblox.check_roblox_procs(): return
             try:
                 hwnd_before = win32gui.GetForegroundWindow()
                 title_before = win32gui.GetWindowText(hwnd_before)

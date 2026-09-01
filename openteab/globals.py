@@ -1,10 +1,200 @@
-from os import getcwd, makedirs, getenv
+from os import getcwd, makedirs, getenv, getpid
 from os.path import join as join_path, exists as path_exists
-
+from win32gui import GetForegroundWindow, GetWindowText, GetWindowLong, IsWindowVisible, IsWindowEnabled, EnumWindows
+from win32process import GetWindowThreadProcessId,GetWindowThreadProcessId
+from psutil import Process, process_iter, TimeoutExpired, NoSuchProcess, AccessDenied, ZombieProcess
+from ctypes import windll, byref, c_ulong
+from win32con import GWL_STYLE, WS_CAPTION
+from pygetwindow import getWindowsWithTitle, getAllTitles
+from keyboard import press_and_release
+from PIL import Image
+from pyautogui import screenshot
+from typing import Callable
 
 class Roblox:
+    def __init__(self):
+        pass
     logs = join_path(getenv("LOCALAPPDATA"), "Roblox", "logs")
     versions = join_path(getenv("LOCALAPPDATA"), "Roblox", "Versions")
+    
+    def activate_roblox_window(self):
+        hwnd = None
+        try:
+            hwnds = self._find_roblox_hwnds()
+            if hwnds:
+                hwnd = hwnds[0]
+                self._focus_window_hwnd(hwnd, max_attempts=10, sleep_between=0.2)
+        except Exception as e:
+            print(f"[activate_roblox_window] hwnd path failed: {e}")
+
+        if hwnd is None:
+            # fallback
+            try:
+                for title in getAllTitles():
+                    if "Roblox" in title:
+                        win = getWindowsWithTitle(title)[0]
+                        win.activate()
+                        try:
+                            hwnd = win._hWnd
+                        except Exception:
+                            pass
+                        break
+            except Exception as e:
+                print(f"[activate_roblox_window] gw fallback failed: {e}")
+
+        if hwnd is None:
+            print("Roblox window not found.")
+            return
+
+        # Auto fullscreen
+        if (
+            self.config.get("auto_roblox_fullscreen", False)
+            and not getattr(self, "_roblox_fullscreened", False)
+        ):
+            try:
+                style = GetWindowLong(hwnd, GWL_STYLE)
+                has_caption = bool(style & WS_CAPTION)
+                if has_caption:
+                    time.sleep(0.5)
+                    fg = GetForegroundWindow()
+                    if fg == hwnd:
+                        press_and_release("f11")
+                        time.sleep(0.3)
+                        self.append_log("[Roblox] Roblox is now on fullscreen.")
+                    else:
+                        self.append_log("[Roblox] Roblox is not in foreground.")
+                self._roblox_fullscreened = True
+            except Exception as e:
+                print(f"[activate_roblox_window] fullscreen failed: {e}")
+
+    def _find_roblox_hwnds(self):
+        pids = set()
+        try:
+            current_user = Process().username()
+            current_user_norm = str(current_user or "").strip().lower()
+        except Exception:
+            current_user = None
+            current_user_norm = ""
+        try:
+            for proc in process_iter(['pid', 'name', 'username']):
+                try:
+                    proc_name = str(proc.info.get('name') or "")
+                    if proc_name not in ['RobloxPlayerBeta.exe', 'Windows10Universal.exe']:
+                        continue
+
+                    proc_user_norm = str(proc.info.get('username') or "").strip().lower()
+                    if current_user is not None and current_user_norm and proc_user_norm and proc_user_norm != current_user_norm:
+                        continue
+
+                    pid = proc.info.get('pid')
+                    if pid is not None:
+                        pids.add(pid)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        hwnds = []
+        try:
+            def enum_cb(hwnd, lparam):
+                try:
+                    if not IsWindowVisible(hwnd) or not IsWindowEnabled(hwnd):
+                        return True
+                    tid, pid = GetWindowThreadProcessId(hwnd)
+                    if pid in pids:
+                        hwnds.append(hwnd)
+                except Exception:
+                    pass
+                return True
+
+            EnumWindows(enum_cb, None)
+        except Exception:
+            pass
+        return hwnds
+
+    def is_roblox_focused(self):
+        kernel32 = windll.kernel32
+        try:
+            hwnd = GetForegroundWindow()
+            if not hwnd: return False
+            try:
+                _, fg_pid = GetWindowThreadProcessId(hwnd)
+                if fg_pid:
+                    my_session = c_ulong()
+                    kernel32.ProcessIdToSessionId(getpid(), byref(my_session))
+                    their_session = c_ulong()
+                    kernel32.ProcessIdToSessionId(fg_pid, byref(their_session))
+                    if my_session.value != their_session.value: return False
+            except Exception: pass
+            title = (GetWindowText(hwnd) or "").lower()
+            if "roblox" in title: return True
+            try:
+                _, pid = GetWindowThreadProcessId(hwnd)
+                if pid:
+                    proc = Process(pid)
+                    pname = (proc.name() or "").lower()
+                    if "roblox" in pname: return True
+            except Exception: pass
+            return False
+        except Exception: return False
+
+    def check_roblox_procs(self):
+        try:
+            current_user = Process().username()
+            current_user_norm = str(current_user or "").strip().lower()
+            running_processes = process_iter(['pid', 'name', 'username'])
+            roblox_processes = []
+
+            for proc in running_processes:
+                proc_name = str(proc.info.get('name') or "")
+                if proc_name not in ['RobloxPlayerBeta.exe', 'Windows10Universal.exe']:
+                    continue
+
+                proc_user_norm = str(proc.info.get('username') or "").strip().lower()
+                if current_user_norm and proc_user_norm and proc_user_norm != current_user_norm:
+                    continue
+
+                roblox_processes.append(proc.info)
+
+            if roblox_processes:
+                try:
+                    hwnds = self._find_roblox_hwnds()
+                    if not hwnds: return False
+                except Exception: pass
+                return True
+
+        except Exception as e:
+            print(e, "Error in check_roblox_procs function.")
+
+        return False  # no Roblox processes are found
+
+    def terminate_roblox_processes(self):
+        try:
+            current_user = Process().username()
+            current_user_norm = str(current_user or "").strip().lower()
+            running_processes = process_iter(['pid', 'name', 'username'])
+            target_procs = ['RobloxPlayerBeta.exe', 'Windows10Universal.exe', 'RobloxPlayerLauncher.exe', 'RobloxCrashHandler.exe']
+
+            for proc in running_processes:
+                try:
+                    proc_info = proc.info
+                    proc_name = str(proc_info.get('name') or "")
+                    if proc_name not in target_procs: continue
+                    proc_user_norm = str(proc_info.get('username') or "").strip().lower()
+                    if current_user_norm and proc_user_norm and proc_user_norm != current_user_norm: continue
+                    print(f"Terminating process: {proc_name} (PID: {proc_info.get('pid')})")
+                    try:
+                        proc.kill()
+                        proc.wait(timeout=3)
+                    except TimeoutExpired:
+                        pass
+                except (NoSuchProcess, AccessDenied, ZombieProcess):
+                    pass
+
+        except Exception as e:
+            print(e, "Error in terminate_roblox_processes function.")
+
+
 roblox = Roblox()
 class Openteab:
     cwd = getcwd()
@@ -45,9 +235,14 @@ class Openteab:
         self.images = self._path(self.assets, "images")
         """ ./openteab/assets/images """
         self.screenshots = self._path(self.cwd, "screenshots")
+        makedirs(self.screenshots, exist_ok=True)
         """ ./screenshots """
         self.frontend = self._path(self.top_directory, "frontend")
         """ ./openteab/frontend """
+        self.frontend_public = self._path(self.frontend, "public")
+        """ ./openteab/frontend/public """
+        self.icon_path       = self._path(self.frontend_public, "NoteabBiomeTracker.ico")
+        """ ./openteab/frontend/public/NoteabBiomeTracker.ico """
 
     @staticmethod
     def _path(path_start, path):
@@ -57,6 +252,34 @@ class Openteab:
             print(f"Created paths folder: {path}")
 
         return path
+    
+    def save_screenshot(File:str, Webhook:Callable|None=None, Area:tuple[int, int, int, int]|None=None, **data):
+        path = join_path(openteab.screenshots, File)
+        if not roblox.is_roblox_focused():
+            print("Roblox not focused, skipping screenshot", type="Screenshot")
+            return None
+        else:
+            img = screenshot(Area)
+            img.save(path)
+            print(f"Saved to: {path}, exists: {path_exists(path)}")
+        if Webhook is not None:
+            try:
+                Webhook(**data, screenshot_path=path)
+            except Exception as e:
+                from inspect import currentframe
+                def namestr(obj, namespace):
+                    return [name for name in namespace if namespace[name] is obj]
+                def names_in_caller(obj, depth=2) -> list[str]:
+                    frame = currentframe()
+                    for _ in range(depth):
+                        if frame is None:
+                            return []
+                        frame = frame.f_back
+                    if frame is None:
+                        return []
+                    return namestr(obj, frame.f_locals)
+                hook_name = names_in_caller(Webhook)
+                print(f"Failed to send {hook_name}: {e}", data, type="webhook")
 
     # ------------------------------------------------------------------
     # Requirements
@@ -89,8 +312,10 @@ class Openteab:
     # Paths
     # ------------------------------------------------------------------
 
+    path_url         = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/paths/"
     snowman_path_url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/paths/snowman.json"
     obby_path_url    = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/paths/obby.json"
+
 
 
     # ------------------------------------------------------------------
@@ -118,8 +343,7 @@ class Openteab:
     macro_calibration_youtube_short = "https://youtu.be/s2S7Bncx9ns"
 
 
-    icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
-
+    icon_url  = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
 
     # ------------------------------------------------------------------
     # Donations
@@ -152,10 +376,10 @@ class Openteab:
     }
 
     eden_thumbnail = "https://raw.githubusercontent.com/vexthecoder/OysterDetector/refs/heads/main/eden.png"
-
+    egg_thumbnail  = "https://i.postimg.cc/FzRsHF7y/eggdoggo.png"
     biome_url      = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/biomes_data.json"
     biome_eventUrl = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/active_events.json"
-
+    biome_placeholder = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/images/biome_placeholder.png"
     default_biome_data = {
             "NORMAL": {
                 "color": "0xffffff",

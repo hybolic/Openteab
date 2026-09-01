@@ -1,32 +1,27 @@
 from .base_support import *
 import cv2
 import numpy as np
-from openteab.globals import openteab, roblox
+from openteab.globals import openteab, roblox, FROM_PATH
 
 class ActionsMixin:
     def initialize_paths_and_files(self):
         try:
             paths_folder = openteab.paths
-            if not os.path.exists(paths_folder):
-                os.makedirs(paths_folder, exist_ok=True)
-                self.append_log(f"Created paths folder: {paths_folder}")
+            os.makedirs(paths_folder, exist_ok=True)
 
-            obby_file = os.path.join(paths_folder, "obby.json")
-            if not os.path.exists(obby_file):
-                self.append_log("Downloading obby.json file...")
-                try:
-                    response = requests.get(
-                        openteab.obby_path_url,
-                        timeout=15
-                    )
-                    response.raise_for_status()
-                    with open(obby_file, "w", encoding="utf-8") as f:
-                        f.write(response.text)
-                    self.append_log(f"Downloaded obby.json to: {obby_file}")
-                except Exception as e:
-                    self.error_logging(e, "Failed to download obby.json file")
-            else:
-                self.append_log(f"obby.json already exists at: {obby_file}")
+            base_url = openteab.path_url
+            for filename in ["obby.json", "egg_route1.json", "egg_route2.json", "egg_route3.json"]:
+                file_path = os.path.join(paths_folder, filename)
+                if not os.path.exists(file_path):
+                    try:
+                        response = requests.get(base_url + filename, timeout=15)
+                        response.raise_for_status()
+                        open(file_path, "w", encoding="utf-8").write(response.text)
+                        self.append_log(f"Downloaded {filename}")
+                    except Exception as e:
+                        self.error_logging(e, f"Failed to download {filename}")
+                else:
+                    self.append_log(f"{filename} already exists")
         except Exception as e:
             self.error_logging(e, "Error in initialize_paths_and_files")
 
@@ -96,23 +91,14 @@ class ActionsMixin:
 
         return data
 
-    def is_roblox_focused(self):
-        try:
-            w = gw.getActiveWindow()
-            if not w:
-                return False
-            title = (w.title or "").lower()
-            return "roblox" in title
-        except Exception:
-            return False
-
     def _is_fishing_blocked(self) -> bool:
         try:
             return (
                 bool(self.is_fishing_mode_enabled())
                 and not bool(getattr(self, "_remote_running", False))
                 and not bool(getattr(self, "_fishing_br_sc_override", False))
-            )
+                and not bool(self.config.get("enable_idle_mode", False))
+            ) or bool(getattr(self, "_egg_collecting", False))
         except Exception:
             return False
 
@@ -438,11 +424,13 @@ class ActionsMixin:
                 return
             if self.config.get("enable_idle_mode", False):
                 return
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
+                return
+            if getattr(self, "_egg_collecting", False):
                 return
             
             for _ in range(4):
-                self.activate_roblox_window()
+                roblox.activate_roblox_window()
                 time.sleep(0.35)
 
             search_bar = self.config.get("search_bar", [855, 358])
@@ -470,12 +458,7 @@ class ActionsMixin:
                         pass
                 time.sleep(0.35)
             try:
-                screenshot_dir = os.path.join(os.getcwd(), "images")
-                os.makedirs(screenshot_dir, exist_ok=True)
-                filename = os.path.join(screenshot_dir, f"inventory_screenshot_{int(time.time())}.png")
-                img = pyautogui.screenshot()
-                img.save(filename)
-                self.send_inventory_screenshot_webhook(filename)
+                openteab.save_screenshot(f"inventory_screenshot_{int(time.time())}.png", self.send_inventory_screenshot_webhook)
                 self.last_inventory_screenshot_time = datetime.now()
             except Exception as e:
                 self.error_logging(e, "Error taking/sending forced inventory screenshot")
@@ -507,12 +490,12 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running or self.reconnecting_state:
                     return
-                self.activate_roblox_window()
+                roblox.activate_roblox_window()
                 time.sleep(0.15)
             while True:
                 if not self.detection_running or self.reconnecting_state:
                     return
-                if not getattr(self, "_br_sc_running", False) and not getattr(self, "_mt_running", False) and not getattr(self, "auto_pop_state", False) and not getattr(self, "on_auto_merchant_state", False) and not self.config.get("enable_potion_crafting", False):
+                if not getattr(self, "_br_sc_running", False) and not getattr(self, "_mt_running", False) and not getattr(self, "auto_pop_state", False) and not getattr(self, "on_auto_merchant_state", False) and not getattr(self, "_egg_collecting", False) and not self.config.get("enable_potion_crafting", False):
                     break
                 time.sleep(0.67)
             if menu and menu[0]:
@@ -537,7 +520,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running:
                     return
-                self.activate_roblox_window()
+                roblox.activate_roblox_window()
                 time.sleep(0.15)
             keyboard.press_and_release('esc')
             time.sleep(0.3)
@@ -562,7 +545,7 @@ class ActionsMixin:
             inventory_close = self.config.get("inventory_close_button", [1418, 298])
             amount_box = self.config.get("amount_box", [954, 429])
 
-            self.activate_roblox_window()
+            roblox.activate_roblox_window()
             time.sleep(0.15)
             self.Global_MouseClick(inventory_menu[0], inventory_menu[1])
             time.sleep(0.3 + float(self.click_delay_var.get()))
@@ -639,10 +622,12 @@ class ActionsMixin:
                 return
             if not getattr(self, "auto_claim_quests_var", None) or not self.auto_claim_quests_var.get():
                 return
-            if getattr(self, "enable_potion_crafting_var", None) and self.enable_potion_crafting_var.get(): return
-            if not self.check_roblox_procs():
+            if getattr(self, "_egg_collecting", False):
                 return
-            self.activate_roblox_window()
+            if getattr(self, "enable_potion_crafting_var", None) and self.enable_potion_crafting_var.get(): return
+            if not roblox.check_roblox_procs():
+                return
+            roblox.activate_roblox_window()
             quest_menu = self.config.get("quest_menu", [0, 0])
             quest1 = self.config.get("quest1_button", [0, 0])
             quest2 = self.config.get("quest2_button", [0, 0])
@@ -652,7 +637,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running or self._is_fishing_blocked():
                     return
-                self.activate_roblox_window()
+                roblox.activate_roblox_window()
                 if not self._sleep_with_cancel(0.15):
                     return
 
@@ -668,12 +653,7 @@ class ActionsMixin:
                     return
 
             try:
-                screenshot_dir = os.path.join(os.getcwd(), "images")
-                os.makedirs(screenshot_dir, exist_ok=True)
-                filename = os.path.join(screenshot_dir, f"quest_screenshot_{int(time.time())}.png")
-                img = pyautogui.screenshot()
-                img.save(filename)
-                self.send_quest_screenshot_webhook(filename)
+                openteab.save_screenshot(f"quest_screenshot_{int(time.time())}.png",self.send_quest_screenshot_webhook)
             except Exception as e:
                 self.error_logging(e, "Error taking/sending quest screenshot")
 
@@ -785,7 +765,8 @@ class ActionsMixin:
                     time.sleep(2)
                     continue
 
-                if (getattr(self, "_br_sc_running", False) or
+                if (getattr(self, "_egg_collecting", False) or
+                    getattr(self, "_br_sc_running", False) or
                     getattr(self, "_mt_running", False) or
                     getattr(self, "auto_pop_state", False) or
                     getattr(self, "on_auto_merchant_state", False) or
@@ -811,7 +792,7 @@ class ActionsMixin:
                 return
             if not getattr(self, "enable_obby_var", None) or not self.enable_obby_var.get():
                 return
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
 
             self._obby_running = True
@@ -822,7 +803,7 @@ class ActionsMixin:
                 if not self.detection_running or self._is_fishing_blocked() or self.auto_pop_state:
                     self._obby_running = False
                     return
-                self.activate_roblox_window()
+                roblox.activate_roblox_window()
                 if not self._sleep_with_cancel(0.15):
                     self._obby_running = False
                     return
@@ -1078,16 +1059,350 @@ class ActionsMixin:
         _release_all()
         print("[Obby] Macro finished.")
 
+    # ── Easter Egg Collection ─────────────────────────────────────────
+    def egg_collect_loop(self):
+        while self.detection_running:
+            try:
+                if self.config.get("enable_idle_mode", False):
+                    time.sleep(2)
+                    continue
+
+                if not self.config.get("collect_easter_egg", False):
+                    time.sleep(2)
+                    continue
+
+                try:
+                    interval_min = float(self.config.get("egg_collect_interval_min", "25"))
+                except Exception:
+                    interval_min = 25.0
+
+                if (datetime.now() - getattr(self, "last_egg_collect_time", datetime.min)) < timedelta(minutes=interval_min):
+                    time.sleep(2)
+                    continue
+
+    
+                self._egg_collection_pending = True
+                
+                if (getattr(self, "_br_sc_running", False) or
+                    getattr(self, "_mt_running", False) or
+                    getattr(self, "auto_pop_state", False) or
+                    getattr(self, "on_auto_merchant_state", False) or
+                    getattr(self, "_auto_merchant_running", False) or
+                    getattr(self, "_fishing_busy", False) or
+                    self.reconnecting_state or
+                    getattr(self, "_obby_running", False)):
+                    time.sleep(2)
+                    continue
+
+                # Don't collect during rare biomes
+                current_biome = str(getattr(self, "current_biome", "") or "").upper().strip()
+                if current_biome in ("GLITCHED", "DREAMSPACE", "CYBERSPACE"):
+                    time.sleep(2)
+                    continue
+
+                # Don't collect during potion crafting
+                if (getattr(self, "enable_potion_crafting_var", None)
+                    and self.enable_potion_crafting_var.get()):
+                    time.sleep(2)
+                    continue
+
+                self._egg_collecting = True
+                try:
+                    time.sleep(3.5)
+                    if self.is_fishing_mode_enabled():
+                        close_btn = self.config.get("fishing_close_button_pos", [1113, 342])
+                        if close_btn and close_btn[0]:
+                            roblox.activate_roblox_window()
+                            time.sleep(0.3)
+                            try:
+                                autoit.mouse_click("left", close_btn[0], close_btn[1], 1, speed=3)
+                            except Exception:
+                                self.Global_MouseClick(close_btn[0], close_btn[1])
+                            time.sleep(1.0)
+                    self._perform_egg_collect_impl()
+                except Exception as e:
+                    self.error_logging(e, "Error in egg_collect_loop execution")
+                finally:
+                    self._egg_collecting = False
+                    self._egg_collection_pending = False
+
+                self.last_egg_collect_time = datetime.now()
+
+            except Exception as e:
+                self.error_logging(e, "Error in egg_collect_loop")
+            time.sleep(1)
+
+    def _perform_egg_collect_impl(self):
+        try:
+            if not self.config.get("collect_easter_egg", False):
+                return
+            if not roblox.check_roblox_procs():
+                return
+
+            print("[EggCollect] Starting egg collection sequence...")
+            self.append_log("[EggCollect] Starting egg collection sequence...")
+
+            from .egg_collect import run_egg_collect_once, load_egg_config
+
+            cfg = load_egg_config(self.config)
+
+            def _should_continue():
+                return (
+                    self.detection_running
+                    and not self.reconnecting_state
+                    and not self.auto_pop_state
+                )
+
+            def _can_run():
+                try:
+                    return (
+                        self.detection_running
+                        and not self.reconnecting_state
+                        and not self.auto_pop_state
+                        and bool(self.config.get("collect_easter_egg", False))
+                    )
+                except Exception:
+                    return False
+
+            def _sleep_interruptible(seconds, poll=0.02):
+                end = time.monotonic() + max(0.0, float(seconds))
+                while time.monotonic() < end:
+                    if not _should_continue() or not _can_run():
+                        return False
+                    remaining = end - time.monotonic()
+                    if remaining <= 0:
+                        break
+                    time.sleep(min(poll, remaining))
+                return _should_continue() and _can_run()
+
+            run_egg_collect_once(
+                cfg=cfg,
+                sleep_interruptible=_sleep_interruptible,
+                should_continue=_should_continue,
+                can_run=_can_run,
+                activate_roblox_cb=roblox.activate_roblox_window,
+                close_chat_fn=lambda: self.close_chat_if_open(force=False),
+                egg_ocr_check_cb=self._perform_egg_ocr_check,
+            )
+
+        except Exception as e:
+            self.error_logging(e, "Error in _perform_egg_collect_impl")
+
+    # ── Easter Egg OCR Special Detection ──────────────────────────────
+    EGG_SPAWN_MESSAGES: list[tuple[str, str, str]] = [
+        ("Dreamer Egg (Sky Festival)",           "wait. am i still dreaming?", "1 in 2,000,000,000"),
+        ("Egg v2.0 (Y.O.L.K.E.G.G)",            "preparing protocol. do you want to be my friend?", "1 in 1,780,908,090"),
+        ("The Egg of the Sky (Eggis)",           "scanning. egg cannon charging 2000%", "1 in 1,150,000,000"),
+        ("Forest Egg (Eostre)",                  "let's have an egg hunt here!", "1 in 1,000,000,000"),
+        ("Blooming Egg (Eggore)",                "don't forget to water the small plant", "1 in 700,000,000"),
+        ("Angelic Egg (REVIVE)",                 "holy eggsus", "1 in 645,000,000"),
+        ("Andromeda Egg (Eggsistance)",           "am i in spaaaace right now?", "1 in 307,777,777"),
+        ("Either Royal Egg or Hatch Egg",        "a special egg has spawned", "1 in 80,000,000 / 1 in 40,000,000"),
+    ]
+
+    def egg_ocr_check_loop(self):
+        last_check = time.monotonic()
+        while self.detection_running:
+            try:
+                if not self.config.get("egg_ocr_detect_special", False):
+                    time.sleep(2)
+                    continue
+
+                # 25-second interval
+                if (time.monotonic() - last_check) < 25.0:
+                    time.sleep(1)
+                    continue
+
+                # Don't check during these states
+                if (self.reconnecting_state or
+                    self.auto_pop_state or
+                    getattr(self, "_egg_collecting", False) or
+                    getattr(self, "_obby_running", False) or
+                    getattr(self, "_br_sc_running", False) or
+                    getattr(self, "_mt_running", False) or
+                    getattr(self, "on_auto_merchant_state", False) or
+                    getattr(self, "_auto_merchant_running", False) or
+                    getattr(self, "_fishing_busy", False) or
+                    self._is_fishing_blocked()):
+                    time.sleep(2)
+                    continue
+
+                # Don't check during rare biomes
+                current_biome = str(getattr(self, "current_biome", "") or "").upper().strip()
+                if current_biome in ("GLITCHED", "DREAMSPACE", "CYBERSPACE"):
+                    time.sleep(2)
+                    continue
+
+                # Don't check during potion crafting
+                if (getattr(self, "enable_potion_crafting_var", None)
+                    and self.enable_potion_crafting_var.get()):
+                    time.sleep(2)
+                    continue
+
+                if not roblox.check_roblox_procs():
+                    time.sleep(2)
+                    continue
+
+                # Perform the OCR check
+                last_check = time.monotonic()
+                self._perform_egg_ocr_check()
+
+            except Exception as e:
+                self.error_logging(e, "Error in egg_ocr_check_loop")
+            time.sleep(1)
+
+    def _perform_egg_ocr_check(self):
+        try:
+            chat_box_region = self.config.get("chat_box_ocr_pos", [0, 0, 0, 0])
+            if not chat_box_region or len(chat_box_region) < 4: return
+            if chat_box_region[2] <= 0 or chat_box_region[3] <= 0: return
+
+            chat_hover = self.config.get("chat_hover_pos", [272, 252])
+            chat_ocr_region = self.config.get("chat_tab_ocr_pos", [341, 83, 210, 40])
+            chat_close = self.config.get("chat_close_button", [174, 40])
+
+            if not (chat_hover and chat_hover[0] and chat_close and chat_close[0]): return
+
+            for _ in range(3):
+                roblox.activate_roblox_window()
+                time.sleep(0.15)
+
+            sw = pyautogui.size()
+            autoit.mouse_move(sw.width // 2, sw.height // 2, speed=3)
+            time.sleep(0.6)
+            autoit.mouse_move(chat_hover[0], chat_hover[1], speed=3)
+            time.sleep(0.6)
+
+            # Check if chat is already open
+            chat_is_open = False
+            for attempt in range(1, 3):
+                tab_text = self.extract_text_with_easyocr(tuple(chat_ocr_region)).lower()
+                if fuzzy_match_any(tab_text, ["general", "server message"], threshold=0.8):
+                    chat_is_open = True
+                    break
+                if attempt < 2:
+                    time.sleep(0.35)
+
+            if not chat_is_open:
+                autoit.mouse_click("left", chat_close[0], chat_close[1], 1, speed=3)
+                time.sleep(0.8)
+
+                autoit.mouse_move(chat_hover[0], chat_hover[1], speed=3)
+                time.sleep(0.5)
+
+                for attempt in range(1, 3):
+                    tab_text = self.extract_text_with_easyocr(tuple(chat_ocr_region)).lower()
+                    if fuzzy_match_any(tab_text, ["general", "server message"], threshold=0.8):
+                        chat_is_open = True
+                        break
+                    if attempt < 2:
+                        time.sleep(0.35)
+
+            if not chat_is_open:
+                self.append_log("[EggOCR] Could not confirm chat is open. Skipping OCR check.")
+                return
+
+            text = self.extract_text_with_easyocr(tuple(chat_box_region)).lower()
+            if not text: return
+            _PLAYER_TAGS = [
+                "[fan]", "[vip]", "[vip+]", "[donator]", "[contributor]",
+                "[cm]", "[dev]", "[moderator]", "[admin]", "[owner]",
+                "[og]", "[tester]", "[youtuber]", "[rolls]"
+            ]
+            _TAG_LOOKBACK = 100
+
+            def _is_player_message(match_pos: int) -> bool:
+                start = max(0, match_pos - _TAG_LOOKBACK)
+                prefix = text[start:match_pos]
+                return any(tag in prefix for tag in _PLAYER_TAGS)
+
+            egg_spawned_pos = text.find("egg spawned")
+            if egg_spawned_pos == -1: return
+
+            all_trolled = True
+            search_start = 0
+            while True:
+                pos = text.find("egg spawned", search_start)
+                if pos == -1: break
+                if not _is_player_message(pos):
+                    all_trolled = False
+                    break
+                search_start = pos + 1
+            if all_trolled:
+                self.append_log("[EggOCR] 'egg spawned' detected but it's just some random player trolling shit...")
+                return
+
+            _EGG_FUZZY_THRESHOLD = 0.8
+            found_egg_name = None
+            found_message = None
+            found_rarity = None
+            found_match_pos = -1
+
+            for egg_name, unique_substr, aura_rarity in self.EGG_SPAWN_MESSAGES:
+                exact_pos = text.find(unique_substr)
+                if exact_pos != -1:
+                    if not _is_player_message(exact_pos):
+                        found_egg_name = egg_name
+                        found_message = unique_substr
+                        found_rarity = aura_rarity
+                        found_match_pos = exact_pos
+                        break
+                    continue
+
+                win_len = len(unique_substr)
+                if win_len > len(text): continue
+                for i in range(len(text) - win_len + 1):
+                    window = text[i:i + win_len]
+                    ratio = difflib.SequenceMatcher(None, unique_substr, window).ratio()
+                    if ratio >= _EGG_FUZZY_THRESHOLD:
+                        if not _is_player_message(i):
+                            found_egg_name = egg_name
+                            found_message = unique_substr
+                            found_rarity = aura_rarity
+                            found_match_pos = i
+                        break
+                if found_egg_name: break
+
+            if not found_egg_name:
+                found_egg_name = "Unknown Egg"
+                found_message = "egg spawned"
+                found_rarity = "Unknown"
+
+            # skip if the same egg was detected within 10 minutes (guard check :aga:)
+            _EGG_OCR_COOLDOWN_SEC = 600
+            last_egg = getattr(self, "_last_egg_ocr_found", None)
+            last_egg_time = getattr(self, "_last_egg_ocr_found_time", 0)
+            now = time.monotonic()
+            if last_egg == found_egg_name and (now - last_egg_time) < _EGG_OCR_COOLDOWN_SEC: return
+            self._last_egg_ocr_found = found_egg_name
+            self._last_egg_ocr_found_time = now
+
+            print(f"[EggOCR] Egg spawn detected: {found_egg_name} | Aura rarity: {found_rarity}")
+            self.append_log(f"[EggOCR] Egg spawn detected: {found_egg_name} | Aura rarity: {found_rarity}")
+
+            discord_user_id = str(self.config.get("egg_ocr_discord_userid", "")).strip()
+            screenshot_path = None
+            
+            try:
+                if roblox.is_roblox_focused():
+                    x, y, w, h = int(chat_box_region[0]), int(chat_box_region[1]), int(chat_box_region[2]), int(chat_box_region[3])
+                    openteab.save_screenshot(f"egg_ocr_{int(time.time())}.png", self.send_egg_ocr_webhook, (x, y, w, h), found_egg_name, found_rarity, discord_user_id)
+            except Exception as e:
+                print(f"[EggOCR] Failed to take chat screenshot: {e}")
+
+        except Exception as e:
+            self.error_logging(e, "Error in _perform_egg_ocr_check")
+
     def perform_quest_reroll(self, quest_index):
         try:
             if not getattr(self, "auto_claim_quests_var", None):
                 pass
-            if not self.check_roblox_procs():
+            if not roblox.check_roblox_procs():
                 return
             for _ in range(4):
                 if not self.detection_running:
                     return
-                self.activate_roblox_window()
+                roblox.activate_roblox_window()
                 time.sleep(0.15)
             quest_menu = self.config.get("quest_menu", [0, 0])
             quest1 = self.config.get("quest1_button", [0, 0])
@@ -1180,11 +1495,11 @@ class ActionsMixin:
             time.sleep(1)
 
 
-    def _potion_thread_launcher(self, file_name, potions_directory="crafting_files_do_not_open", stop_after=None, cancel_if=None):
+    def _potion_thread_launcher(self, file_name, potions_directory=openteab.crafting_files, stop_after=None, cancel_if=None):
         """Replicate Rust run_potion_macro: prep sequence then replay loop."""
         try:
             final_name = file_name if file_name.endswith(".json") else f"{file_name}.json"
-            path = os.path.join(os.getcwd(), potions_directory, final_name)
+            path = os.path.join(potions_directory, final_name)
             if not os.path.exists(path):
                 print(f"[Potion] File not found: {path}")
                 return
@@ -1226,7 +1541,7 @@ class ActionsMixin:
             )
             recipe_btn = self.config.get("potion_recipe_button", [0, 0])
 
-            self.activate_roblox_window()
+            roblox.activate_roblox_window()
             time.sleep(0.5)
 
             # Press F 4 times (open crafting menu)
@@ -1374,7 +1689,8 @@ class ActionsMixin:
                         if (self.reconnecting_state or self.auto_pop_state or
                             self.on_auto_merchant_state or
                             self.current_biome in ("GLITCHED", "DREAMSPACE", "CYBERSPACE") or
-                            getattr(self, '_mt_running', False)):
+                            getattr(self, '_mt_running', False) or
+                            getattr(self, '_egg_collecting', False)):
                             time.sleep(2)
                             continue
 
@@ -1692,7 +2008,7 @@ class ActionsMixin:
 
         while self.detection_running:
             try:
-                is_process_dead = not self.check_roblox_procs()
+                is_process_dead = not roblox.check_roblox_procs()
                 log_disconnect = False
                 if not is_process_dead:
                     log_disconnect = self._check_disconnect_in_logs()
@@ -1706,14 +2022,13 @@ class ActionsMixin:
                         private_server_link = self.config.get("private_server_link")
                         reconnect_deep_links = self._build_reconnect_deep_links(private_server_link)
                         if reconnect_deep_links:
-                            max_retries = 3
+                            max_retries = 4
                             for attempt in range(current_attempt, max_retries + 1):
-                                if not self.detection_running:
-                                    break
-                                self.terminate_roblox_processes()
+                                if not self.detection_running: break
+                                roblox.terminate_roblox_processes()
                                 self.send_webhook_status(f"Reconnecting to your server. hold on bro", color=0xffff00)
                                 self.set_title_threadsafe(
-                                    f"""Openteab Macro {current_ver} (Reconnecting)""")
+                                    f"""Coteab Macro {current_ver} (Reconnecting)""")
                                 launched = False
                                 launch_err = None
                                 for deep_link in reconnect_deep_links:
@@ -1725,12 +2040,21 @@ class ActionsMixin:
                                         launch_err = e
 
                                 if not launched:
-                                    if launch_err is not None:
-                                        self.error_logging(launch_err, "Failed to launch reconnect link")
+                                    if launch_err is not None: self.error_logging(launch_err, "Failed to launch reconnect link")
                                     time.sleep(2)
                                     continue
-                                time.sleep(40)
-                                if self.check_roblox_procs():
+
+                                wait_timeout = 180
+                                wait_start = time.time()
+                                roblox_opened = False
+                                while time.time() - wait_start < wait_timeout:
+                                    if not self.detection_running: break
+                                    if roblox.check_roblox_procs():
+                                        roblox_opened = True
+                                        break
+                                    time.sleep(2)
+
+                                if roblox_opened:
                                     self.send_webhook_status("Roblox opened. Loading into the games...", color=0x4aff65)
                                     self.has_sent_disconnected_message = False
                                     if not self.reconnect_check_start_button():
@@ -1742,14 +2066,18 @@ class ActionsMixin:
                                     self._disconnect_handled = False
                                     break
                                 time.sleep(1)
-                            if attempt == max_retries and not self.check_roblox_procs():
-                                self.terminate_roblox_processes()
-                                self.send_webhook_status("Max retries reached. Reconnecting to public server.",
-                                                         color=0xff0000)
+
+                            if attempt == max_retries:
+                                if not roblox.check_roblox_procs() or getattr(self, "_disconnect_handled", True):
+                                    roblox.terminate_roblox_processes()
+                                    self.send_webhook_status("Max retries reached but failed to rejoin the game. Macro stopped", color=0xff0000)
+                                    time.sleep(2)
+                                    self.stop_detection()
+                                    return
                     else:
-                        while self.detection_running and not self.check_roblox_procs():
+                        while self.detection_running and not roblox.check_roblox_procs():
                             time.sleep(1)
-                        if self.check_roblox_procs():
+                        if roblox.check_roblox_procs():
                             self._resume_timer_after_reconnect()
                             self._disconnect_handled = False
                 else:
@@ -1764,16 +2092,16 @@ class ActionsMixin:
                 f"""Openteab Macro {current_ver} (Reconnecting - In Main Menu)""")
             reconnect_start_button = self.config.get("reconnect_start_button", [954, 876])
 
-            for _ in range(5):
+            for _ in range(10):
                 if not self.detection_running: return False
-                self.activate_roblox_window()
-                time.sleep(0.4)
+                roblox.activate_roblox_window()
+                time.sleep(0.5)
 
-            deadline = time.time() + 240
+            deadline = time.time() + 600
             click_interval = 4.0
             while time.time() < deadline:
                 if not self.detection_running: return False
-                self.activate_roblox_window()
+                roblox.activate_roblox_window()
                 time.sleep(0.3)
                 self.Global_MouseClick(reconnect_start_button[0], reconnect_start_button[1])
 
@@ -1869,55 +2197,12 @@ class ActionsMixin:
         except:
             return datetime.now(timezone.utc)
 
-    def check_roblox_procs(self):
-        try:
-            current_user = psutil.Process().username()
-            current_user_norm = str(current_user or "").strip().lower()
-            running_processes = psutil.process_iter(['pid', 'name', 'username'])
-            roblox_processes = []
-
-            for proc in running_processes:
-                proc_name = str(proc.info.get('name') or "")
-                if proc_name not in ['RobloxPlayerBeta.exe', 'Windows10Universal.exe']:
-                    continue
-
-                proc_user_norm = str(proc.info.get('username') or "").strip().lower()
-                if current_user_norm and proc_user_norm and proc_user_norm != current_user_norm:
-                    continue
-
-                roblox_processes.append(proc.info)
-
-            if roblox_processes: return True
-
-        except Exception as e:
-            self.error_logging(e, "Error in check_roblox_procs function.")
-
-        return False  # no Roblox processes are found
-
-    def terminate_roblox_processes(self):
-        try:
-            current_user = psutil.Process().username()
-            running_processes = psutil.process_iter(['pid', 'name', 'username'])
-
-            for proc in running_processes:
-                if proc.info['name'] in ['RobloxPlayerBeta.exe', 'Windows10Universal.exe'] and proc.info[
-                    'username'] == current_user:
-                    print(f"Terminating process: {proc.info['name']} (PID: {proc.info['pid']})")
-                    proc.terminate()
-                    proc.wait()
-
-        except Exception as e:
-            self.error_logging(e, "Error in terminate_roblox_processes function.")
-
     def perform_periodic_inventory_screenshot_sync(self):
         try:
-            if self.config.get("enable_idle_mode", False):
-                return
-            if self._is_fishing_blocked():
-                return
+            if self.config.get("enable_idle_mode", False): return
+            if self._is_fishing_blocked(): return
             if getattr(self, "enable_potion_crafting_var", None) and self.enable_potion_crafting_var.get(): return
-            if not getattr(self, "periodical_inventory_var", None) or not self.periodical_inventory_var.get():
-                return
+            if not getattr(self, "periodical_inventory_var", None) or not self.periodical_inventory_var.get(): return
             if not self.detection_running or self.reconnecting_state: return
             try:
                 interval_min = float(self.periodical_inventory_interval_var.get())
@@ -1925,11 +2210,11 @@ class ActionsMixin:
                 interval_min = 5.0
             if (datetime.now() - getattr(self, "last_inventory_screenshot_time", datetime.min)) < timedelta(minutes=interval_min):
                 return
-            if not self.check_roblox_procs(): return
+            if not roblox.check_roblox_procs(): return
             for _ in range(4):
-                if not self.detection_running or self._is_fishing_blocked() or self.auto_pop_state:
+                if not self.detection_running or self._is_fishing_blocked() or self.auto_pop_state or getattr(self, "_egg_collecting", False):
                     return
-                self.activate_roblox_window()
+                roblox.activate_roblox_window()
                 if not self._sleep_with_cancel(0.8):
                     return
             search_bar = self.config.get("search_bar", [855, 358])
@@ -1960,12 +2245,7 @@ class ActionsMixin:
                 if not self._sleep_with_cancel(0.35):
                     return
             try:
-                screenshot_dir = os.path.join(os.getcwd(), "images")
-                os.makedirs(screenshot_dir, exist_ok=True)
-                filename = os.path.join(screenshot_dir, f"inventory_screenshot_{int(time.time())}.png")
-                img = pyautogui.screenshot()
-                img.save(filename)
-                self.send_inventory_screenshot_webhook(filename)
+                openteab.save_screenshot(f"inventory_screenshot_{int(time.time())}.png",self.send_inventory_screenshot_webhook)
                 self.last_inventory_screenshot_time = datetime.now()
             except Exception as e:
                 self.error_logging(e, "Error taking/sending inventory screenshot")
@@ -1999,8 +2279,14 @@ class ActionsMixin:
 
     def _use_br_sc_impl(self, item_name):
         self._br_sc_running = True
+        fishing_override = bool(getattr(self, "_fishing_br_sc_override", False))
         try:
             def _cancelled():
+                if fishing_override:
+                    return (
+                        not self.detection_running
+                        or self.reconnecting_state
+                    )
                 return (
                     not self.detection_running
                     or self.reconnecting_state
@@ -2010,12 +2296,20 @@ class ActionsMixin:
                     or self.config.get("enable_potion_crafting")
                     or self.current_biome in ("GLITCHED", "DREAMSPACE", "CYBERSPACE")
                     or getattr(self, "_mt_running", False)
+                    or getattr(self, "_egg_collecting", False)
                     or (getattr(self, "enable_potion_crafting_var", None) and self.enable_potion_crafting_var.get())
                 )
 
+            # When called from fishing loop
+            def _do_sleep(seconds):
+                if fishing_override:
+                    time.sleep(max(0.0, seconds))
+                    return not _cancelled()
+                return self._sleep_with_cancel(seconds)
+
             if _cancelled():
                 return
-            if not self._sleep_with_cancel(1.3):
+            if not _do_sleep(1.3):
                 return
 
             inventory_click_delay = int(self.config.get("inventory_click_delay", "0")) / 1000.0
@@ -2030,83 +2324,83 @@ class ActionsMixin:
             for _ in range(5):
                 if _cancelled():
                     return
-                self.activate_roblox_window()
-                if not self._sleep_with_cancel(0.15):
+                roblox.activate_roblox_window()
+                if not _do_sleep(0.15):
                     return
 
             print(f"Using {item_name.capitalize()}")
 
             self.Global_MouseClick(inventory_menu[0], inventory_menu[1])
-            if not self._sleep_with_cancel(0.2 + inventory_click_delay):
+            if not _do_sleep(0.2 + inventory_click_delay):
                 return
             self.Global_MouseClick(items_tab[0], items_tab[1])
-            if not self._sleep_with_cancel(0.23):
+            if not _do_sleep(0.23):
                 return
             self.Global_MouseClick(items_tab[0], items_tab[1])
-            if not self._sleep_with_cancel(0.23):
+            if not _do_sleep(0.23):
                 return
             self.Global_MouseClick(search_bar[0], search_bar[1])
-            if not self._sleep_with_cancel(0.2 + inventory_click_delay):
+            if not _do_sleep(0.2 + inventory_click_delay):
                 return
             if _cancelled():
                 return
 
             self.Global_MouseClick(search_bar[0], search_bar[1])
-            if not self._sleep_with_cancel(0.23):
+            if not _do_sleep(0.23):
                 return
             self.Global_MouseClick(search_bar[0], search_bar[1])
-            if not self._sleep_with_cancel(0.23):
+            if not _do_sleep(0.23):
                 return
             self.Global_MouseClick(search_bar[0], search_bar[1])
-            if not self._sleep_with_cancel(0.2 + inventory_click_delay):
+            if not _do_sleep(0.2 + inventory_click_delay):
                 return
             if _cancelled():
                 return
             autoit.send(item_name)
-            if not self._sleep_with_cancel(0.4 + inventory_click_delay):
+            if not _do_sleep(0.4 + inventory_click_delay):
                 return
             self.Global_MouseClick(first_item_slot[0], first_item_slot[1])
-            if not self._sleep_with_cancel(0.4 + inventory_click_delay):
+            if not _do_sleep(0.4 + inventory_click_delay):
                 return
             try:
                 if not self._ocr_first_slot_matches(item_name):
                     inventory_close_button = self.config.get("inventory_close_button", [1418, 298])
                     self.Global_MouseClick(inventory_close_button[0], inventory_close_button[1])
-                    self._sleep_with_cancel(0.15 + inventory_click_delay)
+                    _do_sleep(0.15 + inventory_click_delay)
                     return
             except Exception:
                 pass
             self.Global_MouseClick(first_item_slot[0], first_item_slot[1])
-            if not self._sleep_with_cancel(0.4 + inventory_click_delay):
+            if not _do_sleep(0.4 + inventory_click_delay):
                 return
             self.Global_MouseClick(first_item_slot[0], first_item_slot[1])
-            if not self._sleep_with_cancel(0.3 + inventory_click_delay):
+            if not _do_sleep(0.3 + inventory_click_delay):
                 return
             if _cancelled():
                 return
             self.Global_MouseClick(amount_box[0], amount_box[1])
-            if not self._sleep_with_cancel(0.16 + inventory_click_delay):
+            if not _do_sleep(0.16 + inventory_click_delay):
                 return
             autoit.send("^{a}")
-            if not self._sleep_with_cancel(0.13 + inventory_click_delay):
+            if not _do_sleep(0.13 + inventory_click_delay):
                 return
             autoit.send("{BACKSPACE}")
-            if not self._sleep_with_cancel(0.13 + inventory_click_delay):
+            if not _do_sleep(0.13 + inventory_click_delay):
                 return
             autoit.send('1')
-            if not self._sleep_with_cancel(0.13 + inventory_click_delay):
+            if not _do_sleep(0.13 + inventory_click_delay):
                 return
 
             if _cancelled():
                 return
             self.Global_MouseClick(use_button[0], use_button[1])
-            if not self._sleep_with_cancel(0.22 + inventory_click_delay):
+            if not _do_sleep(0.22 + inventory_click_delay):
                 return
 
             if _cancelled():
                 return
             self.Global_MouseClick(inventory_close_button[0], inventory_close_button[1])
-            self._sleep_with_cancel(0.22 + inventory_click_delay)
+            _do_sleep(0.22 + inventory_click_delay)
 
         except Exception as e:
             self.error_logging(e, "Error in use_br_sc function.")
@@ -2115,13 +2409,20 @@ class ActionsMixin:
 
     def Merchant_Handler(self):
         try:
+            fishing_override = bool(getattr(self, "_fishing_br_sc_override", False))
             def _cancelled():
+                if fishing_override:
+                    return (
+                        not self.detection_running
+                        or self.reconnecting_state
+                    )
                 return (
                     not self.detection_running
                     or self.reconnecting_state
                     or self.auto_pop_state
                     or self._is_fishing_blocked()
                     or self.config.get("enable_potion_crafting")
+                    or getattr(self, "_egg_collecting", False)
                     or self.current_biome in ("GLITCHED", "DREAMSPACE", "CYBERSPACE")
                 )
 
@@ -2210,15 +2511,15 @@ class ActionsMixin:
                 jester_candidates = ["Jester", "Dester", "Jostor", "Jestor", "Joster", "Destor", "Doster", "Dostor", "jester", "dester"]
                 rin_candidates = ["Rin", "R1n", "R1N", "RIN", "RiN"]
                 try:
-                    if fuzzy_match_any(merchant_name_text, mari_candidates, threshold=0.6):
+                    if fuzzy_match_any(merchant_name_text, mari_candidates, threshold=0.75):
                         merchant_name = "Mari"
                         print("[Merchant Detection]: Mari name found!")
                         break
-                    elif fuzzy_match_any(merchant_name_text, jester_candidates, threshold=0.6):
+                    elif fuzzy_match_any(merchant_name_text, jester_candidates, threshold=0.75):
                         merchant_name = "Jester"
                         print("[Merchant Detection]: Jester name found!")
                         break
-                    elif fuzzy_match_any(merchant_name_text, rin_candidates, threshold=0.6):
+                    elif fuzzy_match_any(merchant_name_text, rin_candidates, threshold=0.75):
                         merchant_name = "Rin"
                         print("[Merchant Detection]: Rin name found!")
                         break
@@ -2255,16 +2556,10 @@ class ActionsMixin:
                 inventory_click_delay = int(self.config.get("inventory_click_delay", "0")) / 1000.0
                 if not self._sleep_with_cancel(7 + inventory_click_delay):
                     return
-
-                screenshot_dir = os.path.join(os.getcwd(), "images")
-                os.makedirs(screenshot_dir, exist_ok=True)
-
-                item_screenshot = pyautogui.screenshot()
-                screenshot_path = os.path.join(screenshot_dir,
-                                               f"merchant_{merchant_name.lower()}_{int(current_time)}.png")
-                item_screenshot.save(screenshot_path)
-
-                self.send_merchant_webhook(merchant_name, screenshot_path, source='ocr')
+                from collections import namedtuple
+                merchant_webhook_data = namedtuple("merchante_webhook_data", ("merchant_name", "source"), defaults=("",'ocr'))
+                data == (merchant_webhook_data(merchant_name=merchant_name))
+                openteab.save_screenshot(f"merchant_{merchant_name.lower()}_{int(current_time)}.png", self.send_merchant_webhook, merchant_name=merchant_name)
                 self.last_merchant_sent[(merchant_name, 'ocr')] = current_time
 
                 if "merchant_counts" not in self.config:
@@ -2340,9 +2635,9 @@ class ActionsMixin:
                 self.last_merchant_interaction = current_time
                 return True
             else:    
-                print("No merchant detected.")
-                if not self._sleep_with_cancel(0.67):
-                    return False
+                merchant_close_button = self.config.get("merchant_close_button", [1086, 342])
+                self.Global_MouseClick(merchant_close_button[0], merchant_close_button[1], click=3)
+                if not self._sleep_with_cancel(0.67): return False
                 self.Global_MouseClick(merchant_open_button[0], merchant_open_button[1], click=3)
                 return False
 
@@ -2383,9 +2678,9 @@ class ActionsMixin:
             return True
         return False
 
-    def close_chat_if_open(self):
+    def close_chat_if_open(self, force=False):
         try:
-            if not self.config.get("auto_chat_close", False): return
+            if not force and not self.config.get("auto_chat_close", False): return
 
             chat_hover = self.config.get("chat_hover_pos", [272, 252])
             chat_ocr_region = self.config.get("chat_tab_ocr_pos", [341, 83, 210, 40])
@@ -2396,7 +2691,7 @@ class ActionsMixin:
                 return
 
             for _ in range(3):
-                self.activate_roblox_window()
+                roblox.activate_roblox_window()
                 time.sleep(0.2)
 
             sw = pyautogui.size()
@@ -2426,103 +2721,6 @@ class ActionsMixin:
 
         except Exception as e:
             self.error_logging(e, "close_chat_if_open error")
-
-
-    def activate_roblox_window(self):
-        hwnd = None
-        try:
-            hwnds = self._find_roblox_hwnds()
-            if hwnds:
-                hwnd = hwnds[0]
-                self._focus_window_hwnd(hwnd, max_attempts=10, sleep_between=0.2)
-        except Exception as e:
-            print(f"[activate_roblox_window] hwnd path failed: {e}")
-
-        if hwnd is None:
-            # fallback
-            try:
-                for title in gw.getAllTitles():
-                    if "Roblox" in title:
-                        win = gw.getWindowsWithTitle(title)[0]
-                        win.activate()
-                        try:
-                            hwnd = win._hWnd
-                        except Exception:
-                            pass
-                        break
-            except Exception as e:
-                print(f"[activate_roblox_window] gw fallback failed: {e}")
-
-        if hwnd is None:
-            print("Roblox window not found.")
-            return
-
-        # Auto fullscreen
-        if (
-            self.config.get("auto_roblox_fullscreen", False)
-            and not getattr(self, "_roblox_fullscreened", False)
-        ):
-            try:
-                style = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
-                has_caption = bool(style & win32con.WS_CAPTION)
-                if has_caption:
-                    time.sleep(0.5)
-                    fg = win32gui.GetForegroundWindow()
-                    if fg == hwnd:
-                        import keyboard as kb
-                        kb.press_and_release("f11")
-                        time.sleep(0.3)
-                        self.append_log("[Roblox] Roblox is now on fullscreen.")
-                    else:
-                        self.append_log("[Roblox] Roblox is not in foreground.")
-                self._roblox_fullscreened = True
-            except Exception as e:
-                print(f"[activate_roblox_window] fullscreen failed: {e}")
-
-    def _find_roblox_hwnds(self):
-        pids = set()
-        try:
-            current_user = psutil.Process().username()
-            current_user_norm = str(current_user or "").strip().lower()
-        except Exception:
-            current_user = None
-            current_user_norm = ""
-        try:
-            for proc in psutil.process_iter(['pid', 'name', 'username']):
-                try:
-                    proc_name = str(proc.info.get('name') or "")
-                    if proc_name not in ['RobloxPlayerBeta.exe', 'Windows10Universal.exe']:
-                        continue
-
-                    proc_user_norm = str(proc.info.get('username') or "").strip().lower()
-                    if current_user is not None and current_user_norm and proc_user_norm and proc_user_norm != current_user_norm:
-                        continue
-
-                    pid = proc.info.get('pid')
-                    if pid is not None:
-                        pids.add(pid)
-                except Exception:
-                    pass
-        except Exception:
-            pass
-
-        hwnds = []
-        try:
-            def enum_cb(hwnd, lparam):
-                try:
-                    if not win32gui.IsWindowVisible(hwnd) or not win32gui.IsWindowEnabled(hwnd):
-                        return True
-                    tid, pid = win32process.GetWindowThreadProcessId(hwnd)
-                    if pid in pids:
-                        hwnds.append(hwnd)
-                except Exception:
-                    pass
-                return True
-
-            win32gui.EnumWindows(enum_cb, None)
-        except Exception:
-            pass
-        return hwnds
 
     def _focus_window_hwnd(self, hwnd, max_attempts=20, sleep_between=0.25):
         attempt = 0
@@ -2598,13 +2796,13 @@ class ActionsMixin:
                 if not getattr(self, "anti_afk_var", None) or not self.anti_afk_var.get():
                     return
 
-                if not self.check_roblox_procs():
+                if not roblox.check_roblox_procs():
                     time.sleep(1.0)
                     continue
 
                 target = None
                 while self.detection_running and not target:
-                    roblox_hwnds = self._find_roblox_hwnds()
+                    roblox_hwnds = roblox._find_roblox_hwnds()
                     if not roblox_hwnds:
                         for t in gw.getAllTitles():
                             if "Roblox" in (t or ""):
@@ -2650,7 +2848,7 @@ class ActionsMixin:
                     focused = self._focus_window_hwnd(target, max_attempts=4, sleep_between=0.35)
                     if focused:
                         break
-                    refreshed_hwnds = self._find_roblox_hwnds()
+                    refreshed_hwnds = roblox._find_roblox_hwnds()
                     if refreshed_hwnds:
                         target = refreshed_hwnds[0]
                     time.sleep(0.35)
@@ -2668,7 +2866,7 @@ class ActionsMixin:
                             focused = self._focus_window_hwnd(target, max_attempts=4, sleep_between=0.35)
                             if focused:
                                 break
-                            refreshed_hwnds = self._find_roblox_hwnds()
+                            refreshed_hwnds = roblox._find_roblox_hwnds()
                             if refreshed_hwnds:
                                 target = refreshed_hwnds[0]
                             time.sleep(0.35)
@@ -2761,6 +2959,8 @@ class ActionsMixin:
                 break
             try:
                 if self.is_fishing_mode_enabled():
+                    continue
+                if getattr(self, "_egg_collecting", False):
                     continue
                 self.perform_anti_afk_action()
             except Exception as e:
@@ -2878,6 +3078,7 @@ class ActionsMixin:
                 or bool(getattr(self, "on_auto_merchant_state", False))
                 or bool(getattr(self, "_mt_running", False))
                 or bool(getattr(self, "_br_sc_running", False))
+                or bool(getattr(self, "_egg_collecting", False))
             ):
                 time.sleep(0.3)
 
@@ -2904,7 +3105,7 @@ class ActionsMixin:
                 for _ in range(5):
                     if not self.detection_running or self.reconnecting_state:
                         return
-                    self.activate_roblox_window()
+                    roblox.activate_roblox_window()
                     time.sleep(0.35)
 
                 time.sleep(0.57)
