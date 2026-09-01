@@ -5,9 +5,11 @@ interface UpdateBannerProps {
     version: string;
     downloadUrl: string;
     updateStatus: string | null;
+    onDismiss?: () => void;
+    onDontAskAgain?: () => Promise<void>;
 }
 
-export default function UpdateBanner({ version, downloadUrl, updateStatus }: UpdateBannerProps) {
+export default function UpdateBanner({ version, downloadUrl, updateStatus, onDismiss, onDontAskAgain }: UpdateBannerProps) {
     const [isUpdatingLocal, setIsUpdatingLocal] = useState(false);
 
     const handleUpdate = async () => {
@@ -43,7 +45,7 @@ export default function UpdateBanner({ version, downloadUrl, updateStatus }: Upd
                             ? `Updated! ${doneFilename || "Restarting"}`
                             : isUpdating
                                 ? "Downloading update..."
-                                : `New Coteab Macro ${version} is available!!!`
+                                : `New Openteab Macro ${version} is available!!!`
                     }
                 </span>
             </div>
@@ -51,6 +53,12 @@ export default function UpdateBanner({ version, downloadUrl, updateStatus }: Upd
                 <div className="update-banner-actions">
                     <button className="update-btn update-btn-primary" onClick={handleUpdate}>
                         {failed ? "Retry Update" : "Update Now"}
+                    </button>
+                    <button className="update-btn update-btn-secondary" onClick={onDismiss}>
+                        Dismiss
+                    </button>
+                    <button className="update-btn update-btn-secondary" onClick={onDontAskAgain}>
+                        Don't Ask Again
                     </button>
                 </div>
             )}

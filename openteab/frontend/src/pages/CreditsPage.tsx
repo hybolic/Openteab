@@ -3,7 +3,50 @@ export default function CreditsPage() {
         <>
             <div className="page-header">
                 <h2>Credits</h2>
-                <p>The people behind Coteab Macro</p>
+                <p>The people behind Openteab Macro</p>
+            </div>
+            
+            {/* Developers Card */}
+            <div className="card">
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+                    <img
+                        src="https://avatars.githubusercontent.com/u/2791557?v=4"
+                        alt="Current Maintainer"
+                        style={{
+                            width: "120px",
+                            height: "120px",
+                            borderRadius: "8px",
+                            border: "1px solid var(--border)",
+                            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                            background: "rgba(128, 0, 255, 1)"
+                        }}
+                        onError={(e) => e.currentTarget.src = "/images/NadirRift.png" }
+                    />
+                </div>
+
+                <div className="credits-list">
+                    <div className="credit-item">
+                        <div className="credit-avatar">V</div>
+                        <div className="credit-info">
+                            <ul style={{ margin: 0, paddingLeft: "16px", listStyle: "disc" }}>
+                                <li><strong>Nadir Rift</strong> (Current Maintainer)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", marginTop: "16px" }}>
+                    <a href="https://github.com/hybolic/Openteab" target="_blank" rel="noreferrer" style={{ color: "var(--accent)", fontSize: "13px" }}>
+                        GitHub: Coteab Macro!
+                    </a>
+                </div>
+            </div>
+
+
+            <div className="page-header" style={{textAlign: "center"}}>
+                <h1>Original Creators</h1>
+                <h2>The people behind the original</h2>
+                <h2><strong>Coteab Macro</strong></h2>
             </div>
 
             {/* Developers Card */}
@@ -11,7 +54,7 @@ export default function CreditsPage() {
                 <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
                     <img
                         src="https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/images/devteam3.png"
-                        alt="Dev Team"
+                        alt="Old Dev Team"
                         style={{
                             width: "120px",
                             height: "120px",
@@ -19,12 +62,13 @@ export default function CreditsPage() {
                             border: "1px solid var(--border)",
                             boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
                         }}
+                        onError={(e) => e.currentTarget.src = "/images/devteam.png" }
                     />
                 </div>
 
                 <div className="credits-list">
                     <div className="credit-item">
-                        <div className="credit-avatar">V</div>
+                        <div className="credit-avatar heart-avatar">&#10084;</div>
                         <div className="credit-info">
                             <ul style={{ margin: 0, paddingLeft: "16px", listStyle: "disc" }}>
                                 <li><strong>Vapure/"@criticize."</strong> (Lead Developer, fullstack)</li>
@@ -60,6 +104,7 @@ export default function CreditsPage() {
                             borderRadius: "8px",
                             border: "1px solid var(--border)"
                         }}
+                        onError={(e) => e.currentTarget.src = "/images/maxstellar.png" }
                     />
                 </div>
                 <h3>Inspired Biome Macro Creator: maxstellar</h3>
@@ -77,7 +122,7 @@ export default function CreditsPage() {
                     <div className="card-icon">🏅</div>
                     <div>
                         <h3>Extra Credits</h3>
-                        <p>Thank you to everyone who helped along the way</p>
+                        <p>Thank you to everyone who helped Coteab along the way</p>
                     </div>
                 </div>
 

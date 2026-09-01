@@ -210,7 +210,7 @@ class RemoteMixin:
                         pass
 
             try:
-                self.set_title_threadsafe(f"Coteab Macro {current_ver} (Remote bot starting)")
+                self.set_title_threadsafe(f"Openteab Macro {current_ver} (Remote bot starting)")
             except Exception:
                 pass
             try:

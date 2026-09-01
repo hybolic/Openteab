@@ -1,3 +1,4 @@
+/* hopefully this will remain untouched */
 /* ━━━ Coteab Macro — Global Styles ━━━ */
 
 :root,
@@ -1548,4 +1549,9 @@ body {
 @keyframes scaleIn {
   from { transform: scale(0.9); opacity: 0; }
   to   { transform: scale(1);   opacity: 1; }
+}
+
+.heart-avatar {
+    color: #ff0000;
+    -webkit-text-fill-color: #ff0000;
 }

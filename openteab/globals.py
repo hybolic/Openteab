@@ -1,120 +1,154 @@
 from os import getcwd, makedirs, getenv
 from os.path import join as join_path, exists as path_exists
 
-class Roblox:
-    logs = join_path(getenv('LOCALAPPDATA'), 'Roblox', 'logs')
-    versions = join_path(getenv('LOCALAPPDATA'), 'Roblox', 'Versions')
-roblox = Roblox()
 
+class Roblox:
+    logs = join_path(getenv("LOCALAPPDATA"), "Roblox", "logs")
+    versions = join_path(getenv("LOCALAPPDATA"), "Roblox", "Versions")
+roblox = Roblox()
 class Openteab:
-    cwd              = getcwd()
-    """ ${cwd} """
-    top_directory    = None
-    """ ./openteab """
+    cwd = getcwd()
+    """ ./ """
     virtual_dir_name = ".python"
-    venv             = None
-    """ ./openteab/${virtual_dir_name} """
-    requirements     = ".\\requirements.txt"
-    venv_scripts     = None
-    """ ./openteab/${virtual_dir_name}/Scripts """
-    python_exe       = None
-    """ ./openteab/${virtual_dir_name}/Scripts/python.exe """
-    pip_exe          = None
-    """ ./openteab/${virtual_dir_name}/Scripts/pip.exe """
-    paths            = None
-    """ ./openteab/paths """
-    snowman_path     = None
-    """ ./openteab/paths/snowman.json """
-    snowman_path_url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/paths/snowman.json"
-    obby_path        = None
-    """ ./openteab/paths/obby.json """
-    obby_path_url    = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/paths/obby.json"
-    crafting_files   = None
-    """ ./openteab/crafting_files_do_not_open """
-    assets           = None
-    """ ./openteab/assets """
-    images           = None
-    """ ./openteab/assets/images """
-    screenshots      = None
-    """ ./screenshots """
-    config_folder    = None
-    """ ./config_folder """
-    config_json      = None
-    """ ./config_folder/config.json """
-    frontend      = None
-    """ ./openteab/frontend """
+
+    def __init__(self):
+        self.top_directory = join_path(self.cwd, "openteab")
+        """ ./openteab """
+
+        self.config_folder = join_path(self.cwd, "config_folder")
+        """ ./config_folder """
+        self.config_json = self._path(self.config_folder, "config.json")
+        """ ./config_folder/config.json """
+
+        self.venv = join_path(self.top_directory, self.virtual_dir_name)
+        """ ./openteab/${virtual_dir_name} """
+        self.venv_scripts = join_path(self.venv, "Scripts")
+        """ ./openteab/${virtual_dir_name}/Scripts """
+
+        self.python_exe = join_path(self.venv_scripts, "python.exe")
+        """ ./openteab/${virtual_dir_name}/Scripts/python.exe """
+        self.pip_exe = join_path(self.venv_scripts, "pip.exe")
+        """ ./openteab/${virtual_dir_name}/Scripts/pip.exe """
+        self.venv_activate_this = self._path(self.venv_scripts, "activate_this.py")
+        self.venv_activate = join_path(self.venv_scripts, "activate")
+
+        self.paths = self._path(self.top_directory, "paths")
+
+        self.snowman_path = self._path(self.paths, "snowman.json")
+        """ ./openteab/paths/snowman.json """
+        self.obby_path = self._path(self.paths, "obby.json")
+        """ ./openteab/paths/obby.json """
+        self.crafting_files = self._path(self.top_directory, "crafting_files_do_not_open")
+        """ ./openteab/crafting_files_do_not_open """
+        self.assets = self._path(self.top_directory, "assets")
+        """ ./openteab/assets """
+        self.images = self._path(self.assets, "images")
+        """ ./openteab/assets/images """
+        self.screenshots = self._path(self.cwd, "screenshots")
+        """ ./screenshots """
+        self.frontend = self._path(self.top_directory, "frontend")
+        """ ./openteab/frontend """
+
+    @staticmethod
+    def _path(path_start, path):
+        path = join_path(path_start, path)
+        if not path_exists(path):
+            makedirs(path, exist_ok=True)
+            print(f"Created paths folder: {path}")
+
+        return path
+
+    # ------------------------------------------------------------------
+    # Requirements
+    # ------------------------------------------------------------------
+
+    requirements = ".\\requirements.txt"
+
+    # ------------------------------------------------------------------
+    # EasyOCR
+    # ------------------------------------------------------------------
 
     class easyocr:
-        # URLs
         image_url = "https://i.postimg.cc/FKtqPgBg/teleporter.png"
         ''' https://i.postimg.cc/FKtqPgBg/teleporter.png '''
-        
-        endpoints = ["https://cn-api.easyocr.org/ocr", "https://api.easyocr.org/ocr"]
+
+        endpoints = [
+            "https://cn-api.easyocr.org/ocr",
+            "https://api.easyocr.org/ocr",
+        ]
         ''' [ "https://cn-api.easyocr.org/ocr", "https://api.easyocr.org/ocr" ] '''
 
         api_url = endpoints[0]
-        ''' endpoints[0] = "https://api.easyocr.org/ocr" '''
-    
-    def __FROM_TOP__(self, path):
-        paths_folder = join_path(self.cwd, path)
-        if (not path_exists(paths_folder)) and ("." not in paths_folder):
-            makedirs(paths_folder, exist_ok=True)
-            print(f"Created paths folder: {paths_folder}")
-        return paths_folder
+        ''' endpoints[0] = "https://cn-api.easyocr.org/ocr" '''
 
-    def __FROM_PATH__(self, path_start, path):
-        paths_folder = join_path(path_start, path)
-        if (not path_exists(paths_folder)) and ("." not in paths_folder):
-            makedirs(paths_folder, exist_ok=True)
-            print(f"Created paths folder: {paths_folder}")
-        return paths_folder
+    ##
+    ## URLS / extra data
+    ##
 
-    
-    def __init__(self):
-        self.top_directory   = join_path(self.cwd, "openteab")
-        self.config_folder   = join_path(self.cwd, "config_folder")
-        self.config_json     = self.__FROM_PATH__(self.config_folder, "config.json")
-        self.venv            = join_path(self.top_directory, self.virtual_dir_name)
-        self.venv_scripts    = join_path(self.venv, "Scripts")
-        self.python_exe      = self.__FROM_PATH__(self.venv_scripts, "python.exe")
-        self.pip_exe         = self.__FROM_PATH__(self.venv_scripts, "pip.exe")
-        self.venv_activate_this = self.__FROM_PATH__(self.venv_scripts, "activate_this.py")
-        self.venv_activate      = join_path(self.venv_scripts, "activate")
-        self.paths           = self.__FROM_PATH__(self.top_directory, "paths")
-        self.snowman_path    = self.__FROM_PATH__(self.paths, "snowman.json")
-        self.obby_path       = self.__FROM_PATH__(self.paths, "obby.json")
-        self.crafting_files  = self.__FROM_PATH__(self.top_directory, "crafting_files_do_not_open")
-        self.assets          = self.__FROM_PATH__(self.top_directory, "assets")
-        self.images          = self.__FROM_PATH__(self.assets, "images")
-        self.screenshots     = self.__FROM_TOP__("screenshots")
-        self.frontend        = self.__FROM_PATH__(self.top_directory, "frontend")
+    # ------------------------------------------------------------------
+    # Paths
+    # ------------------------------------------------------------------
 
-    notice_tab_contents_coteab = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/noticetabcontents.txt"
+    snowman_path_url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/paths/snowman.json"
+    obby_path_url    = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/paths/obby.json"
+
+
+    # ------------------------------------------------------------------
+    # Notice / updates
+    # ------------------------------------------------------------------
+
+    notice_tab_contents_coteab   = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/noticetabcontents.txt"
+    notice_tab_contents_openteab = "https://raw.githubusercontent.com/hybolic/OpenTeab/refs/heads/main/assets/noticetabcontents.txt"
+    notice_tab_contents          = notice_tab_contents_coteab
 
     update_url_api_coteab  = "https://api.github.com/repos/xVapure/Noteab-Macro/releases/latest"
-    update_url_api_opentab = "https://api.github.com/repos/NadirRift/OpenTeab/releases/latest"
+    update_url_api_opentab = "https://api.github.com/repos/hybolic/OpenTeab/releases/latest"
+    update_url_api         = update_url_api_coteab
     update_url_coteab      = "https://github.com/xVapure/Noteab-Macro/releases/latest"
-    update_url             = "https://github.com/NadirRift/OpenTeab/releases/latest"
+    update_url_opentab     = "https://github.com/hybolic/OpenTeab/releases/latest"
+    update_url             = update_url_coteab
+
+    coteab_discord = "https://discord.gg/fw6q274Nrt"
+
+    # ------------------------------------------------------------------
+    # Calibration
+    # ------------------------------------------------------------------
+
     macro_calibration_youtube_long  = "https://www.youtube.com/watch?v=s2S7Bncx9ns"
     macro_calibration_youtube_short = "https://youtu.be/s2S7Bncx9ns"
 
+
     icon_url = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"
+
+
+    # ------------------------------------------------------------------
+    # Donations
+    # ------------------------------------------------------------------
 
     class donations:
         link = "https://www.roblox.com/games/18203398779/Medival-castle#!/store"
         url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/appreciation_list.txt"
 
+    # ------------------------------------------------------------------
+    # Events
+    # ------------------------------------------------------------------
+
     event_url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/main/active_events.json"
+
     event_link_rapidtables = "https://www.rapidtables.com/convert/color/index.html"
 
-    coteab_discord = "https://discord.gg/fw6q274Nrt"
+
+    # ------------------------------------------------------------------
+    # Aura / merchant data
+    # ------------------------------------------------------------------
 
     auras_json = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/auras.json"
 
+
     merchant_thumbnails = {
-            "Mari": "https://i.postimg.cc/RZh2pw0j/mari.png ",
-            "Jester": "https://i.postimg.cc/7PBVsdTq/jester.png",
-            "Rin": "https://i.postimg.cc/j5n9B6Km/rin.png"
+      "Mari": "https://i.postimg.cc/RZh2pw0j/mari.png",
+      "Jester": "https://i.postimg.cc/7PBVsdTq/jester.png",
+      "Rin": "https://i.postimg.cc/j5n9B6Km/rin.png"
     }
 
     eden_thumbnail = "https://raw.githubusercontent.com/vexthecoder/OysterDetector/refs/heads/main/eden.png"
@@ -176,15 +210,7 @@ class Openteab:
 openteab = Openteab()
 
 def FROM_TOP(path):
-    paths_folder = join_path(openteab.cwd, path)
-    if not path_exists(paths_folder) and "." not in paths_folder:
-        makedirs(paths_folder, exist_ok=True)
-        print(f"Created paths folder: {paths_folder}")
-    return paths_folder
+    return openteab._path(openteab.cwd, path)
 
 def FROM_PATH(path_start, path):
-    paths_folder = join_path(path_start, path)
-    if not path_exists(paths_folder) and "." not in paths_folder:
-        makedirs(paths_folder, exist_ok=True)
-        print(f"Created paths folder: {paths_folder}")
-    return paths_folder
+    return openteab._path(path_start, path)

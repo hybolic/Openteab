@@ -47,7 +47,7 @@ const navItems = [
 ];
 
 export default function Sidebar({ activeTab, onTabChange, isGlitching, macroVersion }: SidebarProps) {
-    const title = useGlitchText("Coteab Macro", isGlitching);
+    const title = useGlitchText("Openteab Macro", isGlitching);
     const version = useGlitchText(macroVersion || "v?.?.?", isGlitching);
     return (
         <div className="sidebar" style={{ position: "relative" }}>
@@ -80,7 +80,7 @@ export default function Sidebar({ activeTab, onTabChange, isGlitching, macroVers
 
             <div className="sidebar-footer">
                 <div className="by-line">
-                    Coteab Macro made by <span>Coteab Development Team</span>
+                    Openteab Macro made by <span>Openteab Development Team</span>
                 </div>
             </div>
         </div>

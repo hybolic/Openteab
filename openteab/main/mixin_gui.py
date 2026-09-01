@@ -9,7 +9,7 @@ class GuiMixin:
         icon_path = os.path.join(abslt_path, "NoteabBiomeTracker.ico")
 
         self.root = ttk.Window(themename=selected_theme)
-        self.set_title_threadsafe(f"Coteab Macro {current_ver} (Idle)")
+        self.set_title_threadsafe(f"Openteab Macro {current_ver} (Idle)")
         self.root.geometry("1000x700")
         self.root.minsize(900, 600)
         try:
@@ -446,7 +446,7 @@ class GuiMixin:
     def create_notice_tab(self, frame):
         txt = ttk.Text(frame, height=14, wrap="word")
         txt.pack(fill="both", expand=True, padx=5, pady=(5, 90))
-        notice_url = openteab.notice_tab_contents_coteab
+        notice_url = openteab.notice_tab_contents
         try:
             r = requests.get(notice_url, timeout=10)
             r.raise_for_status()
@@ -475,12 +475,12 @@ class GuiMixin:
         update_label.pack(side="top", fill="x", anchor="w", padx=5)
 
         def _open_releases(_=None):
-            webbrowser.open_new(openteab.update_url_coteab)
+            webbrowser.open_new(openteab.update_url)
 
         def _check_latest():
             current_version = current_ver
             try:
-                response = requests.get(openteab.update_url_api_coteab, timeout=10)
+                response = requests.get(openteab.update_url_api, timeout=10)
                 response.raise_for_status()
                 latest_release = response.json()
                 latest_version = latest_release.get("tag_name") or latest_release.get("name") or ""
@@ -1072,9 +1072,9 @@ class GuiMixin:
         discord_label.pack()
         discord_label.bind("<Button-1>", lambda e: webbrowser.open_new(openteab.coteab_discord))
 
-        github_label = ttk.Label(noteab_frame, text="""GitHub: Coteab Macro!""", foreground="#03cafc", cursor="hand2")
+        github_label = ttk.Label(noteab_frame, text="""GitHub: Openteab Macro!""", foreground="#03cafc", cursor="hand2")
         github_label.pack()
-        github_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/xVapure/Noteab-Macro"))
+        github_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://github.com/hybolic/Openteab"))
 
         if maxstellar_image:
             ttk.Label(maxstellar_frame, image=maxstellar_image).pack(pady=5)

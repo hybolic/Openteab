@@ -4,13 +4,10 @@ import "./fonts.css";
 import App from "./App";
 import { ConfigProvider } from "./contexts/ConfigContext";
 
-document.addEventListener("contextmenu", (event) => {
-  event.preventDefault();
-});
 
-const root = document.getElementById("root");
+document.addEventListener('contextmenu', event => event.preventDefault());
 
-ReactDOM.createRoot(root as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ConfigProvider>
       <App />

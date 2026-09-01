@@ -15,7 +15,7 @@ class WebhookMixin:
             embed = {
                 "description": f"> ## Remote Screenshot",
                 "color": 0xffffff,
-                "footer": {"text": f"Coteab Macro {current_ver}", "icon_url": icon_url},
+                "footer": {"text": f"Openteab Macro {current_ver}", "icon_url": icon_url},
                 "timestamp": current_utc_time
             }
             for webhook_url in urls:
@@ -155,7 +155,7 @@ class WebhookMixin:
             embed = {
                 "description": f"> ## Daily Quests Screenshot",
                 "color": 0xffffff,
-                "footer": {"text": f"Coteab Macro {current_ver}", "icon_url": icon_url},
+                "footer": {"text": f"Openteab Macro {current_ver}", "icon_url": icon_url},
                 "timestamp": current_utc_time
             }
             for webhook_url in urls:
@@ -187,7 +187,7 @@ class WebhookMixin:
             embed = {
                 "description": f"> ## Periodical Inventory Screenshot",
                 "color": 0xffffff,
-                "footer": {"text": f"Coteab Macro {current_ver}", "icon_url": icon_url},
+                "footer": {"text": f"Openteab Macro {current_ver}", "icon_url": icon_url},
                 "timestamp": current_utc_time
             }
             for webhook_url in urls:
@@ -219,7 +219,7 @@ class WebhookMixin:
             embed = {
                 "description": f"> ## Periodical Aura Screenshot",
                 "color": 0xffffff,
-                "footer": {"text": f"Coteab Macro {current_ver}", "icon_url": icon_url},
+                "footer": {"text": f"Openteab Macro {current_ver}", "icon_url": icon_url},
                 "timestamp": current_utc_time
             }
             for webhook_url in urls:
@@ -265,7 +265,7 @@ class WebhookMixin:
             "description": description,
             "color": biome_color,
             "footer": {
-                "text": f"""Coteab Macro {current_ver}""",
+                "text": f"""Openteab Macro {current_ver}""",
                 "icon_url": icon_url
             },
             "timestamp": current_utc_time
@@ -331,7 +331,7 @@ class WebhookMixin:
                 {"name": "Detection Source", "value": source.upper()}
             ],
             "footer": {
-                "text": f"""Coteab Macro {current_ver}""",
+                "text": f"""Openteab Macro {current_ver}""",
                 "icon_url": icon_url
             }
         }
@@ -400,7 +400,7 @@ class WebhookMixin:
             "description": description,
             "color": color,
             "footer": {
-                "text": f"""Coteab Macro {current_ver}""",
+                "text": f"""Openteab Macro {current_ver}""",
                 "icon_url": icon_url
             },
             "timestamp": current_utc_time
@@ -469,7 +469,7 @@ class WebhookMixin:
                 "color": embed_color,
                 "timestamp": current_utc_time,
                 "footer": {
-                    "text": f"Coteab Macro {current_ver}",
+                    "text": f"Openteab Macro {current_ver}",
                     "icon_url": icon_url
                 },
                 "fields": fields
@@ -500,7 +500,7 @@ class WebhookMixin:
                 "color": 0xff0000,
                 "timestamp": current_utc_time,
                 "footer": {
-                    "text": f"Coteab Macro {current_ver}",
+                    "text": f"Openteab Macro {current_ver}",
                     "icon_url": icon_url
                 },
                 "fields": [

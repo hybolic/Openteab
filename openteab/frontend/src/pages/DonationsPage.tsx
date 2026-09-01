@@ -14,7 +14,7 @@ export default function DonationsPage() {
         <>
             <div className="page-header">
                 <h2>Donations {"<3"}</h2>
-                <p>Support the development of Coteab Macro</p>
+                <p>Support the development of Openteab Macro</p>
             </div>
 
             <div className="card">
@@ -34,7 +34,7 @@ export default function DonationsPage() {
                     <p style={{ marginBottom: "12px" }}>
                         It helps us out a lot mentally, any donations above 100 Robux will get you on the appreciation list below,
                         500 Robux will give you the permission to leave a special message on the appreciation list (must be sfw though)
-                        & 1000 Robux will give you access to early Coteab macro releases (beta vers) :D
+                        & 1000 Robux will give you access to early Openteab macro releases (beta vers) :D
                     </p>
                     <p style={{ marginBottom: "15px" }}>
                         Normally we will check donations history daily, but if your Roblox username isn't displayed here please DM "@criticize." on Discord.

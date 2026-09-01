@@ -44,10 +44,12 @@ goal is to eventually have a much easier to modify openteab python script that d
 - - [ ] [new requirements.txt](https://github.com/xVapure/Noteab-Macro/commit/a28663215d06656b3d1bb9c710178972b01b0e41 "new requirements.txt")
 - - [ ] [Update README.md](https://github.com/xVapure/Noteab-Macro/commit/d2f98c8cc4a1a9ff09ca3f0aadc945fdd58db588 "Update README.md")
 
-- [ ] v2.1.4
-- - [ ] [v2.1.4 frontend push 2](https://github.com/xVapure/Noteab-Macro/commit/85ac5f6704b94e7e704fb8d9d6e6de58b78afef5 "v2.1.4 frontend push 2")
-- - [ ] [v2.1.4 frontend push](https://github.com/xVapure/Noteab-Macro/commit/4a355b4a596b86ab165038028b6d742fa11e54a6 "v2.1.4 frontend push")
-- - [ ] [v2.1.4 lib folder push](https://github.com/xVapure/Noteab-Macro/commit/a117449de019eee068ca43011afe27f06495801d "v2.1.4 lib folder push")
+- [X] v2.1.4
+- - [X] [v2.1.4 frontend push 2](https://github.com/xVapure/Noteab-Macro/commit/85ac5f6704b94e7e704fb8d9d6e6de58b78afef5 "v2.1.4 frontend push 2")
+- - [X] [v2.1.4 frontend push](https://github.com/xVapure/Noteab-Macro/commit/4a355b4a596b86ab165038028b6d742fa11e54a6 "v2.1.4 frontend push")
+- - frontend src update
+- - [?] [v2.1.4 lib folder push](https://github.com/xVapure/Noteab-Macro/commit/a117449de019eee068ca43011afe27f06495801d "v2.1.4 lib folder push")
+- - - checking this commit it just seems to be a compiled html from "npm run build"
 - - [x] [v2.1.4 main.py](https://github.com/xVapure/Noteab-Macro/commit/9051ed023c8753e97f59160637f8d51f509805b4 "v2.1.4 main.py")
 - - [x] [v2.1.4 push 2](https://github.com/xVapure/Noteab-Macro/commit/d084142b6ae2f1eca1d51fbb3c8ece35e0f84fe9 "v2.1.4 push 2")
 - - [x] [v2.1.4 push](https://github.com/xVapure/Noteab-Macro/commit/37f187f01610deee1435a62a2e778632ad6f17ec "v2.1.4 push")

@@ -362,7 +362,7 @@ class DetectionMixin:
             self.config["session_window_start"] = self.session_window_start.isoformat()
             self.config["macro_last_start"] = now.isoformat()
             self.save_config()
-            self.set_title_threadsafe(f"""Coteab Macro {current_ver} (Running)""")
+            self.set_title_threadsafe(f"""Openteab Macro {current_ver} (Running)""")
             self.send_webhook_status("Macro started!", color=0x64ff5e)
 
             threads = [
@@ -436,7 +436,7 @@ class DetectionMixin:
             self.saved_session += elapsed_time
             self.start_time = None
             self.stop_sent = True
-            self.set_title_threadsafe(f"Coteab Macro {current_ver} (Stopped)")
+            self.set_title_threadsafe(f"Openteab Macro {current_ver} (Stopped)")
             try:
                 self.stop_remote_bot()
             except Exception:
@@ -930,7 +930,7 @@ class DetectionMixin:
             self.just_reconnected = True
             self._roblox_fullscreened = False
             self.reconnect_confirm_deadline = time.monotonic() + 60
-            self.set_title_threadsafe(f"""Coteab Macro {current_ver} (Running)""")
+            self.set_title_threadsafe(f"""Openteab Macro {current_ver} (Running)""")
             self.save_config()
         except Exception as e:
             self.error_logging(e, "_resume_timer_after_reconnect")

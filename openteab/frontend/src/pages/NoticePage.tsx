@@ -73,7 +73,7 @@ export default function NoticePage() {
             </div>
 
             <div className="info-banner">
-                📺 New to Coteab? Watch the tutorial:{" "}
+                📺 New to Openteab? Watch the tutorial:{" "}
                 <a href="https://www.youtube.com/watch?v=s2S7Bncx9ns" target="_blank" rel="noreferrer">
                     https://www.youtube.com/watch?v=s2S7Bncx9ns
                 </a>
@@ -92,7 +92,7 @@ export default function NoticePage() {
             )}
 
             <div className="info-banner" style={{ marginTop: "16px" }}>
-                🌐 <a href="https://discord.gg/fw6q274Nrt" target="_blank" rel="noreferrer">JOIN OUR DEVELOPMENT SERVER</a> to keep in touch with the latest Coteab Macro updates!
+                🌐 <a href="https://discord.gg/fw6q274Nrt" target="_blank" rel="noreferrer">JOIN OUR DEVELOPMENT SERVER</a> to keep in touch with the latest Openteab Macro updates!
             </div>
         </>
     );

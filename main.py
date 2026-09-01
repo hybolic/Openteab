@@ -1,179 +1,7 @@
 from __future__ import annotations
 
-import sys, os, re
-from datetime import datetime # do not remove or del used in print
-
-
-### PRE-INIT
-from openteab.globals import openteab, roblox, FROM_TOP
-
-#### STATIC DEFINITIONS ####
-retry = 0 # used for import tester
-WORKING_DIR       = os.path.abspath(os.path.dirname(sys.argv[0]))
-virtual_dir_abs   = "'"+openteab.venv+"'"
-requirements_path = ".\\requirements.txt"
-
-local_python      = openteab.python_exe
-local_pip         = openteab.pip_exe
-
-LOG_DIR = openteab.venv + "/logs/"
-LATEST_LOG = LOG_DIR + "/latest.log"
-
-python_print = print #for when we replace python base print with our logging one
-
-# #function that runs on python close
-# def onPythonClose():
-#     #flush and close log file
-#     log_file.flush()
-#     log_file.close()
-
-# #register event
-# import atexit;
-# atexit.register(onPythonClose)
-
-#reroute for logging
-
-#temp quick print stuff
-def print(*args, **kwargs):
-    new_kwargs = kwargs.copy();
-    if new_kwargs.__contains__("type"): new_kwargs.pop("type")
-    python_print(*args,**new_kwargs); output = []; type = kwargs.pop("type", "PRINT"); output.append(datetime.today().strftime('[%d-%m-%Y %H:%M:%S] ' + '[' + type + '] '))
-    def write(data):
-        if not isinstance(data, str): data = str(data)
-        output.append(data)
-    sep = kwargs.pop("sep", None); end = kwargs.pop("end", None); newline = "\n"; space = " "
-    if sep is None: sep = space
-    if end is None: end = newline
-    for i, arg in enumerate(args):
-        if i: write(sep)
-        write(arg)
-    write(end)
-    return None
-def print_warning(*args,**kwargs): kwargs["type"] = "WARNING"; print(*args, **kwargs)
-def print_exception(*args,**kwargs): kwargs["type"] = "EXCEPTION"; print(*args, **kwargs)
-def print_error(*args,**kwargs): kwargs["type"] = "ERROR"; print(*args, **kwargs)
-def print_log(*args,**kwargs): kwargs["type"] = "LOG"; print(*args, **kwargs)
-def popup_warn(message, style=0, title="WARNING"): import ctypes; ctypes.windll.user32.MessageBoxW(0, message, title, style); del ctypes
-
-print("Log Opened!", type="INIT")
-### LOGGER ###
-
-### VIRTUAL ENVORIMENT ###
-def active_venv():
-    #script location
-    activatorpy = openteab.venv_activate_this
-    activator   = openteab.venv_activate
-    
-    #enter virtual enviroment
-    activator_command = activator + " & "
-    
-    #install requirements.txt
-    UpgradePip = (
-        "" + activator_command +
-        # upgrade pip
-        "" + local_python + " -m pip install --upgrade pip" )
-    
-    #install requirements.txt
-    InstallRequirements = (
-        #enter virtual enviroment
-        "" + activator_command +
-        #install requirements
-        "" + local_pip + " install --no-input -r " + requirements_path)
-    from subprocess import run
-    
-    #check if we are in an venv if not we make and enter one. this keeps the main python install clean
-    if not (sys.prefix != (getattr(sys, "base_prefix", None) or getattr(sys, "real_prefix", None) or sys.prefix)) or not os.path.exists(openteab.venv + "/pyvenv.cfg"):
-        print_log("FORCING VIRTUAL ENVIROMENT")
-        from venv import EnvBuilder
-        
-        #check if path exists
-        if not (os.path.exists(openteab.venv) and os.path.exists(openteab.venv + "/pyvenv.cfg")):
-            #build venv
-            virtual = EnvBuilder(with_pip=True)
-            virtual.create(env_dir="./" + openteab.venv)
-        
-        from gzip import decompress
-        from base64 import b64decode
-        from re import match, sub
-        
-        #if we do not have a copy of the script locally we make one
-        if not os.path.exists(activatorpy):
-            #grab copy of activate script from github if its not avalible on system
-            with open(activatorpy, "w") as activate_filepy:
-            # this script is manually shrunk, gzip compressed and base64 encoded to fit neatly into a "small" string.
-            # To see both the original and shrunk code, check this [repo folder]{@link https://github.com/FishSol-Development/FishSol-v2-1-/code_reference }
-            # specifically [./code_reference/activate_this.py] and [./code_reference/activate_this.small.py] for details or if you are on the snippet at the bottom of the page
-                activate_filepy.write(decompress(b64decode("H4sIAAAAAAAC/z1RwW7jIBC9+yt8G2gcpN4qIw45VNqVut2om+3FtSxsjx0SBxBDV83fF5xtT7wZ5vHmPabgLqWj0ly8C7H0Oh5LTaWv0P4zwdl"
-                                                           "cmCq3CX0uSP4fJRMxN44VXSmDWS5qFnm0iOFaD8oL3VOuWddNZsGu4wV+DOhj+awv+BiCC5l4rp2C8G79FWTQhrDcEWGIxtl1hl1oVjCZj68tYe"
-                                                           "M2IG+HSMRuFckSHPiUHZ0LneRHE2wSYgOXvdJNvV3QMvgzBOMjAd/et/KkYL87/ABpmlOrSJycsazR1Z0RM0Z2qgC4IL+YyIi3XFoFrz9fDn93T"
-                                                           "93j82um2Vb1+dhAt3/5/Wt/gFYBJGde9JpwXaDnElUWv+XDiyndT6WxIMTbk+nfcphbr4eznpHgW7Aek4uAelkN+tt2upo4l0ehxzHTkkk2ihEH"
-                                                           "NyKD9zhtH4CbCQCXlOTIi6WpW7U0WLebBLGV8/pk5wOmTPOXrUB+AdV/AqZng0UVAgAA")).decode())
-                activate_filepy.close() #close the file
-        if not os.path.exists(activator):
-            with open(activator, "w") as activate_file:
-                activate_file.write(decompress("H4sIAAAAAAAA/52SUWuDMBDH3/0UN+1D++CKe+xwYKlgoVVpbGEbQ6RGDJS0aJSx0u8+1NTGpboxXyR3/+R+d/ePcbRnpIwYhvEEzgoAAEngHXQK"
-                                               "6ugceqtFuFtugq21Cn0rcGb6RYUPeAaWYlqrq6/KmH3yVoU/T8eM1eI2VtAcM5Du1fmEDOO8Bo7nOt7a7oFq8zJa56oE2GYHMbuqhCg/aecWaual"
-                                               "H3nkDTnhzt6gpefeZ06jPAU9g6cXmMa4nNLicPjTLJDRMwRkyN03YqltZAz2y9OcpFFck7a7u/E9VHgNjwkqPdIY5ywrKp/hO4jNS3oCcevFa6GL"
-                                               "cotB9yFFKG1qmiYcNU1TeE8in2QyUx1VP1XhB0E8RfuMnFg+4wrRusIOhizYYxZTuiaMU/BUQnihr6qQgBYulsiar+zQ33hrP/itcLN/ceV1aPxY"
-                                               "YlpOoJsSnNDW/4+V79o4Id8Ru3CgbQQAAA==").decode())
-                activate_file.close()
-            with open(activator, "r") as text_file:
-                all_lines = text_file.readlines()
-                text_file.close()
-                for index, line in enumerate(all_lines):
-                    if match("VIRTUAL_ENV=\#\#\#VIRTUAL_ENV\#\#\#", line):
-                        all_lines[index] = sub("\#\#\#VIRTUAL_ENV\#\#\#", "'" + virtual_dir_abs + "'", line)
-                        break
-            with open(activator, "w") as text_file:
-                text_file.writelines(all_lines)
-                text_file.close()
-        
-            #we no longer need to use these so to save memory get rid of them
-        del b64decode, decompress, EnvBuilder, match, sub
-        
-        #run command and output to print
-        try:
-            print_log("this might take a while!")
-            print_log("running command: '" + UpgradePip + "'")
-            process = run(UpgradePip, cwd=WORKING_DIR, shell=True, check=True, encoding="UTF-8")
-            print_log("running command: '" + InstallRequirements + "'")
-            process = run(InstallRequirements, cwd=WORKING_DIR, shell=True, check=True, encoding="UTF-8")
-            if not process.stdout == '':
-                print_log(process.stdout)
-        except Exception as exception:
-            print_exception(exception)
-        
-        #open a %CWD%\\%virtual_dir%\\Scripts\\activate_this.py as a TextIOWrapper
-        with open(openteab.venv_activate_this) as f:
-            # read file and compile the code for exec and execute it in script
-            exec(compile(f.read(), activatorpy, 'exec'), dict(__file__=activatorpy))
-        #check if we are now in a virtual enviroment!
-        if not sys.prefix != (getattr(sys, "base_prefix", None) or getattr(sys, "real_prefix", None) or sys.prefix):
-            #throw error message
-            print_exception("WE ARE NOT IN A VIRTUAL ENVIROMENT PLEASE CONTANCT THE DEVS!")
-            exit()
-        else:
-            print_log("WE ARE IN A VIRTUAL ENVIROMENT")
-    else:
-        try:
-            print_log("this might take a while!")
-            print_log("running command: '" + UpgradePip + "'")
-            run(UpgradePip, cwd=WORKING_DIR, shell=True, check=True, encoding="UTF-8")
-            print_log("running command: '" + InstallRequirements + "'")
-            run(InstallRequirements, cwd=WORKING_DIR, shell=True, check=True, encoding="UTF-8")
-        except Exception as exception:
-            print_exception(exception)
-    del run
-active_venv()
-
-#TODO: add compiler for frontend
-
-del sys, os
-#### END OF VENV LOADER ###
-
-
-
-### END OF PRE-INIT
+from openteab.globals import openteab, FROM_PATH, join_path
+import PreLaunch
 
 import traceback
 import json
@@ -189,14 +17,13 @@ import time
 import psutil
 from datetime import datetime
 import logging
-from openteab.globals import openteab
 
 # i added this so we can easily change macro version upon releases without having to change multiple back-end & front-end behaviours
 # for future people that is reading the open source code, hello :p
 current_version = "v2.1.4"
-os.environ["COTEAB_MACRO_VERSION"] = current_version
-UPDATE_LATEST_RELEASE_API_URL = openteab.update_url_api_coteab
-os.environ["COTEAB_UPDATE_API_URL"] = UPDATE_LATEST_RELEASE_API_URL
+os.environ["OPENTEAB_MACRO_VERSION"] = current_version
+UPDATE_LATEST_RELEASE_API_URL = openteab.update_url_api
+os.environ["OPENTEAB_UPDATE_API_URL"] = UPDATE_LATEST_RELEASE_API_URL
 os.environ["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"] = (
     "--disable-gpu "
     "--disable-gpu-compositing "
@@ -207,7 +34,7 @@ os.environ["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"] = (
 os.environ["WEBKIT_DISABLE_COMPOSITING_MODE"] = "1"  # disable gpu for webkit
 _wv2_user_data = os.path.join(
     os.environ.get("LOCALAPPDATA", os.path.expanduser("~")),
-    "CoteabMacro", "WebView2UserData"
+    "OpenteabMacro", "WebView2UserData"
 )
 os.makedirs(_wv2_user_data, exist_ok=True)
 os.environ["WEBVIEW2_USER_DATA_FOLDER"] = _wv2_user_data
@@ -936,7 +763,7 @@ def launch_app(api_class, tracker: Optional[BiomeTracker] = None) -> BiomeTracke
     url = get_frontend_entry_url()
 
     window = webview.create_window(
-        title=f"Coteab Macro {current_version}",
+        title=f"Openteab Macro {current_version}",
         url=url,
         js_api=api,
         width=950,
@@ -981,7 +808,7 @@ def launch_app(api_class, tracker: Optional[BiomeTracker] = None) -> BiomeTracke
         tracker.append_log(f"edgechromium backend failed: {e} — retrying with default backend...")
         try:
             window = webview.create_window(
-                title=f"Coteab Macro {current_version}",
+                title=f"Openteab Macro {current_version}",
                 url=url,
                 js_api=api,
                 width=950,
@@ -1014,10 +841,10 @@ def main() -> int:
     tracker = None
     try:
         tracker = BiomeTracker()
-        is_finalize_launch = "--coteab-finalize-update" in sys.argv
+        is_finalize_launch = "--openteab-finalize-update" in sys.argv
 
-        canonical_target = _read_cli_value("--coteab-target", "CoteabMacro.exe")
-        old_pid_raw = _read_cli_value("--coteab-old-pid", "")
+        canonical_target = _read_cli_value("--openteab-target", "OpenteabMacro.exe")
+        old_pid_raw = _read_cli_value("--openteab-old-pid", "")
         try:
             old_pid = int(old_pid_raw) if old_pid_raw else None
         except Exception:
