@@ -178,75 +178,129 @@ def PreLaunch():
 
     #### END OF VENV LOADER ###
     
-    #TODO: if frontend not built, run this lower area!
     #### NODE.js ####
+    frontend_dist = join_path(openteab.frontend, "dist")
+    frontend_file = join_path(frontend_dist,     "index.html")
 
-    #TODO: add system os checks
-    system_os = "WINDOWS"
-
-    #windows
-    nodejs_url_msi = "https://nodejs.org/dist/v" + node_js_version + "/node-v" + node_js_version + "-x64.msi"
-
-    #macos
-    nodejs_url_pkg = "https://nodejs.org/dist/v" + node_js_version + "/node-v" + node_js_version + ".pkg"
-
-    #not suppported by roblox
-    #linux
-    nodejs_url_xz  = "https://nodejs.org/dist/v" + node_js_version + "/node-v" + node_js_version + "-linux-x64.tar.xz"
-
-    node_version_command = ["node", "--version"]
-
-    def download_file(url, save:str):
-        #make temp downloads directory
-        if not exists(openteab.top_directory + "\\temp\\"):
-            makedirs(openteab.top_directory + "\\temp\\")
-        temp_filepath = openteab.top_directory + "\\temp\\file.tmp"
-        if exists(temp_filepath):
-            remove(temp_filepath)
-        #download file to temp directory and filename
-        
-        urlretrieve(url, temp_filepath);
-        if exists(save): copyfile(save, save + ".bak")
-        copyfile(temp_filepath, save)
-
-
-    def getNodeVersion():
+    def is_frontend_availible():
+        if not exists(frontend_file):
+            return False
         try:
-            process = run(node_version_command, cwd=WORKING_DIR, check=True, encoding="UTF-8", stdout=PIPE)
-            return process.stdout.rstrip("\n").lstrip("v")
-        except:
-            return "v0.0.0"
+            import re
+            resources = []
+            excluded_types = (
+                "#",
+                "data:",
+                "blob:",
+                "url:",
+                "javascript:",
+                "mailto:",
+                "file://", # "file:\\\\", #sometimes slashes come in wrong and this is just a double check
+                "http://", # "http:\\\\",
+                "https://", # "https:\\\\",
+                "//", # "\\",
+                "%23", #becuase sometimes noisefilter comes through????
+            )
+            def add_sources(value):
+                if not value: return
+                if isinstance(value, tuple): value=value[0]
+                value = value.strip()
+                if value.startswith(excluded_types): return
+                extracted_value = value.split("?",1)[0].split("#", 1)[0]
+                if extracted_value: resources.append(extracted_value)
+            with open(frontend_file, "r", encoding="utf-8") as file: html = file.read()
+            #basic html src and href
+            for match in re.finditer(r'\b(?:src|href)\s*=\s*["\']([^"\']+)["\']',html,re.IGNORECASE):
+                add_sources(match.groups(1))
+            #javascript/typescript .src and src
+            for match in re.finditer(r'\b(?:\.src|src)\s*=\s*["\']([^"\']+)["\']',html,re.IGNORECASE):
+                add_sources(match.groups(1))
+            #html or css inline url()
+            for match in re.finditer(r'\burl\(\s*["\']?([^\)"\']+)["\']?\s*\)',html,re.IGNORECASE):
+                add_sources(match.groups(1))
+
+            seen = set()
+            for resource in resources:
+                if resource in seen:
+                    continue
+                resource_path = resource.lstrip("/").replace("./","/").replace("/", "\\")
+                resource_abs = join_path(frontend_dist, resource_path.lstrip("\\"))
+                if resource_abs == frontend_dist: continue
+                if resource_path.startswith(frontend_dist+"\\"): continue
+                seen.add(resource)
+                if not exists(resource_abs):
+                    print("file missing! " + resource_abs + " " + resource_path + " " + resource, type="FileCheck")
+                    return False
+                else:
+                    print("file found! " + resource_abs, type="FileCheck")
+            print("all files found! " + ", ".join(seen), type="FileCheck")
+        except Exception as e:
+            print_exception(e)
+            return False
+        return True
         
-    NodeVersion = getNodeVersion()
-    print_log(NodeVersion + " >= v24.20.0 ? " + str(Version(NodeVersion) >= Version(node_js_version)))
+    if not is_frontend_availible():
+        #TODO: add system os checks
+        system_os = "WINDOWS"
 
-    install_file = None
-    install_new = None
+        #windows
+        nodejs_url_msi = "https://nodejs.org/dist/v" + node_js_version + "/node-v" + node_js_version + "-x64.msi"
 
-    if not Version(NodeVersion) >= Version(node_js_version):
-        if system_os == "WINDOWS":
-            install_file = openteab.top_directory + "\\temp\\node-v" + node_js_version + "-x64.msi"
-            download_file(nodejs_url_msi, install_file)
-            install_new = ["msiexec.exe","/i",str(install_file),"/passive","/norestart"]
-            run(install_new, cwd=WORKING_DIR, check=True)
+        #macos
+        nodejs_url_pkg = "https://nodejs.org/dist/v" + node_js_version + "/node-v" + node_js_version + ".pkg"
 
-    NodeVersion = getNodeVersion()
-    if Version(NodeVersion) >= Version(node_js_version):
-        print_log("Node Installed!")
-    else:
-        print_exception("Version failed to update or install!")
-        exit()
+        #not suppported by roblox
+        #linux
+        nodejs_url_xz  = "https://nodejs.org/dist/v" + node_js_version + "/node-v" + node_js_version + "-linux-x64.tar.xz"
 
-    #### END NODE.js ####
-    
-    #### NPM ####
-    npm_install = ["npm.cmd","install"]
-    npm_build = ["npm.cmd","run","build"]
+        node_version_command = ["node", "--version"]
 
-    #TODO: Add check for npm install requirements
-    # run(npm_install, cwd=openteab.frontend, check=True)
-    #TODO: Build frontend
-    run(npm_build,   cwd=openteab.frontend, check=True)
+        def download_file(url, save:str):
+            #make temp downloads directory
+            if not exists(openteab.top_directory + "\\temp\\"):
+                makedirs(openteab.top_directory + "\\temp\\")
+            import time                                                 #semi random name from nanoseconds
+            temp_filepath = openteab.top_directory + "\\temp\\temp_" + int(time.time_ns() / 100) % 100000000 + ".tmp"
+            if exists(temp_filepath):
+                remove(temp_filepath)
+            
+            urlretrieve(url, temp_filepath);
+            if exists(save): copyfile(save, save + ".bak")
+            copyfile(temp_filepath, save)
+
+
+        def getNodeVersion():
+            try:
+                process = run(node_version_command, cwd=WORKING_DIR, check=True, encoding="UTF-8", stdout=PIPE)
+                return process.stdout.rstrip("\n").lstrip("v")
+            except:
+                return "v0.0.0"
+            
+        NodeVersion = getNodeVersion()
+        print(NodeVersion + " >= v24.20.0 ? " + str(Version(NodeVersion) >= Version(node_js_version)), type="FrontendRebuild")
+
+        if not Version(NodeVersion) >= Version(node_js_version):
+            if system_os == "WINDOWS":
+                install_file = openteab.top_directory + "\\temp\\node-v" + node_js_version + "-x64.msi"
+                download_file(nodejs_url_msi, install_file)
+                install_new = ["msiexec.exe","/i",str(install_file),"/passive","/norestart"]
+                run(install_new, cwd=WORKING_DIR, check=True)
+                npm_install = ["npm.cmd","install"]
+                run(npm_install, cwd=openteab.frontend, check=True)
+
+        NodeVersion = getNodeVersion()
+        if Version(NodeVersion) >= Version(node_js_version):
+            print("Node Installed!", type="FrontendRebuild")
+        else:
+            print("Version failed to update or install!", type="FrontendRebuild")
+            exit()
+
+        #TODO: additional checks for npm install requirements
+        npm_install = ["npm.cmd","install"]
+        run(npm_install, cwd=openteab.frontend, check=True)
+
+        npm_build = ["npm.cmd","run","build"]
+        run(npm_build,   cwd=openteab.frontend, check=True)
     print_log("PreLanch Done!")
 
 #### END NPM ####
