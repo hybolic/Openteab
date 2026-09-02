@@ -8,15 +8,17 @@ interface SidebarProps {
 import GlitchOverlay from "./GlitchOverlay";
 import { useGlitchText } from "../hooks/useGlitchText";
 
-const SidebarItem = ({ item, isActive, onClick, isGlitching }: { item: any; isActive: boolean; onClick: () => void; isGlitching: boolean }) => {
+const SidebarItem = ({ item, isActive, onClick, isGlitching, locked }: { item: any; isActive: boolean; onClick: () => void; isGlitching: boolean; locked?: boolean }) => {
     const label = useGlitchText(item.label || "", isGlitching);
+    const isDisabled = item.disabled || locked;
     return (
         <div
             className={`sidebar-item ${isActive ? "active" : ""}`}
-            onClick={() => !item.disabled && onClick()}
-            style={item.disabled ? { opacity: 0.5, cursor: "not-allowed", pointerEvents: "none" } : {}}
+            onClick={() => !isDisabled && onClick()}
+            style={isDisabled ? { opacity: 0.3, cursor: "not-allowed", pointerEvents: "none" } : {}}
+            title={locked ? "🔒 Locked" : undefined}
         >
-            <span className="icon">{item.icon}</span>
+            <span className="icon">{locked ? "🔒" : item.icon}</span>
             {label}
             {item.disabled && <span style={{ fontSize: "10px", marginLeft: "auto", opacity: 0.7 }}>(WIP)</span>}
         </div>
@@ -49,6 +51,7 @@ const navItems = [
 export default function Sidebar({ activeTab, onTabChange, isGlitching, macroVersion }: SidebarProps) {
     const title = useGlitchText("Openteab Macro", isGlitching);
     const version = useGlitchText(macroVersion || "v?.?.?", isGlitching);
+
     return (
         <div className="sidebar" style={{ position: "relative" }}>
             {isGlitching && <GlitchOverlay />}
@@ -80,7 +83,8 @@ export default function Sidebar({ activeTab, onTabChange, isGlitching, macroVers
 
             <div className="sidebar-footer">
                 <div className="by-line">
-                    Openteab Macro made by <span>Openteab Development Team</span>
+                    <div>Coteab Macro made by <br/><span>Coteab Development Team</span></div>
+                    <div>Openteab Maintained by <br/><span>The Community</span></div>
                 </div>
             </div>
         </div>

@@ -122,7 +122,7 @@ export default function CreditsPage() {
                     <div className="card-icon">🏅</div>
                     <div>
                         <h3>Extra Credits</h3>
-                        <p>Thank you to everyone who helped Coteab along the way</p>
+                        <p>Thank you to everyone who helped along the way</p>
                     </div>
                 </div>
 

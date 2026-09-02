@@ -17,12 +17,12 @@ goal is to eventually have a much easier to modify openteab python script that d
 - - &#9744; [new dev note](https://github.com/xVapure/Noteab-Macro/commit/c76e22a4a8d8f90a4be6480eb091b7acde48054d "new dev note") 
 
 - &#9744; v2.1.6 hotfix1
-- - &#9744; [v2.1.6-hotfix1 main.py source](https://github.com/xVapure/Noteab-Macro/commit/f373ee0c6d93dd640664ce134ac7aa7bae91309d "v2.1.6-hotfix1 main.py source")
-- - &#9744; [v2.1.6 (included hotfix1) backend source](https://github.com/xVapure/Noteab-Macro/commit/ca5115129fdb13399fe870b34045d22fc1e2d3de "v2.1.6 (included hotfix1) backend source")
+- - &boxtimes; [v2.1.6-hotfix1 main.py source](https://github.com/xVapure/Noteab-Macro/commit/f373ee0c6d93dd640664ce134ac7aa7bae91309d "v2.1.6-hotfix1 main.py source")
+- - &boxtimes; [v2.1.6 (included hotfix1) backend source](https://github.com/xVapure/Noteab-Macro/commit/ca5115129fdb13399fe870b34045d22fc1e2d3de "v2.1.6 (included hotfix1) backend source")
 
 - &#9744; v2.1.6
-- - &#9744; [Added viteSingleFile plugin to frontend vite.config.ts](https://github.com/xVapure/Noteab-Macro/commit/1a839ad53d03e480da7581484c01cce9e895ecef "Added viteSingleFile plugin to frontend vite.config.ts")
-- - &#9744; [v2.1.6 frontend source (included hotfix1)](https://github.com/xVapure/Noteab-Macro/commit/15b89aa34e5365996556d78f345d7c04a846075f "v2.1.6 frontend source (included hotfix1)")
+- - &boxtimes; [Added viteSingleFile plugin to frontend vite.config.ts](https://github.com/xVapure/Noteab-Macro/commit/1a839ad53d03e480da7581484c01cce9e895ecef "Added viteSingleFile plugin to frontend vite.config.ts")
+- - &boxtimes; [v2.1.6 frontend source (included hotfix1)](https://github.com/xVapure/Noteab-Macro/commit/15b89aa34e5365996556d78f345d7c04a846075f "v2.1.6 frontend source (included hotfix1)")
 
 - &boxtimes; v2.1.5
 - - &boxtimes; [updated dev note for v2.1.5](https://github.com/xVapure/Noteab-Macro/commit/1cd282bb323752f2202a597a97e21681090a439a "updated dev note for v2.1.5")

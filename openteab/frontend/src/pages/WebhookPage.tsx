@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useConfig } from "../contexts/ConfigContext";
+import { looksLikeWebhookUrl, getWebhookWarning } from "../utils/webhookGuard";
 
 export default function WebhookPage() {
     const { config, saveConfig, error } = useConfig();
@@ -49,6 +50,22 @@ export default function WebhookPage() {
         saveConfig({ ...config, biome_notifier: newNotifier });
     };
 
+    const handleRobloxUsernameChange = (val: string) => {
+        if (looksLikeWebhookUrl(val)) {
+            alert(getWebhookWarning(val, "Roblox Username"));
+            return;
+        }
+        saveConfig({ ...config, roblox_username: val });
+    };
+
+    const handlePrivateServerLinkChange = (val: string) => {
+        if (looksLikeWebhookUrl(val)) {
+            alert(getWebhookWarning(val, "Private Server Link"));
+            return;
+        }
+        saveConfig({ ...config, private_server_link: val });
+    };
+
     const handleTestWebhooks = async () => {
         if (testing) return;
         setTesting(true);
@@ -83,7 +100,7 @@ export default function WebhookPage() {
                     placeholder="Enter your Roblox username"
                     style={{ width: "100%" }}
                     value={config.roblox_username || ""}
-                    onChange={(e) => saveConfig({ ...config, roblox_username: e.target.value })}
+                    onChange={(e) => handleRobloxUsernameChange(e.target.value)}
                 />
             </div>
 
@@ -160,7 +177,7 @@ export default function WebhookPage() {
                     placeholder="https://www.roblox.com/games/..."
                     style={{ width: "100%" }}
                     value={config.private_server_link || ""}
-                    onChange={(e) => saveConfig({ ...config, private_server_link: e.target.value })}
+                    onChange={(e) => handlePrivateServerLinkChange(e.target.value)}
                 />
             </div>
 

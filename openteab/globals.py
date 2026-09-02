@@ -253,7 +253,7 @@ class Openteab:
 
         return path
     
-    def save_screenshot(File:str, Webhook:Callable|None=None, Area:tuple[int, int, int, int]|None=None, **data):
+    def save_screenshot(File:str, Webhook:Callable|None=None, Area:tuple[int, int, int, int]|None=None, *args, **kwargs):
         path = join_path(openteab.screenshots, File)
         if not roblox.is_roblox_focused():
             print("Roblox not focused, skipping screenshot", type="Screenshot")
@@ -264,7 +264,7 @@ class Openteab:
             print(f"Saved to: {path}, exists: {path_exists(path)}")
         if Webhook is not None:
             try:
-                Webhook(**data, screenshot_path=path)
+                Webhook(*args, **kwargs, screenshot_path=path)
             except Exception as e:
                 from inspect import currentframe
                 def namestr(obj, namespace):
@@ -279,7 +279,7 @@ class Openteab:
                         return []
                     return namestr(obj, frame.f_locals)
                 hook_name = names_in_caller(Webhook)
-                print(f"Failed to send {hook_name}: {e}", data, type="webhook")
+                print(f"Failed to send {hook_name}: {e}", (args, kwargs), type="webhook")
 
     # ------------------------------------------------------------------
     # Requirements
@@ -375,7 +375,7 @@ class Openteab:
       "Rin": "https://i.postimg.cc/j5n9B6Km/rin.png"
     }
 
-    eden_thumbnail = "https://raw.githubusercontent.com/vexthecoder/OysterDetector/refs/heads/main/eden.png"
+    eden_thumbnail = "https://i.postimg.cc/q7jFZVMp/eden.png"
     egg_thumbnail  = "https://i.postimg.cc/FzRsHF7y/eggdoggo.png"
     biome_url      = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/biomes_data.json"
     biome_eventUrl = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/active_events.json"

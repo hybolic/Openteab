@@ -5,6 +5,11 @@ import json
 import sys
 from pathlib import Path
 from typing import Any
+import os as _os
+import tempfile as _tempfile
+import threading as _threading
+
+_config_lock = _threading.Lock()
 from openteab.globals import openteab
 
 # def get_base_path() -> Path:
@@ -188,11 +193,11 @@ def get_config_file() -> Path:
 #TODO modify to fix new folder system
 def ensure_workspace_files() -> None:
     return
-    # (BASE_PATH + "/resources").mkdir(exist_ok=True)
-    # (BASE_PATH + "/resources" / "paths").mkdir(parents=True, exist_ok=True)
-    # (BASE_PATH + "/paths").mkdir(exist_ok=True)
-    # (BASE_PATH + "/logs").mkdir(exist_ok=True)
-    # (BASE_PATH + "/images").mkdir(exist_ok=True)
+    # (BASE_PATH / "resources").mkdir(exist_ok=True)
+    # (BASE_PATH / "resources" / "paths").mkdir(parents=True, exist_ok=True)
+    # (BASE_PATH / "paths").mkdir(exist_ok=True)
+    # (BASE_PATH / "logs").mkdir(exist_ok=True)
+    # (BASE_PATH / "images").mkdir(exist_ok=True)
     
     # if not getattr(sys, 'frozen', False):
     #     DEV_CONFIG_DIR.mkdir(exist_ok=True)
@@ -210,32 +215,50 @@ def sync_config() -> None:
 
 def load_config() -> dict[str, Any]:
     ensure_workspace_files()
-    try:
-        config_file = get_config_file()
-        file = open(config_file,'r',encoding='utf-8')
-        data = json.load(file)
-        file.close()
-        if isinstance(data, dict):
-            data["auto_pop_biomes"] = normalize_auto_pop_biomes(data)
-            return data
-        return {}
-    except Exception as e:
-        print(e)
-        return {}
-        
+    with _config_lock:
+        try:
+            config_file = get_config_file()
+            raw = config_file.read_text(encoding="utf-8").strip()
+            if not raw: return {}
+            data = json.loads(raw)
+            if isinstance(data, dict):
+                data["auto_pop_biomes"] = normalize_auto_pop_biomes(data)
+                return data
+            return {}
+        except Exception: return {}
+
 def save_config(config_data: dict[str, Any]) -> None:
-    ensure_workspace_files()
-    try:
-        config_file = get_config_file()
-        current_config = {}
-        if config_file.exists():
-             try:
-                 current_config = json.loads(config_file.read_text(encoding="utf-8"))
-             except Exception:
-                 pass
-         
-        current_config.update(config_data)
-        current_config["auto_pop_biomes"] = normalize_auto_pop_biomes(current_config)
-        config_file.write_text(json.dumps(current_config, indent=4) + "\n", encoding="utf-8")
-    except Exception as e:
-        print(f"Failed to save config: {e}")
+    with _config_lock:
+        try:
+            config_file = get_config_file()
+            current_config = {}
+            if config_file.exists():
+                try:
+                    raw = config_file.read_text(encoding="utf-8").strip()
+                    if raw:
+                        parsed = json.loads(raw)
+                        if isinstance(parsed, dict):
+                            current_config = parsed
+                except Exception:
+                    pass
+
+            current_config.update(config_data)
+            current_config["auto_pop_biomes"] = normalize_auto_pop_biomes(current_config)
+            tmp_fd, tmp_path = _tempfile.mkstemp(
+                dir=str(config_file.parent), suffix=".tmp", prefix="config_"
+            )
+            try:
+                with _os.fdopen(tmp_fd, "w", encoding="utf-8") as f:
+                    json.dump(current_config, f, indent=4)
+                    f.write("\n")
+                    f.flush()
+                    _os.fsync(f.fileno())
+                _os.replace(tmp_path, str(config_file))
+            except Exception:
+                try:
+                    _os.unlink(tmp_path)
+                except Exception:
+                    pass
+                raise
+        except Exception as e:
+            print(f"Failed to save config: {e}")

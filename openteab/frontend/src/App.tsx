@@ -42,6 +42,7 @@ const pages: Record<string, React.FC> = {
   customization: CustomizationPage,
   credits: CreditsPage,
   donations: DonationsPage,
+  // puzzle: PuzzlePage,
 };
 
 function App() {
@@ -285,37 +286,37 @@ function App() {
 
     const applyVersion = (value: unknown) => {
       const version = String(value ?? "").trim();
-      if (!version) return;
+      if (!version) return false;
       if (!cancelled) {
         setMacroVersion(version);
       }
       document.title = `Openteab Macro ${version}`;
+      return true;
     };
 
-    const loadMacroVersion = async () => {
+    const loadMacroVersion = async (): Promise<boolean> => {
       try {
         if (window.pywebview?.api && typeof window.pywebview.api.get_macro_version === "function") {
           const version = await window.pywebview.api.get_macro_version();
-          applyVersion(version);
+          return applyVersion(version);
         }
       } catch (err) {
         console.error("Failed to load macro version:", err);
       }
+      return false;
     };
 
-    const onPywebviewReady = () => {
-      void loadMacroVersion();
-    };
-
-    if (window.pywebview?.api) {
-      void loadMacroVersion();
-    } else {
-      window.addEventListener("pywebviewready", onPywebviewReady, { once: true });
+    const tryLoad = async () => {
+      for (let i = 0; i < 10 && !cancelled; i++) {
+        if (await loadMacroVersion()) return;
+        await new Promise(r => setTimeout(r, 500));
     }
+    };
+
+    void tryLoad();
 
     return () => {
       cancelled = true;
-      window.removeEventListener("pywebviewready", onPywebviewReady);
     };
   }, []);
 
@@ -356,8 +357,8 @@ function App() {
 
 
 
-  const activePageQuery = new URLSearchParams(window.location.search).get("overlay");
-  const windowType = new URLSearchParams(window.location.search).get("window");
+  const activePageQuery = (window as any).__INJECTED_OVERLAY__ || new URLSearchParams(window.location.search).get("overlay");
+  const windowType = (window as any).__INJECTED_WINDOW_TYPE__ || new URLSearchParams(window.location.search).get("window");
 
   if (windowType === "recorder") {
     return <RecorderWindow />;
@@ -395,6 +396,7 @@ function App() {
             theme={theme}
             onThemeChange={handleThemeChange}
             isGlitching={isGlitching}
+            setActiveTab={setActiveTab}
           />
           {updateInfo && (
             <UpdateBanner

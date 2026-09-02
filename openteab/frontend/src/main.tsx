@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./fonts.css";
 import App from "./App";
 import { ConfigProvider } from "./contexts/ConfigContext";
 
@@ -12,5 +11,5 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <ConfigProvider>
       <App />
     </ConfigProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
