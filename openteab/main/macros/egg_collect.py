@@ -7,6 +7,7 @@ from typing import Any, Callable
 import os
 import sys
 import collections.abc
+from ..config import APPDATA_BASE, BASE_PATH
 
 _autoit_lock = threading.Lock()
 
@@ -15,8 +16,8 @@ from .fishing import (
     _autoit_key_tap,
     _autoit_key_down,
     _autoit_key_up,
-    NON_VIP_WALK_SPEED_MULTIPLIER,
     _safe_type_text,
+    NON_VIP_WALK_SPEED_MULTIPLIER,
     _MOVEMENT_KEYS,
     _coerce_point,
     _coerce_region,
@@ -63,7 +64,7 @@ def _replay_egg_path(
     if abs(scale_x - 1.0) < 0.01 and abs(scale_y - 1.0) < 0.01:
         scale_x = scale_y = 1.0  # no scaling
     else:
-        print(f"{log_prefix} Resolution scaling: {_RECORD_WIDTH}x{_RECORD_HEIGHT} -> {screen_w}x{screen_h} (x={scale_x:.3f}, y={scale_y:.3f})")
+        print(f"Resolution scaling: {_RECORD_WIDTH}x{_RECORD_HEIGHT} -> {screen_w}x{screen_h} (x={scale_x:.3f}, y={scale_y:.3f})",type=log_prefix)
 
     try:
         for ev in events:
@@ -232,7 +233,7 @@ def _load_egg_route_events(route_file: Path, log_prefix: str = "[EggCollect]") -
         elif isinstance(raw_data, list):
             all_events = raw_data
         else:
-            print(f"{log_prefix} {route_file.name} has unexpected format. Skipping.")
+            print(f"{route_file.name} has unexpected format. Skipping.",type=log_prefix)
             return None
 
         _ALLOWED_KEYS = {"w", "a", "s", "d", "space"}
@@ -241,11 +242,11 @@ def _load_egg_route_events(route_file: Path, log_prefix: str = "[EggCollect]") -
             if e.get("type") in ("key_down", "key_up") and e.get("key", "").lower() in _ALLOWED_KEYS
         ]
         if not filtered:
-            print(f"{log_prefix} {route_file.name} has no usable events. Skipping.")
+            print(f"{route_file.name} has no usable events. Skipping.",type=log_prefix)
             return None
         return filtered
     except Exception as e:
-        print(f"{log_prefix} Failed to load {route_file.name}: {e}")
+        print(f"Failed to load {route_file.name}: {e}",type=log_prefix)
         return None
 
 
@@ -265,7 +266,7 @@ def _run_single_egg_route(
 ) -> bool:
     if not should_continue() or not can_run(): return False
 
-    print(f"{log_prefix} Running {route_name} ({len(egg_events)} events)...")
+    print(f"Running {route_name} ({len(egg_events)} events)...",type=log_prefix)
 
     if activate_roblox_cb is not None:
         try:
@@ -287,7 +288,7 @@ def _run_single_egg_route(
         try:
             egg_ocr_check_cb()
         except Exception as e:
-            print(f"{log_prefix} egg_ocr_check_cb error: {e}")
+            print(f"egg_ocr_check_cb error: {e}",type=log_prefix)
 
     if not _run_respawn_sequence(
         sleep_interruptible=sleep_interruptible,
@@ -303,10 +304,10 @@ def _run_single_egg_route(
     # Close chat if open (egg OCR may have left it open)
     if close_chat_fn is not None:
         try:
-            print(f"{log_prefix} Closing chat if open...")
+            print(f"Closing chat if open...",type=log_prefix)
             close_chat_fn()
         except Exception as e:
-            print(f"{log_prefix} close_chat_fn error: {e}")
+            print(f"close_chat_fn error: {e}",type=log_prefix)
 
     if not sleep_interruptible(0.5, 0.02): return False
 
@@ -337,7 +338,7 @@ def _run_single_egg_route(
             return False
         autoit.mouse_up("right")
     except Exception as e:
-        print(f"{log_prefix} Camera adjustment error: {e}")
+        print(f"Camera adjustment error: {e}",type=log_prefix)
         try:
             autoit.mouse_up("right")
         except Exception:
@@ -388,7 +389,7 @@ def _run_single_egg_route(
     e_thread = threading.Thread(target=_spam_e, daemon=True)
     e_thread.start()
 
-    print(f"{log_prefix} Walking {route_name} (speed_multiplier={walk_mult:.2f})...")
+    print(f"Walking {route_name} (speed_multiplier={walk_mult:.2f})...",type=log_prefix)
     try:
         path_ok = _replay_egg_path(
             events=egg_events,
@@ -436,17 +437,17 @@ def _run_single_egg_route(
     sleep_interruptible(0.3, 0.02)
 
     if not path_ok:
-        print(f"{log_prefix} {route_name} was interrupted.")
+        print(f"{route_name} was interrupted.",type=log_prefix)
         return False
 
-    print(f"{log_prefix} {route_name} complete.")
+    print(f"{route_name} complete.",type=log_prefix)
 
     if not sleep_interruptible(1, 0.02): return False
 
     # Egg failsafe click at the end of the route
     failsafes = cfg.get("egg_click_failsafe", [])
     if failsafes:
-        print(f"{log_prefix} Executing {len(failsafes)} egg failsafe click(s)...")
+        print(f"Executing {len(failsafes)} egg failsafe click(s)...",type=log_prefix)
         for fx, fy in failsafes:
             try:
                 autoit.mouse_click("left", fx, fy, 1, speed=3)
@@ -470,15 +471,25 @@ def run_egg_collect_once(
 ) -> bool:
     if not should_continue() or not can_run():
         return False
-
-
-    base_dir = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(os.getcwd())
-    paths_folder = base_dir / "paths"
-    route_files: list[Path] = sorted(paths_folder.glob("egg_route*.json"))
-
-    if not route_files:
-        print(f"{log_prefix} No egg route files found in {paths_folder}. Skipping.")
+    
+    search_dirs = [
+        APPDATA_BASE / "paths",
+        BASE_PATH / "paths",
+        Path(os.getcwd()) / "paths"
+    ]
+    
+    paths_folder = None
+    for sd in search_dirs:
+        if sd.exists() and any(sd.iterdir()):
+            paths_folder = sd
+            break
+            
+    if not paths_folder:
+        paths_folder = search_dirs[0]
+        print(f"No egg route files found in macro paths. Last checked: {paths_folder}",type=log_prefix)
         return True
+
+    route_files: list[Path] = sorted(paths_folder.glob("egg_route*.json"))
 
     routes: list[tuple[str, list[dict[str, Any]]]] = []
     for rf in route_files:
@@ -487,16 +498,16 @@ def run_egg_collect_once(
             routes.append((rf.name, events))
 
     if not routes:
-        print(f"{log_prefix} No usable egg route events found. Skipping.")
+        print(f"No usable egg route events found. Skipping.",type=log_prefix)
         return True
 
-    print(f"{log_prefix} Starting egg collection cycle ({len(routes)} route{'s' if len(routes) > 1 else ''} found)...")
+    print(f"Starting egg collection cycle ({len(routes)} route{'s' if len(routes) > 1 else ''} found)...",type=log_prefix)
 
     # each route with full pre-collect + path + post-cleanup (yes im cool son)
     for i, (route_name, egg_events) in enumerate(routes):
         if not should_continue() or not can_run(): return False
 
-        print(f"{log_prefix} Route {i + 1}/{len(routes)}: {route_name}")
+        print(f"Route {i + 1}/{len(routes)}: {route_name}",type=log_prefix)
         if not _run_single_egg_route(
             route_name=route_name,
             egg_events=egg_events,
@@ -512,5 +523,5 @@ def run_egg_collect_once(
         ):
             return False
 
-    print(f"{log_prefix} All egg collection routes complete.")
+    print(f"All egg collection routes complete.",type=log_prefix)
     return True

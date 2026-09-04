@@ -1,5 +1,4 @@
 from .base_support import *
-from openteab.globals import openteab, roblox
 
 class DetectionMixin:
     def load_logs(self):
@@ -16,18 +15,18 @@ class DetectionMixin:
         default_biome_data = openteab.default_biome_data
 
         try:
-            r = requests.get(url, timeout=10)
+            r = requests.get(url, timeout=1)
             r.raise_for_status()
             data = r.json()
             if not isinstance(data, dict) or not data:
                 data = default_biome_data
         except Exception as e:
-            print(f"Error loading biomes_data.json from {url}: {e}")
+            print(f"Error loading {url}: {e}")
             self.error_logging(e, f"Error loading biomes_data.json from {url}")
             data = default_biome_data
 
         try:
-            r_events = requests.get(eventUrl, timeout=10)
+            r_events = requests.get(eventUrl, timeout=1)
             r_events.raise_for_status()
             events = r_events.json()
         except Exception as e:
@@ -91,13 +90,9 @@ class DetectionMixin:
     def save_logs(self):
         log_file_path = 'macro_logs.txt'
 
-        if os.path.exists(log_file_path) and os.path.getsize(log_file_path) > 2 * 1024 * 1024:
+        if os.path.exists(log_file_path) and os.path.getsize(log_file_path) > 10 * 1024 * 1024:
             with open(log_file_path, 'w', encoding='utf-8') as file:
                 file.write("")
-        else:
-            with open(log_file_path, 'a', encoding='utf-8') as file:
-                for log in self.logs:
-                    file.write(log + "\n")
 
     def take_aura_screenshot_now(self, force=False):
         try:
@@ -108,7 +103,7 @@ class DetectionMixin:
                     return
             if not roblox.check_roblox_procs():
                 return
-            if getattr(self, "_egg_collecting", False):
+            if (getattr(self, "_egg_collecting", False) or getattr(self, "_eden_running", False) or getattr(self, "_potion_thread_active", False)):
                 return
 
             for _ in range(4):
@@ -200,16 +195,23 @@ class DetectionMixin:
                             self.biome_data[biome]["thumbnail_url"] = thumb_val
                 except Exception:
                     pass
-            cfg = {}
             try:
-                if os.path.exists(openteab.config_json):
-                    with open(openteab.config_json, "r", encoding="utf-8") as f:
-                        cfg = json.load(f)
-            except Exception:
+                from .config import get_config_file
+                config_path = get_config_file()
                 cfg = {}
-            cfg["custom_biome_overrides"] = overrides
-            with open(openteab.config_json, "w", encoding="utf-8") as f:
-                json.dump(cfg, f, indent=4)
+                if config_path.exists():
+                    with open(config_path, "r", encoding="utf-8") as f:
+                        cfg = json.load(f)
+                
+                cfg["custom_biome_overrides"] = overrides
+                
+                # Write back safely via tmp file just to be clean, or directly
+                with open(config_path, "w", encoding="utf-8") as f:
+                    json.dump(cfg, f, indent=4)
+                    
+            except Exception as e:
+                print(f"Error saving custom_biome_overrides to config: {e}")
+
             self.config["custom_biome_overrides"] = overrides
             messagebox.showinfo("Saved", "Biome embed customizations saved.")
             win.destroy()
@@ -260,16 +262,15 @@ class DetectionMixin:
 
     def parse_session_time(self, session_time_str):
         try:
+            if not isinstance(session_time_str, str): session_time_str = str(session_time_str)
             parts = session_time_str.split(":")
             if len(parts) == 3:  # Format: hours:minutes:seconds
                 hours, minutes, seconds = map(int, parts)
                 return hours * 3600 + minutes * 60 + seconds
-            else:
-                raise ValueError("Invalid session time format")
-
+            return 0
         except Exception as e:
             self.error_logging(e, "Error parsing session time.")
-            return 0  # Return default value in case of error, well yeah
+            return 0  # Return default value in case of error
 
     def update_session_time(self):
         try:
@@ -366,7 +367,7 @@ class DetectionMixin:
         self.config["session_window_start"] = self.session_window_start.isoformat()
         self.config["macro_last_start"] = now.isoformat()
         self.save_config()
-        self.set_title_threadsafe(f"""Coteab Macro {current_ver} (Running)""")
+        self.set_title_threadsafe(f"""Openteab Macro {current_ver} (Running)""")
         self.send_webhook_status("Macro started!", color=0x64ff5e)
 
         threads = [
@@ -381,6 +382,7 @@ class DetectionMixin:
             (self.egg_ocr_check_loop, "Egg OCR Check"),
             (self.eden_ocr_check_loop, "Eden OCR Check"),
             (self.merchant_ocr_check_loop, "Merchant OCR Check"),
+            (self.eden_contract_loop, "Eden Contract"),
         ]
 
         for thread_func, name in threads:
@@ -398,13 +400,6 @@ class DetectionMixin:
         except Exception:
             pass
         
-        try:
-            if getattr(self, "remote_access_var", None) and self.remote_access_var.get():
-                token = self.remote_bot_token_var.get().strip() if hasattr(self, "remote_bot_token_var") else ""
-                if token:
-                    self.start_remote_bot()
-        except Exception:
-            pass
         print("Biome detection started.")
 
     def stop_detection(self):
@@ -452,13 +447,9 @@ class DetectionMixin:
         self.saved_session += elapsed_time
         self.start_time = None
         self.stop_sent = True
-        self.set_title_threadsafe(f"Coteab Macro {current_ver} (Stopped)")
-        try:
-            self.stop_remote_bot()
-        except Exception:
-            pass
+        self.set_title_threadsafe(f"Openteab Macro {current_ver} (Stopped)")
         self.send_macro_summary(last24h_seconds)
-        print("closed", self.current_session)
+        print("Openteab Closed", self.current_session)
         self.save_config()
         print("Biome detection stopped.")
 
@@ -642,7 +633,7 @@ class DetectionMixin:
     def load_auras_json(self):
         url = openteab.auras_json
         try:
-            r = requests.get(url, timeout=10)
+            r = requests.get(url, timeout=1)
             r.raise_for_status()
             data = json.loads(r.content.decode('utf-8-sig'))
             if isinstance(data, dict):
@@ -882,6 +873,7 @@ class DetectionMixin:
                         self.just_reconnected = False
                         self.reconnect_confirm_deadline = None
                     if confirmed is False:
+                        self.append_log(f"[BiomeConfirm] User chose to stop macro for {biome}.")
                         self.stop_detection()
                         return
 
@@ -921,7 +913,7 @@ class DetectionMixin:
             if isinstance(auto_pop_entry, dict) and bool(auto_pop_entry.get("enabled", False)):
                 with self.lock:
                     if not self.config.get("enable_idle_mode", False):
-                        self.auto_pop_buffs_for_current_biome()
+                        self.auto_pop_buffs_for_current_biome(target_biome=biome)
 
             if biome == "GLITCHED" or biome == "DREAMSPACE":
                 with self.lock:
@@ -1225,7 +1217,7 @@ class DetectionMixin:
         except (ValueError, TypeError):
             crack_cooldown = timedelta(minutes=30)
 
-        if self.config.get("teleport_portable_crack") and datetime.now() - getattr(self, 'last_crack_time', datetime.min) >= crack_cooldown and not getattr(self, '_br_sc_running', False) and not getattr(self, '_portable_crack_running', False) and not getattr(self, '_mt_running', False) and not getattr(self, '_remote_running', False) and not getattr(self, '_egg_collecting', False) and datetime.now() >= getattr(self, '_cancel_next_actions_until', datetime.min) and not (self.config.get("enable_idle_mode", False)):
+        if self.config.get("teleport_portable_crack") and datetime.now() - getattr(self, 'last_crack_time', datetime.min) >= crack_cooldown and not getattr(self, '_br_sc_running', False) and not getattr(self, '_portable_crack_running', False) and not getattr(self, '_mt_running', False) and not getattr(self, '_remote_running', False) and not (getattr(self, '_egg_collecting', False) or getattr(self, '_eden_running', False) or getattr(self, '_potion_thread_active', False)) and not getattr(self, 'auto_pop_state', False) and datetime.now() >= getattr(self, '_cancel_next_actions_until', datetime.min) and not (self.config.get("enable_idle_mode", False)):
             self.use_portable_crack()
             self.last_crack_time = datetime.now()
 
@@ -1233,7 +1225,7 @@ class DetectionMixin:
                                                                                                     '_br_sc_running',
                                                                                                     False) and not getattr(self, '_portable_crack_running', False) and not getattr(
                         self, '_mt_running', False) and not getattr(self, '_remote_running', False) and not getattr(
-                        self, '_egg_collecting', False) and datetime.now() >= getattr(self, '_cancel_next_actions_until',
+                        self, '_egg_collecting', False) and not getattr(self, 'auto_pop_state', False) and datetime.now() >= getattr(self, '_cancel_next_actions_until',
                                                                                 datetime.min) and not (self.config.get("enable_idle_mode", False)):
             self.use_merchant_teleporter()
             self.last_mt_time = datetime.now()
@@ -1247,7 +1239,7 @@ class DetectionMixin:
                                                                                                     '_br_sc_running',
                                                                                                     False) and not getattr(self, '_portable_crack_running', False) and not getattr(
                         self, '_mt_running', False) and not getattr(self, '_remote_running', False) and not getattr(
-                        self, '_egg_collecting', False) and datetime.now() >= getattr(self, '_cancel_next_actions_until',
+                        self, '_egg_collecting', False) and not getattr(self, 'auto_pop_state', False) and datetime.now() >= getattr(self, '_cancel_next_actions_until',
                                                                                 datetime.min) and not (self.config.get("enable_idle_mode", False)):
             self.use_br_sc('strange controller')
             self.last_sc_time = datetime.now()
@@ -1261,7 +1253,7 @@ class DetectionMixin:
                                                                                                     '_br_sc_running',
                                                                                                     False) and not getattr(self, '_portable_crack_running', False) and not getattr(
                         self, '_mt_running', False) and not getattr(self, '_remote_running', False) and not getattr(
-                        self, '_egg_collecting', False) and datetime.now() >= getattr(self, '_cancel_next_actions_until',
+                        self, '_egg_collecting', False) and not getattr(self, 'auto_pop_state', False) and datetime.now() >= getattr(self, '_cancel_next_actions_until',
                                                                                 datetime.min) and not (self.config.get("enable_idle_mode", False)):
             self.use_br_sc('biome randomizer')
             self.last_br_time = datetime.now()
@@ -1347,7 +1339,7 @@ class DetectionMixin:
 
     def _merchant_teleporter_impl(self):
         if getattr(self, '_br_sc_running', False): return
-        if getattr(self, '_egg_collecting', False): return
+        if (getattr(self, '_egg_collecting', False) or getattr(self, '_eden_running', False) or getattr(self, '_potion_thread_active', False)): return
         if getattr(self, "enable_potion_crafting_var", None) and self.enable_potion_crafting_var.get(): return
         self._last_merchant_sequence_ran = False
         self._last_merchant_sequence_requires_reset = False
@@ -1511,7 +1503,7 @@ class DetectionMixin:
                 # print("hi me running aura record")
                 keybind = self.aura_record_keybind_var.get()
                 keys = [key.strip() for key in keybind.split('+')]
-                time.sleep(10)
+                time.sleep(30)
                 pyautogui.hotkey(*keys)
             except Exception as e:
                 self.error_logging(e, "Error in trigger_aura_record")

@@ -12,6 +12,7 @@ import MerchantPage from "./pages/MerchantPage";
 import AutoPopBuffPage from "./pages/AutoPopBuffPage";
 import AurasPage from "./pages/AurasPage";
 import PotionCraftPage from "./pages/PotionCraftPage";
+import StatusPage from "./pages/StatusPage";
 import StatsPage from "./pages/StatsPage";
 import OtherFeaturesPage from "./pages/OtherFeaturesPage";
 import CreditsPage from "./pages/CreditsPage";
@@ -24,6 +25,35 @@ import CustomizationPage from "./pages/CustomizationPage";
 import MovementsPage from "./pages/MovementsPage";
 import RecorderWindow from "./pages/RecorderWindow";
 import BiomeConfirmWindow from "./pages/BiomeConfirmWindow";
+
+// --- Safe Mode (Browser failsafe via HTTP) ---
+const isSafeMode = new URLSearchParams(window.location.search).get("safe_mode");
+if (isSafeMode && !(window as any).pywebview) {
+  console.log(`[SafeMode] Initializing HTTP bridge...`);
+  (window as any).isSafeMode = true;
+
+  (window as any).pywebview = {
+    api: new Proxy({}, {
+      get: (_target, method: string) => {
+        return async (...args: any[]) => {
+          try {
+            const response = await fetch(`/api/${method}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(args)
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            return data;
+          } catch (err) {
+            console.error(`[SafeMode] API Error (${method}):`, err);
+            throw err;
+          }
+        };
+      }
+    })
+  };
+}
 
 const pages: Record<string, React.FC> = {
   notice: NoticePage,
@@ -38,6 +68,7 @@ const pages: Record<string, React.FC> = {
   movements: MovementsPage,
   potioncraft: PotionCraftPage,
   stats: StatsPage,
+  status: StatusPage,
   otherfeatures: OtherFeaturesPage,
   customization: CustomizationPage,
   credits: CreditsPage,
@@ -48,6 +79,7 @@ const pages: Record<string, React.FC> = {
 function App() {
   const [activeTab, setActiveTab] = useState("notice");
   const { config, saveConfig, isMacroRunning, setMacroRunning } = useConfig();
+  const [isApiReady, setIsApiReady] = useState(new URLSearchParams(window.location.search).get("safe_mode") !== null);
   const [theme, setTheme] = useState("midnight");
   const [isGlitching, setIsGlitching] = useState(false);
   const [macroVersion, setMacroVersion] = useState("v?.?.?");
@@ -254,10 +286,12 @@ function App() {
     };
 
     const onReady = () => {
+      setIsApiReady(true);
       void requestUpdateCheck();
     };
 
-    if (window.pywebview?.api) {
+    if (window.pywebview?.api || (window as any).isSafeMode) {
+      setIsApiReady(true);
       void requestUpdateCheck();
       return;
     }
@@ -310,7 +344,7 @@ function App() {
       for (let i = 0; i < 10 && !cancelled; i++) {
         if (await loadMacroVersion()) return;
         await new Promise(r => setTimeout(r, 500));
-    }
+      }
     };
 
     void tryLoad();
@@ -387,7 +421,7 @@ function App() {
       <div className="corner-bracket tr" />
       <div className="corner-bracket bl" />
       <div className="corner-bracket br" />
-      <div className="app-layout">
+      <div className="app-layout" style={(!isApiReady && !(window as any).isSafeMode) ? { pointerEvents: 'none', opacity: 0.7 } : {}}>
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isGlitching={isGlitching} macroVersion={macroVersion} />
         <div className="main-content" style={{ position: "relative" }}>
           <HeaderBar

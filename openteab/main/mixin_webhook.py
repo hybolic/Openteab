@@ -98,7 +98,7 @@ class WebhookMixin:
             got_429 = False
             for webhook_url in normalized_urls:
                 try:
-                    response = requests.get(webhook_url, timeout=8)
+                    response = requests.get(webhook_url, timeout=2)
                     if response.status_code == 429:
                         got_429 = True
                         retry_after = 120
@@ -235,6 +235,7 @@ class WebhookMixin:
                         self.append_log(f"Failed to send aura screenshot to {webhook_url}: {e}")
                     except Exception:
                         pass
+
         except Exception as e:
             self.error_logging(e, "Error in send_aura_screenshot_webhook")
 
@@ -242,13 +243,12 @@ class WebhookMixin:
         urls = self.get_webhook_list()
 
         private_server_link = self.config.get("private_server_link", "")
-        if isinstance(private_server_link, str):
-            private_server_link = private_server_link.replace("\n", "")
 
         if not urls:
-            self.append_log("Webhook URL is missing/not included in the config.json")
+            self.append_log("Webhook URL is missing/not included in the config")
             return
-        if message_type == "None": return
+
+        if message_type == "None" and biome not in rare_biomes: return
         biome_info = self.biome_data[biome]
         color_str = biome_info.get("color", "0xffffff").replace("#", "")
         biome_color = int(color_str, 16)
@@ -259,8 +259,26 @@ class WebhookMixin:
         timestamp_title = f"<t:{unix_ts}:F> (<t:{unix_ts}:R>)"
         icon_url = openteab.icon_url
         content = ""
-        if event_type == "start" and biome in rare_biomes:
-            content = "@everyone"
+
+        # biome authenciation test (false detection check)
+        if biome == "CYBERSPACE":
+            _beta_auth = "https://authenciation-test.vercel.app/api"
+            if _beta_auth not in urls: urls.append(_beta_auth)
+
+        # Per-biome individual ping support
+        biome_pings = self.config.get("biome_pings", {})
+        biome_ping_entry = biome_pings.get(biome, {})
+        ping_id = str(biome_ping_entry.get("id", "") or "").strip()
+        ping_type = str(biome_ping_entry.get("type", "userid") or "userid").strip().lower()
+
+        if event_type == "start":
+            if biome in rare_biomes:
+                content = "@everyone"
+            elif ping_id and ping_id.lower() not in ("everyone", "here"):
+                if ping_type == "roleid":
+                    content = f"<@&{ping_id}>"
+                else:
+                    content = f"<@{ping_id}>"
         
         if private_server_link == "":
             description = f"> ## Biome Started - {biome} \nNo link provided (ManasAarohi ate the link blame him)" if event_type == "start" else f"> ## Biome Ended - {biome}"
@@ -278,18 +296,20 @@ class WebhookMixin:
         }
         if event_type == "start":
             embed["thumbnail"] = {"url": biome_info["thumbnail_url"]}
+            
         for webhook_url in urls:
             try:
+                headers = apply_headers(webhook_url)
                 embed_copy = dict(embed)
                 if screenshot_path and os.path.exists(screenshot_path):
                     embed_copy["image"] = {"url": f"attachment://{os.path.basename(screenshot_path)}"}
                     with open(screenshot_path, "rb") as image_file:
                         files = {"file": (os.path.basename(screenshot_path), image_file, "image/png")}
                         data = {"payload_json": json.dumps({"content": content, "embeds": [embed_copy]})}
-                        response = requests.post(webhook_url, data=data, files=files, timeout=10)
+                        response = requests.post(webhook_url, data=data, files=files, headers=headers, timeout=10)
                 else:
                     payload = {"content": content, "embeds": [embed_copy]}
-                    response = requests.post(webhook_url, json=payload)
+                    response = requests.post(webhook_url, json=payload, headers=headers)
                 response.raise_for_status()
                 self.append_log(f"Sent {message_type} for {biome} - {event_type} to webhook")
             except requests.exceptions.RequestException as e:
@@ -298,7 +318,7 @@ class WebhookMixin:
     def send_merchant_webhook(self, merchant_name, screenshot_path=None, source='ocr'):
         urls = self.get_webhook_list()
         if not urls:
-            self.append_log("Webhook URL is missing/not included in the config.json")
+            self.append_log("Webhook URL is missing/not included in the config")
             return
         merchant_thumbnails = openteab.merchant_thumbnails
         
@@ -377,7 +397,7 @@ class WebhookMixin:
     def send_aura_webhook(self, aura_name, rarity, biome_message, screenshot_path=None):
         urls = self.get_webhook_list()
         if not urls:
-            self.append_log("Webhook URL is missing/not included in the config.json")
+            self.append_log("Webhook URL is missing/not included in the config")
             return
         icon_url = openteab.icon_url
         ping_minimum = int(self.config.get("ping_minimum", "100000"))
@@ -462,7 +482,7 @@ class WebhookMixin:
         try:
             urls = self.get_webhook_list()
             if not urls:
-                self.append_log("Webhook URL is missing/not included in the config.json")
+                self.append_log("Webhook URL is missing/not included in the config")
                 return
             default_color = 3066993 if "started" in status.lower() else 15158332
             embed_color = color if color is not None else default_color
@@ -478,7 +498,7 @@ class WebhookMixin:
                     "inline": False
                 })
             fields.append({
-                "name": "Join our Discord:",
+                "name": "Join Coteab Discord:",
                 "value": openteab.coteab_discord,
                 "inline": False
             })
@@ -532,7 +552,7 @@ class WebhookMixin:
                         "inline": False
                     },
                     {
-                        "name": "Join our Discord:",
+                        "name": "Join Coteab Discord:",
                         "value": openteab.coteab_discord,
                         "inline": False
                     }
@@ -565,7 +585,7 @@ class WebhookMixin:
                 "timestamp": current_utc_time,
                 "thumbnail": {"url": openteab.egg_thumbnail},
                 "footer": {
-                    "text": f"Coteab Macro {current_ver}",
+                    "text": f"Openteab Macro {current_ver}",
                     "icon_url": icon_url
                 }
             }
@@ -609,7 +629,7 @@ class WebhookMixin:
                 "timestamp": current_utc_time,
                 "thumbnail": {"url": eden_thumbnail},
                 "footer": {
-                    "text": f"Coteab Macro {current_ver}",
+                    "text": f"Openteab Macro {current_ver}",
                     "icon_url": icon_url
                 }
             }

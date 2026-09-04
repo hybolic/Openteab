@@ -8,7 +8,7 @@ class GuiMixin:
 
 
         self.root = ttk.Window(themename=selected_theme)
-        self.set_title_threadsafe(f"Coteab Macro {current_ver} (Idle)")
+        self.set_title_threadsafe(f"Openteab Macro {current_ver} (Idle)")
         self.root.geometry("1000x700")
         self.root.minsize(900, 600)
         try:

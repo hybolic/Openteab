@@ -5,26 +5,27 @@ import json
 import sys
 from pathlib import Path
 from typing import Any
-import os as _os
+import os
 import tempfile as _tempfile
 import threading as _threading
 
 _config_lock = _threading.Lock()
 from openteab.globals import openteab
 
-# def get_base_path() -> Path:
-#     if getattr(sys, 'frozen', False):
-#         return Path(sys.executable).parent
-#     return Path(__file__).parent.parent
-
-BASE_PATH = openteab.top_directory
+CWD = Path(openteab.cwd)
+BASE_PATH = Path(openteab.top_directory)
 """ ./openteab """
-EXE_CONFIG = openteab.config_folder + "\\config.json"
-""" ./config_folder/config.json """
-DEV_CONFIG_DIR = openteab.config_folder
+DEV_CONFIG_DIR = Path(openteab.config_folder)
 """ ./config_folder """
-DEV_CONFIG = DEV_CONFIG_DIR + "\\config.json"
+EXE_CONFIG = Path(openteab.config_folder) / "config.json"
 """ ./config_folder/config.json """
+DEV_CONFIG = EXE_CONFIG
+""" ./config_folder/config.json """
+
+APPDATA_BASE_CoteabMacro = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "CoteabMacro"
+""" %LOCALAPPDATA%/CoteabMacro """
+APPDATA_CONFIG = APPDATA_BASE_CoteabMacro / "config.json"
+""" %LOCALAPPDATA%/CoteabMacro/config.json """
 
 DEFAULT_AUTO_POP_BUFFS = [
     "Fortune Potion I",
@@ -38,6 +39,7 @@ DEFAULT_AUTO_POP_BUFFS = [
     "Lucky Potion",
     "Oblivion Potion",
     "Potion of bound",
+    "Rune of Everything",
     "Speed Potion",
     "Stella's Candle",
     "Strange Potion I",
@@ -61,6 +63,8 @@ DEFAULT_AUTO_POP_BIOMES = [
     "CYBERSPACE",
     "AURORA",
     "HEAVEN",
+    "EGGLAND",
+    "SINGULARITY",
 ]
 
 RARE_BIOMES = {"GLITCHED", "DREAMSPACE", "CYBERSPACE"}
@@ -188,25 +192,34 @@ def normalize_auto_pop_biomes(
     return normalized
 
 def get_config_file() -> Path:
-    return Path(EXE_CONFIG)
+    return EXE_CONFIG
 
 #TODO modify to fix new folder system
 def ensure_workspace_files() -> None:
-    return
-    # (BASE_PATH / "resources").mkdir(exist_ok=True)
-    # (BASE_PATH / "resources" / "paths").mkdir(parents=True, exist_ok=True)
-    # (BASE_PATH / "paths").mkdir(exist_ok=True)
-    # (BASE_PATH / "logs").mkdir(exist_ok=True)
-    # (BASE_PATH / "images").mkdir(exist_ok=True)
-    
-    # if not getattr(sys, 'frozen', False):
-    #     DEV_CONFIG_DIR.mkdir(exist_ok=True)
+    (BASE_PATH / "resources").mkdir(exist_ok=True)
+    (BASE_PATH / "resources" / "paths").mkdir(parents=True, exist_ok=True)
+    (BASE_PATH / "paths").mkdir(exist_ok=True)
+    # (Path(openteab.venv) / "logs").mkdir(exist_ok=True) # this is needs to be changed
+    (BASE_PATH / "images").mkdir(exist_ok=True)
 
-    # config_file = get_config_file()
-    # if not config_file.exists():
-    #     default = {}
-    #     config_file.parent.mkdir(parents=True, exist_ok=True)
-    #     config_file.write_text(json.dumps(default, indent=4) + "\n", encoding="utf-8")
+    if not getattr(sys, 'frozen', False):
+        DEV_CONFIG_DIR.mkdir(exist_ok=True)
+
+    BASE_PATH.mkdir(parents=True, exist_ok=True)
+    config_file = get_config_file()
+
+    # Old migrate code, we want to reverse this and bring everything back to the standalone
+    # Migrate local config to AppData
+    if APPDATA_CONFIG.exists() and not config_file.exists():
+        try:
+            import shutil
+            shutil.copy2(APPDATA_CONFIG, config_file)
+        except Exception as e:
+            print(f"Failed to Migrate '%LOCALAPPDATA%/Coteab/config.json' to /config_folder/config.json, Exception: {e}")
+    if not config_file.exists():
+        default = {}
+        config_file.parent.mkdir(parents=True, exist_ok=True)
+        config_file.write_text(json.dumps(default, indent=4) + "\n", encoding="utf-8")
 
 
 def sync_config() -> None:
@@ -248,17 +261,30 @@ def save_config(config_data: dict[str, Any]) -> None:
                 dir=str(config_file.parent), suffix=".tmp", prefix="config_"
             )
             try:
-                with _os.fdopen(tmp_fd, "w", encoding="utf-8") as f:
+                with os.fdopen(tmp_fd, "w", encoding="utf-8") as f:
                     json.dump(current_config, f, indent=4)
                     f.write("\n")
                     f.flush()
-                    _os.fsync(f.fileno())
-                _os.replace(tmp_path, str(config_file))
+                    os.fsync(f.fileno())
+                os.replace(tmp_path, str(config_file))
             except Exception:
                 try:
-                    _os.unlink(tmp_path)
+                    os.unlink(tmp_path)
                 except Exception:
                     pass
                 raise
         except Exception as e:
             print(f"Failed to save config: {e}")
+def getDirs(dir:str):
+    """
+    @type dir:str REQUIRED
+    @param dir : base path of directory ie "path/to/thing"
+    @rtype: list[str]
+    @returns: a list of paths
+    \n\nreturn [ APPDATA_BASE_CoteabMacro / {dir}, BASE_PATH / {dir}, Path(openteab.cwd) / {dir} ]
+    """
+    return [
+        APPDATA_BASE_CoteabMacro / dir,
+        BASE_PATH / dir,
+        CWD / dir
+    ]

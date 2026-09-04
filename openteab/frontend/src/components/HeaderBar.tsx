@@ -205,6 +205,36 @@ export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, i
                     )}
                 </div>
 
+                {(window as any).isSafeMode && (
+                    <button
+                        className="btn btn-stop"
+                        onClick={async () => {
+                            if (window.confirm("Are you sure you want to completely exit the macro?")) {
+                                try {
+                                    await window.pywebview?.api?.close_window();
+                                    window.close();
+                                    setTimeout(() => {
+                                        document.body.innerHTML = '<div style="background:#111;color:#fff;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;"><h1>Macro Terminated. You can close this tab.</h1></div>';
+                                    }, 500);
+                                } catch (e) {
+                                    console.error("Exit failed", e);
+                                    window.close();
+                                }
+                            }
+                        }}
+                        style={{
+                            fontSize: "11px",
+                            padding: "4px 8px",
+                            marginRight: "10px",
+                            backgroundColor: "#e74c3c",
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            color: "white"
+                        }}
+                    >
+                        Exit Macro
+                    </button>
+                )}
+
                 <button
                     className="btn btn-import"
                     onClick={handleImportConfig}

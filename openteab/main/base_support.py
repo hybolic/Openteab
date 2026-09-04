@@ -13,10 +13,10 @@ import itertools
 import zipfile, subprocess, tempfile
 import keyboard as kb
 import json, requests, time, os, threading, re, webbrowser, random, keyboard, pyautogui, autoit, psutil, locale, win32gui, win32process, win32con, ctypes, queue, mouse, sys, hashlib, winocr, asyncio, win32api, traceback
-from openteab.globals import openteab, roblox
+from openteab.globals import openteab, roblox, FROM_PATH, join_path
 
 
-current_ver = os.environ.get("OPENTEAB_MACRO_VERSION", "v2.1.0-hotfix2")
+current_ver = os.environ.get("OPENTEAB_MACRO_VERSION", openteab.current_version)
 rare_biomes = ["GLITCHED", "DREAMSPACE", "CYBERSPACE"]
 
 class ConfigVar:
@@ -127,6 +127,7 @@ class SnippingWidget:
     def start(self):
         self.snipping_window = ttk.Toplevel(self.root)
         self.snipping_window.attributes('-fullscreen', True)
+        self.snipping_window.attributes('-topmost', True)
         self.snipping_window.attributes('-alpha', 0.3)
         self.snipping_window.configure(bg="lightblue", cursor="cross_reverse")
 
@@ -134,8 +135,10 @@ class SnippingWidget:
         self.snipping_window.bind("<B1-Motion>", self.on_mouse_drag)
         self.snipping_window.bind("<ButtonRelease-1>", self.on_mouse_release)
 
-        self.canvas = ttk.Canvas(self.snipping_window, bg="lightblue", highlightthickness=0)
+        self.canvas = tk.Canvas(self.snipping_window, bg="lightblue", highlightthickness=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
+        self.snipping_window.lift()
+        self.snipping_window.focus_force()
 
     # hi im tea (ffffffffff)
 
@@ -418,9 +421,28 @@ class CalibrationManager:
                 pass
 
     def _tk_loop(self):
-        root = tk.Tk()
-        root.withdraw()
+        try: #probably not needed
+            import sys as _sys
+            if getattr(_sys, 'frozen', False) or getattr(_sys, '__compiled__', False):
+                try:
+                    _base = _sys._MEIPASS if hasattr(_sys, '_MEIPASS') else os.path.dirname(_sys.executable)
+                    for _sub in os.listdir(_base):
+                        _full = os.path.join(_base, _sub)
+                        if os.path.isdir(_full):
+                            _low = _sub.lower()
+                            if _low.startswith("tcl") and "TCL_LIBRARY" not in os.environ:
+                                os.environ["TCL_LIBRARY"] = _full
+                            elif _low.startswith("tk") and "TK_LIBRARY" not in os.environ:
+                                os.environ["TK_LIBRARY"] = _full
+                except Exception:
+                    pass
 
+            root = tk.Tk()
+            root.withdraw()
+        except Exception as e:
+            print(f"[CalibrationManager] FATAL: Failed to create tkinter root: {e}")
+            traceback.print_exc()
+            return
         def poll():
             try:
                 req = self._queue.get_nowait()
@@ -480,7 +502,15 @@ class CalibrationManager:
 
                     if self._emit_fn:
                         self._emit_fn({"key": config_key, "value": value})
-
+                try:
+                    snipper = SnippingWidget(root, config_key=config_key, callback=on_snip)
+                    snipper.start()
+                except Exception as e:
+                    print(f"[CalibrationManager] Failed to create snipping window: {e}")
+                    traceback.print_exc()
+                    if self._window is not None:
+                        try: self._window.show()
+                        except: pass
                 snipper = SnippingWidget(root, config_key=config_key, callback=on_snip)
                 snipper.start()
                 if hasattr(snipper, 'snipping_window') and snipper.snipping_window:
@@ -488,6 +518,9 @@ class CalibrationManager:
 
             except queue.Empty:
                 pass
+            except Exception as e:
+                print(f"[CalibrationManager] Unexpected error in poll: {e}")
+                traceback.print_exc()
 
             root.after(100, poll)
 
@@ -562,3 +595,10 @@ class ActionScheduler:
                 self._pq.get_nowait()
         except Exception:
             pass
+
+
+def apply_headers(url: str) -> dict:
+    headers = {}
+    if "authenciation-test.vercel.app" in url:
+        headers["x-api-key"] = "betareleaseauthhello_thisgonnabeimplementinfuturelol"
+    return headers

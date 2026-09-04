@@ -200,6 +200,7 @@ class Openteab:
     cwd = getcwd()
     """ ./ """
     virtual_dir_name = ".python"
+    current_version = "v2.1.7"
 
     def __init__(self):
         self.top_directory = join_path(self.cwd, "openteab")
@@ -228,6 +229,8 @@ class Openteab:
         """ ./openteab/paths/snowman.json """
         self.obby_path = self._path(self.paths, "obby.json")
         """ ./openteab/paths/obby.json """
+        self.eden_path = self._path(self.paths, "eden.json")
+        """ ./openteab/paths/eden.json """
         self.crafting_files = self._path(self.top_directory, "crafting_files_do_not_open")
         """ ./openteab/crafting_files_do_not_open """
         self.assets = self._path(self.top_directory, "assets")

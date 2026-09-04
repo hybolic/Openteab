@@ -12,15 +12,44 @@ export default function CustomizationPage() {
     const selectRef = useRef<HTMLSelectElement>(null);
 
     useEffect(() => {
-        if (config && config.custom_biome_overrides) {
-            const parsed = JSON.parse(JSON.stringify(config.custom_biome_overrides));
-            setBiomes(parsed);
-            
-            if (!selectedBiome) {
-                const keys = Object.keys(parsed).filter(b => b !== "NORMAL" && b !== "DREAMSPACE");
-                if (keys.length > 0) setSelectedBiome(keys[0]);
+        let isMounted = true;
+        const loadBiomes = async () => {
+            if (!config) return;
+            try {
+                let defaultData: Record<string, any> = {};
+                if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.get_full_biome_data === 'function') {
+                    defaultData = await window.pywebview.api.get_full_biome_data();
+                }
+
+                const overrides = config.custom_biome_overrides || {};
+                const merged: Record<string, any> = {};
+
+                for (const biome of Object.keys(defaultData)) {
+                    merged[biome] = {
+                        ...defaultData[biome],
+                        ...overrides[biome]
+                    };
+                }
+
+        
+                for (const biome of Object.keys(overrides)) {
+                    if (!merged[biome]) merged[biome] = overrides[biome];
+                }
+
+                if (isMounted) {
+                    setBiomes(merged);
+                    if (!selectedBiome) {
+                        const keys = Object.keys(merged).filter(b => b !== "NORMAL");
+                        if (keys.length > 0) setSelectedBiome(keys[0]);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load full biome data", err);
             }
-        }
+        };
+
+        loadBiomes();
+        return () => { isMounted = false; };
     }, [config]);
 
     const handleBiomeChange = (field: "color" | "thumbnail_url", value: string) => {
@@ -34,17 +63,39 @@ export default function CustomizationPage() {
         }));
     };
 
-    const saveBiomes = () => {
+    const saveBiomes = async () => {
         if (!config) return;
+
+        let defaultData: Record<string, any> = {};
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.get_full_biome_data === 'function') {
+            defaultData = await window.pywebview.api.get_full_biome_data();
+        }
+
+        const overridesToSave: Record<string, any> = {};
+
+        // Only save biomes that differ from the GitHub defaults
+        for (const [biome, data] of Object.entries(biomes)) {
+            const def = defaultData[biome] || {};
+            const hasColorDiff = data.color !== def.color && data.color !== undefined;
+            const hasThumbDiff = data.thumbnail_url !== def.thumbnail_url && data.thumbnail_url !== undefined;
+
+            if (hasColorDiff || hasThumbDiff) {
+                overridesToSave[biome] = {
+                    ...(hasColorDiff && { color: data.color }),
+                    ...(hasThumbDiff && { thumbnail_url: data.thumbnail_url })
+                };
+            }
+        }
+
         handleSave({
             ...config,
-            custom_biome_overrides: biomes
+            custom_biome_overrides: overridesToSave
         });
     };
 
     if (!config) return <div>Loading...</div>;
 
-    const biomeKeys = Object.keys(biomes).filter(b => b !== "NORMAL" && b !== "DREAMSPACE");
+    const biomeKeys = Object.keys(biomes).filter(b => b !== "NORMAL");
     
     useEffect(() => {
         const el = selectRef.current;

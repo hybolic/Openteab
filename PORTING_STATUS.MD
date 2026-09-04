@@ -7,16 +7,18 @@ goal is to eventually have a much easier to modify openteab python script that d
 - - &#9744; [v2.1.8-hotfix frontend commit](https://github.com/xVapure/Noteab-Macro/commit/f16049f282a19771df57839937b1e4fa0d7b44e9 "v2.1.8-hotfix frontend commit")
 - - &#9744; [v2.1.8-hotfix1 backend commit](https://github.com/xVapure/Noteab-Macro/commit/9ce9bdff08a786af806bd3397f8ccac7076071e0 "v2.1.8-hotfix1 backend commit")
 
-- &#9744; v2.1.7
-- - &#9744; [v2.1.7 main.py commit](https://github.com/xVapure/Noteab-Macro/commit/23c51b5a80316730bbf4f72bc15961b8cb47a194 "v2.1.7 main.py commit")
-- - &#9744; [Delete vite-env.d.ts](https://github.com/xVapure/Noteab-Macro/commit/6dd97bbc1e9b594a13c65d06974f7230cc31427f "Delete vite-env.d.ts")
-- - &#9744; [v2.1.7 frontend commit](https://github.com/xVapure/Noteab-Macro/commit/e1cf4b68516747a719a2e711685e8e6d3f51101f "v2.1.7 frontend commit")
+- &boxtimes; v2.1.7
+- - &boxtimes; [v2.1.7 main.py commit](https://github.com/xVapure/Noteab-Macro/commit/23c51b5a80316730bbf4f72bc15961b8cb47a194 "v2.1.7 main.py commit")
+- - &boxminus; [Delete vite-env.d.ts](https://github.com/xVapure/Noteab-Macro/commit/6dd97bbc1e9b594a13c65d06974f7230cc31427f "Delete vite-env.d.ts")
+- - &boxtimes; [v2.1.7 frontend commit](https://github.com/xVapure/Noteab-Macro/commit/e1cf4b68516747a719a2e711685e8e6d3f51101f "v2.1.7 frontend commit")
 - - &#9744; [Add files via upload](https://github.com/xVapure/Noteab-Macro/commit/f08dda48d843c2913230a8a3aca9ffe76ce87412 "Add files via upload")
+- - - need to double check this commit but it looks like an oopsie commit
 - - &#9744; [unnamed commit](https://github.com/xVapure/Noteab-Macro/commit/17188c565c97e8f0725725352c8cfa7dbb334e46 ".")
-- - &#9744; [v2.1.7 backend commit](https://github.com/xVapure/Noteab-Macro/commit/8d8e2b8a8a3ffdac2f54f7c78076136abca4607a "v2.1.7 backend commit")
-- - &#9744; [new dev note](https://github.com/xVapure/Noteab-Macro/commit/c76e22a4a8d8f90a4be6480eb091b7acde48054d "new dev note") 
+- - - need to double check this commit but it looks like an oopsie commit
+- - &boxtimes;[v2.1.7 backend commit](https://github.com/xVapure/Noteab-Macro/commit/8d8e2b8a8a3ffdac2f54f7c78076136abca4607a "v2.1.7 backend commit")
+- - &boxtimes; [new dev note](https://github.com/xVapure/Noteab-Macro/commit/c76e22a4a8d8f90a4be6480eb091b7acde48054d "new dev note") 
 
-- &#9744; v2.1.6 hotfix1
+- &boxtimes; v2.1.6 hotfix1
 - - &boxtimes; [v2.1.6-hotfix1 main.py source](https://github.com/xVapure/Noteab-Macro/commit/f373ee0c6d93dd640664ce134ac7aa7bae91309d "v2.1.6-hotfix1 main.py source")
 - - &boxtimes; [v2.1.6 (included hotfix1) backend source](https://github.com/xVapure/Noteab-Macro/commit/ca5115129fdb13399fe870b34045d22fc1e2d3de "v2.1.6 (included hotfix1) backend source")
 

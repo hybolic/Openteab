@@ -1,4 +1,3 @@
-
 interface SidebarProps {
     activeTab: string;
     onTabChange: (tab: string) => void;
@@ -30,6 +29,7 @@ const navItems = [
     { id: "notice", label: "Notice", icon: "📋" },
     { id: "webhook", label: "Webhook", icon: "🔗" },
     { id: "stats", label: "Stats", icon: "📊" },
+    { id: "status", label: "Status", icon: "⚙️" },
     { section: "Macro Settings" },
     { id: "misc", label: "Automated actions", icon: "🤖" },
     { id: "calibrations", label: "Macro Calibrations", icon: "🎯" },
@@ -90,4 +90,3 @@ export default function Sidebar({ activeTab, onTabChange, isGlitching, macroVers
         </div>
     );
 }
-    

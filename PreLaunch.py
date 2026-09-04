@@ -20,6 +20,8 @@ atexit.register(onPythonClose)
 #reroute for logging
 
 #temp quick print stuff
+def print(*args, type, **kwargs):
+    print(*args, type, **kwargs)
 def print(*args, **kwargs):
     log_type = kwargs.pop("type", "PRINT")
     sep = kwargs.pop("sep", " ")

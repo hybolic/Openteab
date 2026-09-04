@@ -46,8 +46,7 @@ except Exception as e:
 
 # i added this so we can easily change macro version upon releases without having to change multiple back-end & front-end behaviours
 # for future people that is reading the open source code, hello :p
-current_version = "v2.1.6"
-os.environ["OPENTEAB_MACRO_VERSION"] = current_version
+os.environ["OPENTEAB_MACRO_VERSION"] = openteab.current_version
 os.environ["WEBKIT_DISABLE_COMPOSITING_MODE"] = "1" 
 
 ##################################
@@ -64,7 +63,7 @@ try:
             except Exception: pass
 except Exception:
     pass
-##################################
+
 _wv2_user_data = os.path.join(_wv2_user_data_base, f"Session_{int(time.time())}")
 os.makedirs(_wv2_user_data, exist_ok=True)
 os.environ["WEBVIEW2_USER_DATA_FOLDER"] = _wv2_user_data
@@ -81,6 +80,13 @@ from openteab.main.config import (
 )
 
 def get_base_path(): return sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.dirname(os.path.abspath(__file__))
+
+def _get_frontend_dist_dirs() -> list[str]:
+    dirs = [
+        join_path(openteab.frontend, "dist")
+    ]
+
+    return [d for d in dirs if os.path.exists(d)]
 
 def get_frontend_entry_data():
     return {"url": get_frontend_entry_url()}
@@ -141,6 +147,7 @@ class Api:
         # rare biome pop up confirmation
         self._biome_confirm_evt = threading.Event()
         self._biome_confirm_result = None
+        self.emergency_port = None
 
     def set_window(self, window):
         self._window = window
@@ -159,6 +166,29 @@ class Api:
         if t and isinstance(getattr(t, 'config', None), dict) and t.config:
             return t.config
         return load_config()
+
+    def get_biome_data(self):
+        if self._tracker and isinstance(getattr(self._tracker, "biome_data", None), dict):
+            result = {}
+            for biome, data in self._tracker.biome_data.items():
+                color = data.get("color", "0xffffff")
+                if isinstance(color, str) and color.startswith("0x"): color = "#" + color[2:]
+                result[biome] = color
+            return result
+        return {}
+
+    def get_full_biome_data(self):
+        if self._tracker and isinstance(getattr(self._tracker, "biome_data", None), dict):
+            return self._tracker.biome_data
+        return {}
+
+    def open_appdata(self):
+        try:
+            from openteab.main.config import APPDATA_BASE_CoteabMacro
+            os.startfile(str(APPDATA_BASE_CoteabMacro))
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     def save_config(self, config_data):
         prev_anti_afk = False
@@ -245,7 +275,16 @@ class Api:
     def close_window(self):
         self._stop_fishing_worker()
         if self._window:
-            self._window.destroy()
+            try:
+                self._window.destroy()
+            except Exception:
+                pass
+        
+        def delayed_exit():
+            time.sleep(1.5)
+            os._exit(0)
+        threading.Thread(target=delayed_exit, daemon=True).start()
+        return {"success": True}
 
     def minimize_window(self):
         if self._window:
@@ -281,7 +320,144 @@ class Api:
         return "STOPPED"
 
     def get_macro_version(self):
-        return current_version
+        return openteab.current_version
+
+    def _setup_emergency_server(self):
+        from http.server import BaseHTTPRequestHandler
+        class SafeModeHandler(BaseHTTPRequestHandler):
+            api = self
+
+            def do_GET(self):
+                if self.path == "/health":
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(b"OK")
+                else:
+                    # Serve files from any valid dist directory
+                    file_path = self.path.split('?')[0].lstrip('/')
+                    if not file_path or file_path == 'index.html':
+                        file_path = 'index.html'
+                    
+                    found_full_path = None
+                    for dist_dir in _get_frontend_dist_dirs():
+                        full_path = os.path.join(dist_dir, file_path)
+                        if os.path.exists(full_path) and os.path.isfile(full_path):
+                            found_full_path = full_path
+                            break
+                    
+                    if found_full_path:
+                        self.send_response(200)
+                        if file_path.endswith('.js'): self.send_header('Content-type', 'application/javascript')
+                        elif file_path.endswith('.css'): self.send_header('Content-type', 'text/css')
+                        elif file_path.endswith('.html'): self.send_header('Content-type', 'text/html')
+                        self.end_headers()
+                        with open(found_full_path, 'rb') as f:
+                            self.wfile.write(f.read())
+                    else:
+                        self.send_response(404)
+                        self.end_headers()
+
+            def do_POST(self):
+                if self.path.startswith("/api/"):
+                    method_name = self.path.replace("/api/", "")
+                    content_length = int(self.headers['Content-Length'])
+                    post_data = self.rfile.read(content_length)
+                    try:
+                        args = json.loads(post_data) if post_data else []
+                    except:
+                        args = []
+                    
+                    method = getattr(self.api, method_name, None)
+                    if method and callable(method):
+                        try:
+                            if isinstance(args, list): result = method(*args)
+                            elif isinstance(args, dict): result = method(**args)
+                            else: result = method()
+                            
+                            self.send_response(200)
+                            self.send_header('Content-type', 'application/json')
+                            self.send_header('Access-Control-Allow-Origin', '*')
+                            self.end_headers()
+                            self.wfile.write(json.dumps(result).encode())
+                        except Exception as e:
+                            self.send_response(500)
+                            self.end_headers()
+                            self.wfile.write(str(e).encode())
+                
+            def do_OPTIONS(self):
+                self.send_response(200)
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                self.end_headers()
+
+            def log_message(self, format, *args): pass
+
+        from random import randint
+        self.emergency_port = randint(18000, 19000)
+        def _run():
+            try:
+                from http.server import ThreadingHTTPServer
+                server = ThreadingHTTPServer(('127.0.0.1', self.emergency_port), SafeModeHandler)
+                print(f"Emergency Server running on http://127.0.0.1:{self.emergency_port}")
+                server.serve_forever()
+            except Exception as e:
+                print(f"Server failed: {e}")
+
+        threading.Thread(target=_run, daemon=True).start()
+
+    def _setup_emergency_hotkey(self):
+        def trigger():
+            print("Emergency UI Triggered! Hiding main window...")
+            if hasattr(self, '_window') and self._window:
+                try:
+                    self._window.hide()
+                    print("Main window hidden.")
+                except Exception as e:
+                    print(f"Note: Could not hide window: {e}")
+
+            url = f"http://127.0.0.1:{self.emergency_port}/index.html?safe_mode=1"
+            webbrowser.open(url)
+            print(f"Emergency UI opened in browser: {url}")
+
+        keyboard.add_hotkey('ctrl+shift+f10', trigger)
+
+    def get_active_modules(self):
+        if not self._tracker: return {}
+        t = self._tracker
+        cfg = t.config
+        
+        modules = {
+            "Biome Detection": { "active": t.detection_running, "enabled": True },
+            "Aura Detection": { "active": t.detection_running and bool(cfg.get("enable_aura_detection", False)), "enabled": bool(cfg.get("enable_aura_detection", False)) },
+            "Fishing Mode": { "active": t.detection_running and self._is_fishing_mode_enabled(), "enabled": bool(cfg.get("fishing_mode", False)) },
+            "Auto Pop Buff": { "active": bool(getattr(t, "auto_pop_state", False)), "enabled": True },
+            "Anti-AFK": { "active": t.detection_running and bool(cfg.get("anti_afk", True)), "enabled": bool(cfg.get("anti_afk", True)) },
+            "Auto Merchant": { "active": bool(getattr(t, "on_auto_merchant_state", False)), "enabled": bool(cfg.get("merchant_teleporter", False)) },
+            "BR / SC Sequence": { "active": bool(getattr(t, "_br_sc_running", False)), "enabled": bool(cfg.get("biome_randomizer", False)) or bool(cfg.get("strange_controller", False)) },
+            "Eden Path": { "active": bool(getattr(t, "_eden_running", False)), "enabled": bool(cfg.get("go_to_eden_spawn", False)) },
+            "Auto Eden Contract": { "active": bool(getattr(t, "_eden_running", False)), "enabled": bool(cfg.get("auto_eden_contract", False)) },
+            "Egg Pathing": { "active": bool(getattr(t, "_egg_collecting", False)), "enabled": bool(cfg.get("collect_easter_egg", False)) },
+            "Basic Obby": { "active": bool(getattr(t, "_obby_running", False)), "enabled": bool(cfg.get("enable_auto_obby", False)) },
+            "Daily Quests": { "active": t.detection_running and bool(cfg.get("auto_claim_daily_quests", False)), "enabled": bool(cfg.get("auto_claim_daily_quests", False)) },
+            "Potion Crafting": { "active": bool(getattr(t, "_potion_thread_active", False)), "enabled": bool(cfg.get("enable_potion_crafting", False)) },
+            "Macro Idle Mode": { "active": bool(cfg.get("enable_idle_mode", False)), "enabled": bool(cfg.get("enable_idle_mode", False)) },
+        }
+        
+        incompatibilities = []
+        if cfg.get("enable_idle_mode", False):
+            incompatibilities.append("Idle Mode is ON: Most automated actions are paused infinitely.")
+        
+        if cfg.get("go_to_eden_spawn", False) and bool(cfg.get("fishing_mode", False)):
+            incompatibilities.append("Conflict: Both Eden Path and Fishing Mode are enabled. Fishing will take priority unless blocked.")
+
+        if bool(cfg.get("enable_potion_crafting", False)) and bool(cfg.get("fishing_mode", False)):
+            incompatibilities.append("Potion Crafting is enabled: It has the highest priority take over from Fishing Mode and cancels any automated actions.")
+
+        return {
+            "modules": modules,
+            "incompatibilities": incompatibilities
+        }
 
     def _is_fishing_mode_enabled(self):
         cfg = getattr(self._tracker, "config", None) if self._tracker else None
@@ -500,6 +676,12 @@ class Api:
     def _emit_shortcut(self, key):
         self._safe_eval_js(f'if(window.onShortcutEvent) window.onShortcutEvent("{key}");')
 
+    def _emit_update_available(self, version, url):
+        self._safe_eval_js(f'if(window.onUpdateAvailable) window.onUpdateAvailable("{version}", "{url}");')
+
+    def _emit_update_status(self, status):
+        self._safe_eval_js(f'if(window.onUpdateStatus) window.onUpdateStatus("{status}");')
+
     def _emit_fishing_failsafe_warning(self, msg):
         self._safe_eval_js(f"if(window.onFishingFailsafeWarning) window.onFishingFailsafeWarning({json.dumps(str(msg))});")
 
@@ -529,7 +711,7 @@ class Api:
                 "resizable": False,
             }
 
-            if "html" in fe:
+            if fe and "html" in fe:
                 injected_script = f'''<script>
                 const _OrigSearchParams = window.URLSearchParams;
                 window.URLSearchParams = class extends _OrigSearchParams {{
@@ -544,7 +726,7 @@ class Api:
                 html = fe["html"].replace("<head>", f"<head>{injected_script}", 1)
                 win_kwargs["html"] = html
             else:
-                base = fe["url"]
+                base = fe["url"] if fe else "http://localhost:5555"
                 sep = "&" if "?" in base else "?"
                 win_kwargs["url"] = f"{base}{sep}window=biome_confirm&biome={biome}"
 
@@ -722,7 +904,11 @@ class Api:
 
     def emit_calibration_result(self, data):
          if self._window:
-             self._window.evaluate_js(f"if(window.onCalibrationResult) window.onCalibrationResult({json.dumps(data)}); else if (window.onCalibrationResultMisc) window.onCalibrationResultMisc({json.dumps(data)});")
+             js_data = json.dumps(data)
+             self._window.evaluate_js(
+                 f"if(window.onCalibrationResult) window.onCalibrationResult({js_data});"
+                 f"if(window.onCalibrationResultMisc) window.onCalibrationResultMisc({js_data});"
+             )
 
     def create_calibration_window(self, key="unknown", window_type="point"):
         self._calib_mgr.request_calibration(config_key=key, window_type=window_type)
@@ -769,22 +955,25 @@ def launch_app(api_class, tracker=None):
     api = api_class(tracker)
     tracker.on_stats_update = api._emit_config_update
     tracker.on_biome_update = api._emit_biome_update
+    tracker.on_update_available = api._emit_update_available
+    tracker.on_update_status = api._emit_update_status
     tracker.on_biome_confirm_request = api._request_biome_confirm
     tracker.on_status_change = lambda status: api._emit_macro_status()
 
     fe = get_frontend_entry_data()
     win_args = {
-        "title": f"Coteab Macro {current_version}",
+        "title": f"Openteab Macro {openteab.current_version}",
         "js_api": api,
         "width": 985, "height": 550,
         "min_size": (550, 500),
         "resizable": True, "frameless": False
     }
-    if "html" in fe: win_args["html"] = fe["html"]
-    else: win_args["url"] = fe["url"]
+    if fe and "html" in fe: win_args["html"] = fe["html"]
+    else: win_args["url"] = fe["url"] if fe else "http://localhost:5555"
 
     window = webview.create_window(**win_args)
     api.set_window(window)
+    
 
     # F1 = start, F2 = stop
     _VK_F1 = 0x70
@@ -834,7 +1023,6 @@ def launch_app(api_class, tracker=None):
             try: tracker.append_log(f"[pywebview] {record.getMessage()}")
             except Exception: pass
     logging.getLogger("pywebview").addHandler(_WvLog())
-
     # try edgechromium first, fall back to whatever else is available
     try:
         tracker.append_log("Starting pywebview (edgechromium)")
@@ -849,42 +1037,6 @@ def launch_app(api_class, tracker=None):
 
     return tracker
 
-_LOADING_HTML = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-  body {
-    background: #0f172a;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    display: flex; align-items: center; justify-content: center;
-    height: 100vh; overflow: hidden; color: #e2e8f0;
-  }
-  .wrap { text-align: center; }
-  .spinner {
-    width: 38px; height: 38px; margin: 0 auto 18px;
-    border: 3px solid rgba(255,255,255,0.08);
-    border-top-color: #f59e0b;
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  h1 { font-size: 17px; font-weight: 600; margin-bottom: 6px; color: #f1f5f9; }
-  p  { font-size: 12px; color: #64748b; }
-</style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="spinner"></div>
-    <h1>Tysm for using Coteab Macro!!</h1>
-    <p>Loading macro dependencies plss wait :3 (it should be quick)\u2026</p>
-  </div>
-</body>
-</html>
-"""
-
 def stop_app(tracker):
     if tracker and getattr(tracker, "detection_running", False): tracker.stop_detection()
 
@@ -892,44 +1044,60 @@ def main():
     ensure_workspace_files()
     tracker = None
     api = Api(tracker=None)
+    api._setup_emergency_server()
+    api._setup_emergency_hotkey()
     try:
+        fe = get_frontend_entry_data()
         win_args = {
-            "title": f"Openteab Macro {current_version}",
+            "title": f"Openteab Macro {openteab.current_version}",
             "js_api": api,
-            "html": _LOADING_HTML,
             "width": 985, "height": 550,
             "min_size": (550, 500),
             "resizable": True, "frameless": False,
         }
-        loading_window = webview.create_window(**win_args)
-        api._window = loading_window
+        if "html" in fe: win_args["html"] = fe["html"]
+        else: win_args["url"] = fe["url"]
+
+        window = webview.create_window(**win_args)
+        api._window = window
+
+        def setIcon(window:webview.Window , icon):
+            try:
+                hwnd = win32gui.FindWindow(None, window.title)
+
+                if not hwnd:
+                    print(f"Could not find window: {window.title}")
+                    return
+                
+                icon_path  = os.path.abspath(icon)
+                print(icon_path)
+                icon_big   = win32gui.LoadImage(0,icon_path,win32con.IMAGE_ICON,32,32,win32con.LR_LOADFROMFILE)
+                if icon_big:
+                    win32api.SendMessage(hwnd,win32con.WM_SETICON,win32con.ICON_BIG,icon_big)
+                icon_small = win32gui.LoadImage(0,icon_path,win32con.IMAGE_ICON,16,16,win32con.LR_LOADFROMFILE)
+                if icon_small:
+                    win32api.SendMessage(hwnd,win32con.WM_SETICON,win32con.ICON_SMALL,icon_small)
+            except:
+                print("problem setting Openteab icon, using defaults!", type="Exception")
 
         def _background_init():
             nonlocal tracker
             try:
                 from openteab.main import BiomeTracker
                 tracker = BiomeTracker()
-                canonical = _read_cli_value("--coteab-target", "CoteabMacro.exe")
-                old_pid_raw = _read_cli_value("--coteab-old-pid", "")
-                try: old_pid = int(old_pid_raw) if old_pid_raw else None
-                except Exception: old_pid = None
+                setIcon(window,"openteab/frontend/public/NoteabBiomeTracker.ico")
 
-                if tracker.maybe_self_rename_to_canonical_exe(canonical, old_pid=old_pid):
-                    loading_window.destroy()
-                    return
 
                 api._tracker = tracker
                 tracker.on_stats_update = api._emit_config_update
                 tracker.on_biome_update = api._emit_biome_update
+                tracker.on_update_available = api._emit_update_available
+                tracker.on_update_status = api._emit_update_status
                 tracker.on_biome_confirm_request = api._request_biome_confirm
                 tracker.on_status_change = lambda status: api._emit_macro_status()
-                api.set_window(loading_window)
-
-                fe = get_frontend_entry_data()
-                if "html" in fe:
-                    loading_window.load_html(fe["html"])
-                else:
-                    loading_window.load_url(fe["url"])
+                tracker.on_remote_start = lambda: api.set_biome_detection(True)
+                tracker.on_remote_stop = lambda: api.set_biome_detection(False)
+                api.set_window(window)
 
             except Exception as exc:
                 print(f"Background init error: {exc}")
@@ -1012,6 +1180,7 @@ def main():
         except Exception: pass
         try: _hotkey_stop.set()
         except Exception: pass
+
 
 
 if __name__ == "__main__":

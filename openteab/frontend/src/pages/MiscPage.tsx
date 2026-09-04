@@ -4,7 +4,7 @@ import { useConfig } from "../contexts/ConfigContext";
 
 export default function MiscPage() {
     const { config, saveConfig, error } = useConfig();
-    const [calibrationTarget, setCalibrationTarget] = useState<"ocr" | "reconnect" | null>(null);
+    const [calibrationTarget, setCalibrationTarget] = useState<"ocr" | "reconnect" | "eden_contract" | null>(null);
     const [ocrStatus, setOcrStatus] = useState<{ installed: boolean; version: string | null } | null>(null);
 
     useEffect(() => {
@@ -24,8 +24,9 @@ export default function MiscPage() {
                         nextValue = candidate;
                     }
                 }
-            } else if (calibrationTarget === "reconnect") {
-                if (Array.isArray(data?.value) && data?.key === "reconnect_start_button") {
+            } else if (calibrationTarget === "reconnect" || calibrationTarget === "eden_contract") {
+                const targetKey = calibrationTarget === "reconnect" ? "reconnect_start_button" : "eden_contract_button";
+                if (Array.isArray(data?.value) && data?.key === targetKey) {
                     const candidate = data.value.slice(0, 2).map((value: any) => Math.round(Number(value)));
                     if (candidate.length === 2 && candidate.every((value: number) => Number.isFinite(value))) {
                         nextValue = candidate;
@@ -42,8 +43,10 @@ export default function MiscPage() {
 
             if (calibrationTarget === "ocr") {
                 saveConfig({ ...config, first_item_slot_ocr_pos: nextValue });
-            } else {
+            } else if (calibrationTarget === "reconnect") {
                 saveConfig({ ...config, reconnect_start_button: nextValue });
+            } else if (calibrationTarget === "eden_contract") {
+                saveConfig({ ...config, eden_contract_button: nextValue });
             }
 
             setCalibrationTarget(null);
@@ -103,6 +106,19 @@ export default function MiscPage() {
         try {
             if (window.pywebview?.api) {
                 await window.pywebview.api.create_calibration_window("reconnect_start_button", "point");
+            }
+        } catch (errorValue) {
+            console.error("Failed to open calibration window", errorValue);
+            alert("Failed to open calibration tool: " + errorValue);
+            setCalibrationTarget(null);
+        }
+    };
+
+    const startEdenContractCalibration = async () => {
+        setCalibrationTarget("eden_contract");
+        try {
+            if (window.pywebview?.api) {
+                await window.pywebview.api.create_calibration_window("eden_contract_button", "point");
             }
         } catch (errorValue) {
             console.error("Failed to open calibration window", errorValue);
@@ -292,6 +308,62 @@ export default function MiscPage() {
                         </div>
                     </div>
                 )}
+
+                <div style={{ marginTop: "14px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "14px" }}>
+                    <ToggleSwitch
+                        label="Go to Eden's spawn (experimental)"
+                        checked={config.go_to_eden_spawn || false}
+                        onChange={(value) => updateConfig("go_to_eden_spawn", value)}
+                    />
+
+                    {config.go_to_eden_spawn && (
+                        <div style={{ marginTop: "4px", marginBottom: "16px", marginLeft: "14px", paddingLeft: "14px" }}>
+                            <div className="duration-input" style={{ marginBottom: "12px" }}>
+                                <label className="form-label">Pathing Interval (minutes):</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="form-input"
+                                    value={config.eden_path_interval || "35"}
+                                    onChange={(event) => updateConfig("eden_path_interval", event.target.value)}
+                                    style={{ width: "70px" }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <ToggleSwitch
+                        label="Auto Eden's contract"
+                        checked={config.auto_eden_contract || false}
+                        onChange={(value) => updateConfig("auto_eden_contract", value)}
+                    />
+                    
+                    {config.auto_eden_contract && (
+                        <div style={{ marginTop: "4px", marginBottom: "16px", marginLeft: "14px", paddingLeft: "14px" }}>
+                            <div className="duration-input" style={{ marginBottom: "12px" }}>
+                                <label className="form-label">Contract Interval (minutes):</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="form-input"
+                                    value={config.eden_contract_interval || "10"}
+                                    onChange={(event) => updateConfig("eden_contract_interval", event.target.value)}
+                                    style={{ width: "70px" }}
+                                />
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <button
+                                    className="btn btn-accent"
+                                    style={{ fontSize: "11px", padding: "6px 12px" }}
+                                    onClick={startEdenContractCalibration}
+                                >
+                                    Eden Contract button (calibration)
+                                </button>
+                                <span className="form-hint">{JSON.stringify(config.eden_contract_button || [0, 0])}</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 <div style={{ marginTop: "14px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "14px" }}>
                     <ToggleSwitch

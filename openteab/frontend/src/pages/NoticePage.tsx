@@ -66,7 +66,7 @@ export default function NoticePage() {
             </div>
 
             <div className="info-banner">
-                📺 New to Coteab or Openteab? Watch the tutorial:{" "}
+                📺 New to Coteab? Watch the tutorial:{" "}
                 <a href="https://www.youtube.com/watch?v=s2S7Bncx9ns" target="_blank" rel="noreferrer">
                     https://www.youtube.com/watch?v=s2S7Bncx9ns
                 </a>
