@@ -2,10 +2,10 @@
 including new formating ect porting will take some time
 goal is to eventually have a much easier to modify openteab python script that doesn't require compilation
 
-- &#9744; v2.1.8 hotfix 1
-- - &#9744; [v2.1.8-hotfix1 main.py](https://github.com/xVapure/Noteab-Macro/commit/35de276d287b6540dff9649048da25c9246e2722 "v2.1.8-hotfix1 main.py")
-- - &#9744; [v2.1.8-hotfix frontend commit](https://github.com/xVapure/Noteab-Macro/commit/f16049f282a19771df57839937b1e4fa0d7b44e9 "v2.1.8-hotfix frontend commit")
-- - &#9744; [v2.1.8-hotfix1 backend commit](https://github.com/xVapure/Noteab-Macro/commit/9ce9bdff08a786af806bd3397f8ccac7076071e0 "v2.1.8-hotfix1 backend commit")
+- &boxtimes; v2.1.8 hotfix 1
+- - &boxtimes; [v2.1.8-hotfix1 main.py](https://github.com/xVapure/Noteab-Macro/commit/35de276d287b6540dff9649048da25c9246e2722 "v2.1.8-hotfix1 main.py")
+- - &boxtimes; [v2.1.8-hotfix frontend commit](https://github.com/xVapure/Noteab-Macro/commit/f16049f282a19771df57839937b1e4fa0d7b44e9 "v2.1.8-hotfix frontend commit")
+- - &boxtimes; [v2.1.8-hotfix1 backend commit](https://github.com/xVapure/Noteab-Macro/commit/9ce9bdff08a786af806bd3397f8ccac7076071e0 "v2.1.8-hotfix1 backend commit")
 
 - &boxtimes; v2.1.7
 - - &boxtimes; [v2.1.7 main.py commit](https://github.com/xVapure/Noteab-Macro/commit/23c51b5a80316730bbf4f72bc15961b8cb47a194 "v2.1.7 main.py commit")

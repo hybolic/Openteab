@@ -200,7 +200,7 @@ class Openteab:
     cwd = getcwd()
     """ ./ """
     virtual_dir_name = ".python"
-    current_version = "v2.1.7"
+    current_version = "v2.1.8"
 
     def __init__(self):
         self.top_directory = join_path(self.cwd, "openteab")
@@ -336,14 +336,14 @@ class Openteab:
     update_url_opentab     = "https://github.com/hybolic/OpenTeab/releases/latest"
     update_url             = update_url_coteab
 
-    coteab_discord = "https://discord.gg/fw6q274Nrt"
+    coteab_discord = "https://discord.gg/coteab"
 
     # ------------------------------------------------------------------
     # Calibration
     # ------------------------------------------------------------------
 
-    macro_calibration_youtube_long  = "https://www.youtube.com/watch?v=s2S7Bncx9ns"
-    macro_calibration_youtube_short = "https://youtu.be/s2S7Bncx9ns"
+    macro_calibration_youtube_long  = "https://www.youtube.com/watch?v=dZzQytUMlCE"
+    macro_calibration_youtube_short = "https://youtu.be/dZzQytUMlCE"
 
 
     icon_url  = "https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png"

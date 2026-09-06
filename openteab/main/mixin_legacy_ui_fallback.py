@@ -260,7 +260,7 @@ class GuiMixin:
             font=('Segoe UI', 9, 'underline')
         )
         placeholder_link.pack(anchor="w", pady=(0, 15))
-        placeholder_link.bind("<Button-1>", lambda e: webbrowser.open_new("https://www.youtube.com/watch?v=s2S7Bncx9ns"))
+        placeholder_link.bind("<Button-1>", lambda e: webbrowser.open_new("https://www.youtube.com/watch?v=dZzQytUMlCE"))
 
         calib_frame = ttk.Frame(scrollable_frame)
         calib_frame.pack(fill="x", padx=10)
@@ -345,7 +345,7 @@ class GuiMixin:
         link = ttk.Label(frame, text="Setup tutorial", foreground="royalblue", cursor="hand2")
         link.configure(font=('Segoe UI', 9, 'underline'))
         link.pack(anchor="w", padx=8, pady=(6,0))
-        link.bind("<Button-1>", lambda e: webbrowser.open_new("https://www.youtube.com/watch?v=s2S7Bncx9ns"))
+        link.bind("<Button-1>", lambda e: webbrowser.open_new("https://www.youtube.com/watch?v=dZzQytUMlCE"))
         self.remote_status_label = ttk.Label(frame, text="Bot: stopped")
         self.remote_status_label.pack(anchor="w", padx=8, pady=(6,0))
         self.remote_command_queue = queue.Queue()
@@ -458,7 +458,7 @@ class GuiMixin:
         bottom_frame = ttk.Frame(frame)
         bottom_frame.pack(side="bottom", fill="x", padx=5, pady=5)
 
-        discord_link = "https://discord.gg/fw6q274Nrt"
+        discord_link = "https://discord.gg/coteab"
         discord_label = ttk.Label(
             bottom_frame,
             text="JOIN OUR DEVELOPMENT SERVER TO KEEP IN TOUCH WITH THE LATEST 'C'OTEAB MACRO UPDATES, WE OFFER AN ACTIVE COMMUNITY AND MACRO SUPPORT! (CLICK HERE)",
@@ -1069,7 +1069,7 @@ class GuiMixin:
         discord_label = ttk.Label(noteab_frame, text="""Join the Coteab Discord server!!!""", foreground="royalblue", cursor="hand2")
         discord_label.configure(font=('Segoe UI', 9, 'underline'))
         discord_label.pack()
-        discord_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://discord.gg/fw6q274Nrt"))
+        discord_label.bind("<Button-1>", lambda e: webbrowser.open_new("https://discord.gg/coteab"))
 
         github_label = ttk.Label(noteab_frame, text="""GitHub: Coteab Macro!""", foreground="#03cafc", cursor="hand2")
         github_label.pack()
