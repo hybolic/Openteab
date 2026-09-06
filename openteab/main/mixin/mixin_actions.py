@@ -446,7 +446,7 @@ class ActionsMixin:
                 return
             
             for _ in range(4):
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.35)
 
             search_bar = self.config.get("search_bar", [855, 358])
@@ -506,7 +506,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running or self.reconnecting_state:
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.15)
             while True:
                 if not self.detection_running or self.reconnecting_state:
@@ -536,7 +536,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running:
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.15)
             keyboard.press_and_release('esc')
             time.sleep(0.3)
@@ -603,7 +603,7 @@ class ActionsMixin:
             if getattr(self, "enable_potion_crafting_var", None) and self.enable_potion_crafting_var.get(): return
             if not roblox.check_roblox_procs():
                 return
-            roblox.activate_roblox_window(self)
+            roblox.activate_roblox_window(other=self)
             quest_menu = self.config.get("quest_menu", [0, 0])
             quest1 = self.config.get("quest1_button", [0, 0])
             quest2 = self.config.get("quest2_button", [0, 0])
@@ -613,7 +613,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running or self._is_fishing_blocked():
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 if not self._sleep_with_cancel(0.15):
                     return
 
@@ -779,7 +779,7 @@ class ActionsMixin:
                 if not self.detection_running or self._is_fishing_blocked() or self.auto_pop_state:
                     self._obby_running = False
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 if not self._sleep_with_cancel(0.15):
                     self._obby_running = False
                     return
@@ -1204,7 +1204,7 @@ class ActionsMixin:
             if self.is_fishing_mode_enabled():
                 close_btn = self.config.get("fishing_close_button_pos", [1113, 342])
                 if close_btn and close_btn[0]:
-                    roblox.activate_roblox_window(self)
+                    roblox.activate_roblox_window(other=self)
                     time.sleep(0.3)
                     try:
                         autoit.mouse_click("left", close_btn[0], close_btn[1], 1, speed=3)
@@ -1260,13 +1260,12 @@ class ActionsMixin:
                         break
                     time.sleep(min(poll, remaining))
                 return _should_continue() and _can_run()
-
             run_egg_collect_once(
                 cfg=cfg,
                 sleep_interruptible=_sleep_interruptible,
                 should_continue=_should_continue,
                 can_run=_can_run,
-                activate_roblox_cb=roblox.activate_roblox_window(self),
+                activate_roblox_cb=lambda: roblox.activate_roblox_window(other=self),
                 close_chat_fn=lambda: self.close_chat_if_open(force=False),
                 egg_ocr_check_cb=self._perform_egg_ocr_check,
             )
@@ -1379,7 +1378,7 @@ class ActionsMixin:
             if not (chat_hover and chat_hover[0] and chat_close and chat_close[0]): return
 
             for _ in range(3):
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.15)
 
             sw = pyautogui.size()
@@ -1584,7 +1583,7 @@ class ActionsMixin:
             if not (chat_hover and chat_hover[0] and chat_close and chat_close[0]): return
 
             for _ in range(3):
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.15)
 
             sw = pyautogui.size()
@@ -1777,7 +1776,7 @@ class ActionsMixin:
             if not (chat_hover and chat_hover[0] and chat_close and chat_close[0]): return
 
             for _ in range(3):
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.15)
 
             sw = pyautogui.size()
@@ -1921,7 +1920,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running:
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.15)
             quest_menu = self.config.get("quest_menu", [0, 0])
             quest1 = self.config.get("quest1_button", [0, 0])
@@ -2039,7 +2038,7 @@ class ActionsMixin:
                 if not self.detection_running:
                     print("[Eden Pathing] Aborted during activation: detection stopped",type="ActionMixin")
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.15)
 
             # 2. Reset Character
@@ -2297,7 +2296,7 @@ class ActionsMixin:
             )
             recipe_btn = self.config.get("potion_recipe_button", [0, 0])
 
-            roblox.activate_roblox_window(self)
+            roblox.activate_roblox_window(other=self)
             time.sleep(0.5)
 
             # Press F 4 times (open crafting menu)
@@ -2854,14 +2853,14 @@ class ActionsMixin:
 
             for _ in range(10):
                 if not self.detection_running: return False
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.5)
 
             deadline = time.time() + 600
             click_interval = 4.0
             while time.time() < deadline:
                 if not self.detection_running: return False
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.3)
                 self.Global_MouseClick(reconnect_start_button[0], reconnect_start_button[1])
 
@@ -2977,7 +2976,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running or self._is_fishing_blocked() or self.auto_pop_state or (getattr(self, "_egg_collecting", False) or getattr(self, "_eden_running", False) or getattr(self, "_potion_thread_active", False)):
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 if not self._sleep_with_cancel(0.8):
                     return
             search_bar = self.config.get("search_bar", [855, 358])
@@ -3081,7 +3080,7 @@ class ActionsMixin:
 
             for _ in range(3):
                 if _cancelled(): return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 if not _do_sleep(0.15): return
 
             print("Using Portable Crack",type="ActionMixin")
@@ -3202,7 +3201,7 @@ class ActionsMixin:
             for _ in range(5):
                 if _cancelled():
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 if not _do_sleep(0.15):
                     return
 
@@ -3628,7 +3627,7 @@ class ActionsMixin:
                 return
 
             for _ in range(3):
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.2)
 
             sw = pyautogui.size()
@@ -3967,7 +3966,7 @@ class ActionsMixin:
                 for _ in range(5):
                     if not self.detection_running or self.reconnecting_state:
                         return
-                    roblox.activate_roblox_window(self)
+                    roblox.activate_roblox_window(other=self)
                     time.sleep(0.35)
 
                 time.sleep(0.57)

@@ -1,0 +1,1 @@
+#TODO:Move all text into this script for future translation help

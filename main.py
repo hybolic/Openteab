@@ -611,7 +611,7 @@ class Api:
         t._fishing_br_sc_override = True
         ran = False
         try:
-            try: roblox.activate_roblox_window(self)(self)
+            try: roblox.activate_roblox_window(other=self)
             except Exception: pass
 
             try:
@@ -640,7 +640,7 @@ class Api:
         t._fishing_br_sc_override = True
         ran = False
         try:
-            try: roblox.activate_roblox_window(self)
+            try: roblox.activate_roblox_window(other=self)
             except Exception: pass
 
             merchant_fn = getattr(t, "_merchant_teleporter_impl", None)
@@ -681,7 +681,7 @@ class Api:
                         on_failsafe_timeout=self._on_fishing_failsafe_timeout,
                         run_br_sc_sequence_cb=self._run_fishing_br_sc_sequence,
                         run_merchant_sequence_cb=self._run_fishing_merchant_sequence,
-                        activate_roblox_cb=roblox.activate_roblox_window(self),
+                        activate_roblox_cb=lambda: roblox.activate_roblox_window(other=self),
                         close_chat_fn=self._tracker.close_chat_if_open,
                         runtime_state=self._fishing_runtime_state,
                         set_fishing_busy_cb=lambda busy: setattr(self._tracker, "_fishing_busy", busy),

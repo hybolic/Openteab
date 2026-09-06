@@ -802,7 +802,7 @@ class RemoteMixin:
         for _ in range(4):
             if not self.detection_running or self.reconnecting_state:
                 return
-            roblox.activate_roblox_window(self)
+            roblox.activate_roblox_window(other=self)
             time.sleep(0.35)
         time.sleep(0.57)
         inventory_menu = self.config.get("inventory_menu", [36, 535])
@@ -864,7 +864,7 @@ class RemoteMixin:
         step_delay = 0.67 + inventory_click_delay
         for _ in range(4):
             if not self.detection_running or self.reconnecting_state:return
-            roblox.activate_roblox_window(self)
+            roblox.activate_roblox_window(other=self)
             time.sleep(0.35)
         time.sleep(0.57)
         aura_menu = self.config.get("aura_menu", [37, 387])
@@ -919,7 +919,7 @@ class RemoteMixin:
             for _ in range(4):
                 if not self.detection_running or self.reconnecting_state:
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.35)
             time.sleep(0.5)
             try:

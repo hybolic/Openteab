@@ -107,7 +107,7 @@ class DetectionMixin:
                 return
 
             for _ in range(4):
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.35)
 
             aura_menu = self.config.get("aura_menu", [0, 0])
@@ -706,7 +706,7 @@ class DetectionMixin:
                                     if getattr(self, "aura_screenshot_var", None) and self.aura_screenshot_var.get():
                                         if not self.is_fishing_mode_enabled():
                                             for _ in range(2):
-                                                roblox.activate_roblox_window(self)
+                                                roblox.activate_roblox_window(other=self)
                                                 time.sleep(0.75)
 
                                         openteab.save_screenshot(f"aura_{int(time.time())}.png",self.send_aura_webhook, None, parsed_aura_name, formatted_rarity, biome_message)
@@ -730,7 +730,7 @@ class DetectionMixin:
                                     if getattr(self, "aura_screenshot_var", None) and self.aura_screenshot_var.get():
                                         if not self.is_fishing_mode_enabled():
                                             for _ in range(5):
-                                                roblox.activate_roblox_window(self)
+                                                roblox.activate_roblox_window(other=self)
                                                 time.sleep(0.75)
                                         biome_message = f"[From {self.current_biome}!]" if getattr(self, "current_biome", None) and getattr(self, "current_biome") != "NORMAL" else ""
                                         openteab.save_screenshot(f"aura_{int(time.time())}.png",self.send_aura_webhook, None, aura, None, biome_message)
@@ -881,7 +881,7 @@ class DetectionMixin:
                 if biome in rare_biomes and self.config.get("rare_biome_screenshot", False):
                     try:
                         for _ in range(5):
-                            roblox.activate_roblox_window(self)
+                            roblox.activate_roblox_window(other=self)
                             time.sleep(0.75)
                         #TODO: openteab.save_screenshot
                         screenshot_dir = openteab.screenshots
@@ -1281,7 +1281,7 @@ class DetectionMixin:
             for _ in range(4):
                 if not self.detection_running or (hasattr(self, "_is_fishing_blocked") and self._is_fishing_blocked()):
                     return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.8)
             
             aura_menu = self.config.get("aura_menu", [0, 0])
@@ -1382,7 +1382,7 @@ class DetectionMixin:
 
             for _ in range(4):
                 if _cancelled(): return
-                roblox.activate_roblox_window(self)
+                roblox.activate_roblox_window(other=self)
                 time.sleep(0.3)
 
             current_x, current_y = autoit.mouse_get_pos()
