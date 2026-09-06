@@ -1,7 +1,7 @@
 """Config load/save/import logic. Handles merging defaults, legacy compat, etc."""
 
-from .base_support import *
-from .config import load_config as core_load_config, save_config as core_save_config
+from ..base_support import *
+from ..config import load_config as core_load_config, save_config as core_save_config
 
 class ConfigMixin:
     def save_config(self):
@@ -233,7 +233,7 @@ class ConfigMixin:
 
     def load_config(self):
         try:
-            from .config import load_config as core_load_config, save_config as core_save_config
+            from ..config import load_config as core_load_config, save_config as core_save_config
             disk_config = core_load_config()
             default_config = {
                 "Jester_Items": {

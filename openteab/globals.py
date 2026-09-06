@@ -1,29 +1,98 @@
 from os import getcwd, makedirs, getenv, getpid
 from os.path import join as join_path, exists as path_exists
-from win32gui import GetForegroundWindow, GetWindowText, GetWindowLong, IsWindowVisible, IsWindowEnabled, EnumWindows
+from win32gui import GetForegroundWindow, GetWindowText, GetWindowLong, IsWindowVisible, IsWindowEnabled, EnumWindows, SetForegroundWindow, IsIconic, ShowWindow
 from win32process import GetWindowThreadProcessId,GetWindowThreadProcessId
 from psutil import Process, process_iter, TimeoutExpired, NoSuchProcess, AccessDenied, ZombieProcess
 from ctypes import windll, byref, c_ulong
-from win32con import GWL_STYLE, WS_CAPTION
+from win32con import GWL_STYLE, WS_CAPTION, SW_RESTORE
 from pygetwindow import getWindowsWithTitle, getAllTitles
 from keyboard import press_and_release
 from PIL import Image
 from pyautogui import screenshot
+import pyautogui
 from typing import Callable
+from time import sleep
+from autoit import win_activate
 
 class Roblox:
     def __init__(self):
         pass
     logs = join_path(getenv("LOCALAPPDATA"), "Roblox", "logs")
     versions = join_path(getenv("LOCALAPPDATA"), "Roblox", "Versions")
-    
-    def activate_roblox_window(self):
+    _roblox_fullscreened = False
+
+    def _focus_window_hwnd(self, hwnd, max_attempts=20, sleep_between=0.25, other=None):
+        attempt = 0
+        while other.detection_running and attempt < max_attempts:
+            attempt += 1
+            try:
+                if IsIconic(hwnd):
+                    try:
+                        ShowWindow(hwnd, SW_RESTORE)
+                    except Exception:
+                        pass
+                fg = GetForegroundWindow()
+                if fg == hwnd:
+                    return True
+                try:
+                    SetForegroundWindow(hwnd)
+                except Exception:
+                    try:
+                        fg_hwnd = GetForegroundWindow()
+                        foreground_tid = GetWindowThreadProcessId(fg_hwnd)[0]
+                        target_tid = GetWindowThreadProcessId(hwnd)[0]
+                        current_tid = windll.kernel32.GetCurrentThreadId()
+                        try:
+                            windll.user32.AttachThreadInput(current_tid, foreground_tid, True)
+                            windll.user32.AttachThreadInput(current_tid, target_tid, True)
+                        except Exception:
+                            pass
+                        try:
+                            SetForegroundWindow(hwnd)
+                        except Exception:
+                            pass
+                        try:
+                            windll.user32.AttachThreadInput(current_tid, foreground_tid, False)
+                            windll.user32.AttachThreadInput(current_tid, target_tid, False)
+                        except Exception:
+                            pass
+                    except Exception:
+                        pass
+                sleep(sleep_between)
+                if GetForegroundWindow() == hwnd:
+                    return True
+                try:
+                    title = GetWindowText(hwnd)
+                    if title:
+                        try:
+                            win_activate(title)
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+                sleep(sleep_between)
+                if GetForegroundWindow() == hwnd:
+                    return True
+                try:
+                    pyautogui.keyDown('alt')
+                    pyautogui.press('tab')
+                    pyautogui.keyUp('alt')
+                except Exception:
+                    pass
+                sleep(sleep_between)
+                if GetForegroundWindow() == hwnd:
+                    return True
+            except Exception:
+                pass
+        return GetForegroundWindow() == hwnd
+
+    def activate_roblox_window(self, other):
         hwnd = None
         try:
             hwnds = self._find_roblox_hwnds()
             if hwnds:
                 hwnd = hwnds[0]
-                self._focus_window_hwnd(hwnd, max_attempts=10, sleep_between=0.2)
+                self._focus_window_hwnd(hwnd, max_attempts=10, sleep_between=0.2,other=other)
         except Exception as e:
             print(f"[activate_roblox_window] hwnd path failed: {e}")
 
@@ -48,21 +117,22 @@ class Roblox:
 
         # Auto fullscreen
         if (
-            self.config.get("auto_roblox_fullscreen", False)
-            and not getattr(self, "_roblox_fullscreened", False)
+            other.config.get("auto_roblox_fullscreen", False)
+            and not getattr(other, "_roblox_fullscreened", False)
         ):
             try:
                 style = GetWindowLong(hwnd, GWL_STYLE)
                 has_caption = bool(style & WS_CAPTION)
                 if has_caption:
-                    time.sleep(0.5)
+                    sleep(0.5)
                     fg = GetForegroundWindow()
                     if fg == hwnd:
-                        press_and_release("f11")
-                        time.sleep(0.3)
-                        self.append_log("[Roblox] Roblox is now on fullscreen.")
+                        import keyboard as kb
+                        kb.press_and_release("f11")
+                        sleep(0.3)
+                        print("[Roblox] Roblox is now on fullscreen.")
                     else:
-                        self.append_log("[Roblox] Roblox is not in foreground.")
+                        print("[Roblox] Roblox is not in foreground.")
                 self._roblox_fullscreened = True
             except Exception as e:
                 print(f"[activate_roblox_window] fullscreen failed: {e}")
@@ -177,12 +247,11 @@ class Roblox:
 
             for proc in running_processes:
                 try:
-                    proc_info = proc.info
-                    proc_name = str(proc_info.get('name') or "")
+                    proc_name = str(proc.info.get('name') or "")
                     if proc_name not in target_procs: continue
-                    proc_user_norm = str(proc_info.get('username') or "").strip().lower()
+                    proc_user_norm = str(proc.info.get('username') or "").strip().lower()
                     if current_user_norm and proc_user_norm and proc_user_norm != current_user_norm: continue
-                    print(f"Terminating process: {proc_name} (PID: {proc_info.get('pid')})")
+                    print(f"Terminating process: {proc_name} (PID: {proc.info.get('pid')})")
                     try:
                         proc.kill()
                         proc.wait(timeout=3)
@@ -192,7 +261,7 @@ class Roblox:
                     pass
 
         except Exception as e:
-            print(e, "Error in terminate_roblox_processes function.")
+            self.error_logging(e, "Error in terminate_roblox_processes function.")
 
 
 roblox = Roblox()
@@ -283,6 +352,7 @@ class Openteab:
                     return namestr(obj, frame.f_locals)
                 hook_name = names_in_caller(Webhook)
                 print(f"Failed to send {hook_name}: {e}", (args, kwargs), type="webhook")
+        return path
 
     # ------------------------------------------------------------------
     # Requirements

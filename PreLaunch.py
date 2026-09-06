@@ -19,6 +19,7 @@ atexit.register(onPythonClose)
 
 #reroute for logging
 
+#TODO: move to standalone py script
 #temp quick print stuff
 def print(*args, type, **kwargs):
     print(*args, type, **kwargs)

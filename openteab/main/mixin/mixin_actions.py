@@ -1,4 +1,4 @@
-from .base_support import *
+from ..base_support import *
 import numpy as np
 from PIL import Image
 import io
@@ -143,10 +143,6 @@ class ActionsMixin:
         self.save_config()
 
     def _get_update_api_url(self):
-        # return os.environ.get(
-        #     "OPENTEAB_UPDATE_API_URL",
-        #     openteab.update_url_api,
-        # )
         return os.environ.get(
             "OPENTEAB_UPDATE_API_URL",
             openteab.update_url_api,
@@ -450,7 +446,7 @@ class ActionsMixin:
                 return
             
             for _ in range(4):
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.35)
 
             search_bar = self.config.get("search_bar", [855, 358])
@@ -510,7 +506,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running or self.reconnecting_state:
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.15)
             while True:
                 if not self.detection_running or self.reconnecting_state:
@@ -540,7 +536,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running:
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.15)
             keyboard.press_and_release('esc')
             time.sleep(0.3)
@@ -607,7 +603,7 @@ class ActionsMixin:
             if getattr(self, "enable_potion_crafting_var", None) and self.enable_potion_crafting_var.get(): return
             if not roblox.check_roblox_procs():
                 return
-            roblox.activate_roblox_window()
+            roblox.activate_roblox_window(self)
             quest_menu = self.config.get("quest_menu", [0, 0])
             quest1 = self.config.get("quest1_button", [0, 0])
             quest2 = self.config.get("quest2_button", [0, 0])
@@ -617,7 +613,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running or self._is_fishing_blocked():
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 if not self._sleep_with_cancel(0.15):
                     return
 
@@ -783,7 +779,7 @@ class ActionsMixin:
                 if not self.detection_running or self._is_fishing_blocked() or self.auto_pop_state:
                     self._obby_running = False
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 if not self._sleep_with_cancel(0.15):
                     self._obby_running = False
                     return
@@ -1208,7 +1204,7 @@ class ActionsMixin:
             if self.is_fishing_mode_enabled():
                 close_btn = self.config.get("fishing_close_button_pos", [1113, 342])
                 if close_btn and close_btn[0]:
-                    roblox.activate_roblox_window()
+                    roblox.activate_roblox_window(self)
                     time.sleep(0.3)
                     try:
                         autoit.mouse_click("left", close_btn[0], close_btn[1], 1, speed=3)
@@ -1270,7 +1266,7 @@ class ActionsMixin:
                 sleep_interruptible=_sleep_interruptible,
                 should_continue=_should_continue,
                 can_run=_can_run,
-                activate_roblox_cb=roblox.activate_roblox_window,
+                activate_roblox_cb=roblox.activate_roblox_window(self),
                 close_chat_fn=lambda: self.close_chat_if_open(force=False),
                 egg_ocr_check_cb=self._perform_egg_ocr_check,
             )
@@ -1383,7 +1379,7 @@ class ActionsMixin:
             if not (chat_hover and chat_hover[0] and chat_close and chat_close[0]): return
 
             for _ in range(3):
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.15)
 
             sw = pyautogui.size()
@@ -1588,7 +1584,7 @@ class ActionsMixin:
             if not (chat_hover and chat_hover[0] and chat_close and chat_close[0]): return
 
             for _ in range(3):
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.15)
 
             sw = pyautogui.size()
@@ -1685,8 +1681,9 @@ class ActionsMixin:
             try:
                 if roblox.is_roblox_focused():
                     x, y, w, h = int(chat_box_region[0]), int(chat_box_region[1]), int(chat_box_region[2]), int(chat_box_region[3])
-                    openteab.save_screenshot(f"merchant_ocr_{int(time.time())}.png", self.send_merchant_webhook if hasattr(self, "send_merchant_webhook") else None, (x, y, w, h), found_merchant.title())
+                    screenshot_path = openteab.save_screenshot(f"merchant_ocr_{int(time.time())}.png", None, (x, y, w, h))
                 if hasattr(self, "send_merchant_webhook"):
+                    threading.Thread(target=self.send_merchant_webhook, args=(found_merchant.title(),), kwargs={"screenshot_path": screenshot_path, "source": "ocr"}, daemon=True).start()
                     if hasattr(self, "last_merchant_sent"): self.last_merchant_sent[(found_merchant.title(), 'ocr')] = time.time()
             except Exception as e:
                 self.error_logging(f"[Merchant OCR] Failed to take chat screenshot: {e}")
@@ -1780,7 +1777,7 @@ class ActionsMixin:
             if not (chat_hover and chat_hover[0] and chat_close and chat_close[0]): return
 
             for _ in range(3):
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.15)
 
             sw = pyautogui.size()
@@ -1924,7 +1921,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running:
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.15)
             quest_menu = self.config.get("quest_menu", [0, 0])
             quest1 = self.config.get("quest1_button", [0, 0])
@@ -2042,7 +2039,7 @@ class ActionsMixin:
                 if not self.detection_running:
                     print("[Eden Pathing] Aborted during activation: detection stopped",type="ActionMixin")
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.15)
 
             # 2. Reset Character
@@ -2300,7 +2297,7 @@ class ActionsMixin:
             )
             recipe_btn = self.config.get("potion_recipe_button", [0, 0])
 
-            roblox.activate_roblox_window()
+            roblox.activate_roblox_window(self)
             time.sleep(0.5)
 
             # Press F 4 times (open crafting menu)
@@ -2857,14 +2854,14 @@ class ActionsMixin:
 
             for _ in range(10):
                 if not self.detection_running: return False
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.5)
 
             deadline = time.time() + 600
             click_interval = 4.0
             while time.time() < deadline:
                 if not self.detection_running: return False
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.3)
                 self.Global_MouseClick(reconnect_start_button[0], reconnect_start_button[1])
 
@@ -2980,7 +2977,7 @@ class ActionsMixin:
             for _ in range(4):
                 if not self.detection_running or self._is_fishing_blocked() or self.auto_pop_state or (getattr(self, "_egg_collecting", False) or getattr(self, "_eden_running", False) or getattr(self, "_potion_thread_active", False)):
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 if not self._sleep_with_cancel(0.8):
                     return
             search_bar = self.config.get("search_bar", [855, 358])
@@ -3084,7 +3081,7 @@ class ActionsMixin:
 
             for _ in range(3):
                 if _cancelled(): return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 if not _do_sleep(0.15): return
 
             print("Using Portable Crack",type="ActionMixin")
@@ -3205,7 +3202,7 @@ class ActionsMixin:
             for _ in range(5):
                 if _cancelled():
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 if not _do_sleep(0.15):
                     return
 
@@ -3527,7 +3524,7 @@ class ActionsMixin:
                             purchased_count = purchased_items.get(item_name, 0)
 
                             if purchased_count == 0:
-                                self.append_log(
+                                print(
                                     f"[Merchant Detection - {merchant_name}] - Item {item_name} found. Proceeding to buy {('MAX' if buy_all else quantity)}")
 
                                 purchase_amount_button = self.config["purchase_amount_button"]
@@ -3544,7 +3541,7 @@ class ActionsMixin:
                                         if not self._sleep_with_cancel(0.3):
                                             return
                                     else:
-                                        self.append_log(f"[Merchant] Set to Max button not calibrated! Falling back to typing {quantity}")
+                                        print(f"[Merchant] Set to Max button not calibrated! Falling back to typing {quantity}")
                                         autoit.mouse_click("left", *purchase_amount_button)
                                         self._safe_type_text(str(quantity))
                                         if not self._sleep_with_cancel(0.23):
@@ -3631,7 +3628,7 @@ class ActionsMixin:
                 return
 
             for _ in range(3):
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.2)
 
             sw = pyautogui.size()
@@ -3661,71 +3658,6 @@ class ActionsMixin:
 
         except Exception as e:
             self.error_logging(e, "close_chat_if_open error")
-
-    def _focus_window_hwnd(self, hwnd, max_attempts=20, sleep_between=0.25):
-        attempt = 0
-        while self.detection_running and attempt < max_attempts:
-            attempt += 1
-            try:
-                if win32gui.IsIconic(hwnd):
-                    try:
-                        win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-                    except Exception:
-                        pass
-                fg = win32gui.GetForegroundWindow()
-                if fg == hwnd:
-                    return True
-                try:
-                    win32gui.SetForegroundWindow(hwnd)
-                except Exception:
-                    try:
-                        fg_hwnd = win32gui.GetForegroundWindow()
-                        foreground_tid = win32process.GetWindowThreadProcessId(fg_hwnd)[0]
-                        target_tid = win32process.GetWindowThreadProcessId(hwnd)[0]
-                        current_tid = ctypes.windll.kernel32.GetCurrentThreadId()
-                        try:
-                            ctypes.windll.user32.AttachThreadInput(current_tid, foreground_tid, True)
-                            ctypes.windll.user32.AttachThreadInput(current_tid, target_tid, True)
-                        except Exception:
-                            pass
-                        try:
-                            win32gui.SetForegroundWindow(hwnd)
-                        except Exception:
-                            pass
-                        try:
-                            ctypes.windll.user32.AttachThreadInput(current_tid, foreground_tid, False)
-                            ctypes.windll.user32.AttachThreadInput(current_tid, target_tid, False)
-                        except Exception:
-                            pass
-                    except Exception:
-                        pass
-                time.sleep(sleep_between)
-                if win32gui.GetForegroundWindow() == hwnd:
-                    return True
-                try:
-                    title = win32gui.GetWindowText(hwnd)
-                    if title:
-                        try:
-                            autoit.win_activate(title)
-                        except Exception:
-                            pass
-                except Exception:
-                    pass
-                time.sleep(sleep_between)
-                if win32gui.GetForegroundWindow() == hwnd:
-                    return True
-                try:
-                    pyautogui.keyDown('alt')
-                    pyautogui.press('tab')
-                    pyautogui.keyUp('alt')
-                except Exception:
-                    pass
-                time.sleep(sleep_between)
-                if win32gui.GetForegroundWindow() == hwnd:
-                    return True
-            except Exception:
-                pass
-        return win32gui.GetForegroundWindow() == hwnd
 
     def perform_anti_afk_action(self):
         try:
@@ -3785,7 +3717,7 @@ class ActionsMixin:
 
                 focused = False
                 while self.detection_running and not focused:
-                    focused = self._focus_window_hwnd(target, max_attempts=4, sleep_between=0.35)
+                    focused = roblox._focus_window_hwnd(target, max_attempts=4, sleep_between=0.35,other=self)
                     if focused:
                         break
                     refreshed_hwnds = roblox._find_roblox_hwnds()
@@ -3803,7 +3735,7 @@ class ActionsMixin:
                     if win32gui.GetForegroundWindow() != target:
                         focused = False
                         while self.detection_running and not focused:
-                            focused = self._focus_window_hwnd(target, max_attempts=4, sleep_between=0.35)
+                            focused = roblox._focus_window_hwnd(target, max_attempts=4, sleep_between=0.35,other=self)
                             if focused:
                                 break
                             refreshed_hwnds = roblox._find_roblox_hwnds()
@@ -4035,7 +3967,7 @@ class ActionsMixin:
                 for _ in range(5):
                     if not self.detection_running or self.reconnecting_state:
                         return
-                    roblox.activate_roblox_window()
+                    roblox.activate_roblox_window(self)
                     time.sleep(0.35)
 
                 time.sleep(0.57)

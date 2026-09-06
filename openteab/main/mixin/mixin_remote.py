@@ -1,4 +1,4 @@
-from .base_support import *
+from ..base_support import *
 
 class RemoteMixin:
     def _remote_access_toggle(self):
@@ -80,7 +80,7 @@ class RemoteMixin:
                     success_msg = f"[Remote] Bot online as {bot.user} — slash commands synced. Pycord module loaded :aga:"
                     print(success_msg)
                     try:
-                        self.append_log(success_msg)
+                        print(success_msg)
                     except Exception:
                         pass
                 except Exception as e:
@@ -802,7 +802,7 @@ class RemoteMixin:
         for _ in range(4):
             if not self.detection_running or self.reconnecting_state:
                 return
-            roblox.activate_roblox_window()
+            roblox.activate_roblox_window(self)
             time.sleep(0.35)
         time.sleep(0.57)
         inventory_menu = self.config.get("inventory_menu", [36, 535])
@@ -864,7 +864,7 @@ class RemoteMixin:
         step_delay = 0.67 + inventory_click_delay
         for _ in range(4):
             if not self.detection_running or self.reconnecting_state:return
-            roblox.activate_roblox_window()
+            roblox.activate_roblox_window(self)
             time.sleep(0.35)
         time.sleep(0.57)
         aura_menu = self.config.get("aura_menu", [37, 387])
@@ -919,7 +919,7 @@ class RemoteMixin:
             for _ in range(4):
                 if not self.detection_running or self.reconnecting_state:
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.35)
             time.sleep(0.5)
             try:

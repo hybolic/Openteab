@@ -1,5 +1,5 @@
-from .base_support import *
-from .config import normalize_auto_pop_biomes
+from ..base_support import *
+from ..config import normalize_auto_pop_biomes
 
 class LifecycleMixin:
     def __init__(self):

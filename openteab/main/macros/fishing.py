@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Callable
 import keyboard
 import autoit
+
 import numpy as np
 import pyautogui
 import win32clipboard

@@ -216,6 +216,7 @@ def ensure_workspace_files() -> None:
             shutil.copy2(APPDATA_CONFIG, config_file)
         except Exception as e:
             print(f"Failed to Migrate '%LOCALAPPDATA%/Coteab/config.json' to /config_folder/config.json, Exception: {e}")
+            
     if not config_file.exists():
         default = {}
         config_file.parent.mkdir(parents=True, exist_ok=True)

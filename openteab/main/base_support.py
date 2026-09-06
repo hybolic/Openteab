@@ -125,7 +125,7 @@ class SnippingWidget:
         self.end_y = None
 
     def start(self):
-        self.snipping_window = ttk.Toplevel(self.root)
+        self.snipping_window = tk.Toplevel(self.root)
         self.snipping_window.attributes('-fullscreen', True)
         self.snipping_window.attributes('-topmost', True)
         self.snipping_window.attributes('-alpha', 0.3)
@@ -421,7 +421,7 @@ class CalibrationManager:
                 pass
 
     def _tk_loop(self):
-        try: #probably not needed
+        try:
             import sys as _sys
             if getattr(_sys, 'frozen', False) or getattr(_sys, '__compiled__', False):
                 try:
@@ -443,6 +443,7 @@ class CalibrationManager:
             print(f"[CalibrationManager] FATAL: Failed to create tkinter root: {e}")
             traceback.print_exc()
             return
+
         def poll():
             try:
                 req = self._queue.get_nowait()
@@ -502,6 +503,7 @@ class CalibrationManager:
 
                     if self._emit_fn:
                         self._emit_fn({"key": config_key, "value": value})
+
                 try:
                     snipper = SnippingWidget(root, config_key=config_key, callback=on_snip)
                     snipper.start()
@@ -511,10 +513,6 @@ class CalibrationManager:
                     if self._window is not None:
                         try: self._window.show()
                         except: pass
-                snipper = SnippingWidget(root, config_key=config_key, callback=on_snip)
-                snipper.start()
-                if hasattr(snipper, 'snipping_window') and snipper.snipping_window:
-                    snipper.snipping_window.focus_force()
 
             except queue.Empty:
                 pass
@@ -595,10 +593,3 @@ class ActionScheduler:
                 self._pq.get_nowait()
         except Exception:
             pass
-
-
-def apply_headers(url: str) -> dict:
-    headers = {}
-    if "authenciation-test.vercel.app" in url:
-        headers["x-api-key"] = "betareleaseauthhello_thisgonnabeimplementinfuturelol"
-    return headers

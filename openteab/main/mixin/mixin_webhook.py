@@ -1,4 +1,4 @@
-from .base_support import *
+from ..base_support import *
 from openteab.globals import openteab
 
 class WebhookMixin:
@@ -28,7 +28,7 @@ class WebhookMixin:
                         requests.post(webhook_url, data=data, files=files, timeout=10)
                 except Exception as e:
                     try:
-                        self.append_log(f"Failed to send screenshot to {webhook_url}: {e}")
+                        print(f"Failed to send screenshot to {webhook_url}: {e}")
                     except Exception:
                         pass
         except Exception as e:
@@ -171,7 +171,7 @@ class WebhookMixin:
                         requests.post(webhook_url, data=data, files=files, timeout=10)
                 except Exception as e:
                     try:
-                        self.append_log(f"Failed to send quest screenshot to {webhook_url}: {e}")
+                        print(f"Failed to send quest screenshot to {webhook_url}: {e}")
                     except Exception:
                         pass
         except Exception as e:
@@ -203,7 +203,7 @@ class WebhookMixin:
                         requests.post(webhook_url, data=data, files=files, timeout=10)
                 except Exception as e:
                     try:
-                        self.append_log(f"Failed to send inventory screenshot to {webhook_url}: {e}")
+                        print(f"Failed to send inventory screenshot to {webhook_url}: {e}")
                     except Exception:
                         pass
         except Exception as e:
@@ -235,7 +235,7 @@ class WebhookMixin:
                         requests.post(webhook_url, data=data, files=files, timeout=10)
                 except Exception as e:
                     try:
-                        self.append_log(f"Failed to send aura screenshot to {webhook_url}: {e}")
+                        print(f"Failed to send aura screenshot to {webhook_url}: {e}")
                     except Exception:
                         pass
 
@@ -248,7 +248,7 @@ class WebhookMixin:
         private_server_link = self.config.get("private_server_link", "")
 
         if not urls:
-            self.append_log("Webhook URL is missing/not included in the config")
+            print("Webhook URL is missing/not included in the config")
             return
 
         if message_type == "None" and biome not in rare_biomes: return
@@ -309,14 +309,14 @@ class WebhookMixin:
                     payload = {"content": content, "embeds": [embed_copy]}
                     response = requests.post(webhook_url, json=payload, headers=headers)
                 response.raise_for_status()
-                self.append_log(f"Sent {message_type} for {biome} - {event_type} to webhook")
+                print(f"Sent {message_type} for {biome} - {event_type} to webhook")
             except requests.exceptions.RequestException as e:
-                self.append_log(f"Failed to send webhook: {e}")
+                print(f"Failed to send webhook: {e}")
 
     def send_merchant_webhook(self, merchant_name, screenshot_path=None, source='ocr'):
         urls = self.get_webhook_list()
         if not urls:
-            self.append_log("Webhook URL is missing/not included in the config")
+            print("Webhook URL is missing/not included in the config")
             return
         merchant_thumbnails = openteab.merchant_thumbnails
         
@@ -376,26 +376,26 @@ class WebhookMixin:
                         )
                         try:
                             response.raise_for_status()
-                            self.append_log(
+                            print(
                                 f"Webhook sent successfully for {merchant_name}: {response.status_code}")
                         except requests.exceptions.RequestException as e:
-                            self.append_log(f"Failed to send merchant webhook: {e}")
+                            print(f"Failed to send merchant webhook: {e}")
             else:
                 payload = {"content": content, "embeds": [embed]}
                 for webhook_url in urls:
                     try:
                         response = requests.post(webhook_url, json=payload)
                         response.raise_for_status()
-                        self.append_log(f"Webhook sent successfully for {merchant_name}: {response.status_code}")
+                        print(f"Webhook sent successfully for {merchant_name}: {response.status_code}")
                     except requests.exceptions.RequestException as e:
-                        self.append_log(f"Failed to send merchant webhook: {e}")
+                        print(f"Failed to send merchant webhook: {e}")
         except requests.exceptions.RequestException as e:
-            self.append_log(f"Failed to send merchant webhook: {e}")
+            print(f"Failed to send merchant webhook: {e}")
 
     def send_aura_webhook(self, aura_name, rarity, biome_message, screenshot_path=None):
         urls = self.get_webhook_list()
         if not urls:
-            self.append_log("Webhook URL is missing/not included in the config")
+            print("Webhook URL is missing/not included in the config")
             return
         icon_url = openteab.icon_url
         ping_minimum = int(self.config.get("ping_minimum", "100000"))
@@ -461,18 +461,18 @@ class WebhookMixin:
                         try:
                             response = requests.post(webhook_url, data=data, files=files, timeout=10)
                             response.raise_for_status()
-                            self.append_log(f"Aura webhook with screenshot sent for {aura_name}")
+                            print(f"Aura webhook with screenshot sent for {aura_name}")
                         except requests.exceptions.RequestException as e:
-                            self.append_log(f"Failed to send aura webhook with screenshot: {e}")
+                            print(f"Failed to send aura webhook with screenshot: {e}")
             else:
                 payload = {"content": content, "embeds": [embed]}
                 for webhook_url in urls:
                     try:
                         response = requests.post(webhook_url, json=payload, timeout=10)
                         response.raise_for_status()
-                        self.append_log(f"Aura webhook sent for {aura_name}")
+                        print(f"Aura webhook sent for {aura_name}")
                     except requests.exceptions.RequestException as e:
-                        self.append_log(f"Failed to send aura webhook: {e}")
+                        print(f"Failed to send aura webhook: {e}")
         except Exception as e:
             self.error_logging(e, "Error in send_aura_webhook")
 
@@ -480,7 +480,7 @@ class WebhookMixin:
         try:
             urls = self.get_webhook_list()
             if not urls:
-                self.append_log("Webhook URL is missing/not included in the config")
+                print("Webhook URL is missing/not included in the config")
                 return
             default_color = 3066993 if "started" in status.lower() else 15158332
             embed_color = color if color is not None else default_color
@@ -519,7 +519,7 @@ class WebhookMixin:
                     response = requests.post(webhook_url, json={"embeds": embeds}, timeout=8)
                     response.raise_for_status()
                 except requests.exceptions.RequestException as e:
-                    self.append_log(f"Failed to send webhook status: {e}")
+                    print(f"Failed to send webhook status: {e}")
         except Exception as e:
             self.error_logging(e, "Error in webhook_status")
 
@@ -603,9 +603,9 @@ class WebhookMixin:
                         payload = {"content": content, "embeds": [embed_copy]}
                         response = requests.post(webhook_url, json=payload, timeout=10)
                     response.raise_for_status()
-                    self.append_log(f"Egg OCR webhook sent for {egg_name}")
+                    print(f"Egg OCR webhook sent for {egg_name}")
                 except requests.exceptions.RequestException as e:
-                    self.append_log(f"Failed to send egg OCR webhook: {e}")
+                    print(f"Failed to send egg OCR webhook: {e}")
         except Exception as e:
             self.error_logging(e, "Error in send_egg_ocr_webhook")
 
@@ -647,8 +647,8 @@ class WebhookMixin:
                         payload = {"content": content, "embeds": [embed_copy]}
                         response = requests.post(webhook_url, json=payload, timeout=10)
                     response.raise_for_status()
-                    self.append_log(f"Eden OCR webhook sent")
+                    print(f"Eden OCR webhook sent")
                 except requests.exceptions.RequestException as e:
-                    self.append_log(f"Failed to send Eden OCR webhook: {e}")
+                    print(f"Failed to send Eden OCR webhook: {e}")
         except Exception as e:
             self.error_logging(e, "Error in send_eden_ocr_webhook")

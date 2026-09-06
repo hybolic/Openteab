@@ -1,4 +1,4 @@
-from .base_support import *
+from ..base_support import *
 
 class DetectionMixin:
     def load_logs(self):
@@ -107,7 +107,7 @@ class DetectionMixin:
                 return
 
             for _ in range(4):
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.35)
 
             aura_menu = self.config.get("aura_menu", [0, 0])
@@ -196,7 +196,7 @@ class DetectionMixin:
                 except Exception:
                     pass
             try:
-                from .config import get_config_file
+                from ..config import get_config_file
                 config_path = get_config_file()
                 cfg = {}
                 if config_path.exists():
@@ -285,7 +285,8 @@ class DetectionMixin:
                 self._session_window_reset_performed = False
         except Exception as e:
             self.error_logging(e, "Error in update_session_time function.")
-
+            
+    #TODO: Remove Logging for other one
     def display_logs(self, logs=None):
         if not hasattr(self, "logs_text"):
             return
@@ -350,7 +351,7 @@ class DetectionMixin:
         self._last_disconnect_time = 0
         self._disconnect_handled = False
         self.has_sent_disconnected_message = False
-        self._roblox_fullscreened = False
+        roblox._roblox_fullscreened = False
 
         if not self.session_window_start:
             self.session_window_start = now
@@ -418,7 +419,7 @@ class DetectionMixin:
         else:
             stop_reason = "[TRACEBACK] Macro stopped (unknown caller)"
         try:
-            self.append_log(stop_reason)
+            print(stop_reason)
         except Exception: pass
         print(stop_reason)
 
@@ -539,7 +540,7 @@ class DetectionMixin:
 
                 state_map[log_file_path] = "rejected"
                 try:
-                    self.append_log(
+                    print(
                         f"[Log Guard] Ignoring log file due to TutorialCursor username mismatch. "
                         f"Expected '{target_username}', got '{found_username}'."
                     )
@@ -705,7 +706,7 @@ class DetectionMixin:
                                     if getattr(self, "aura_screenshot_var", None) and self.aura_screenshot_var.get():
                                         if not self.is_fishing_mode_enabled():
                                             for _ in range(2):
-                                                roblox.activate_roblox_window()
+                                                roblox.activate_roblox_window(self)
                                                 time.sleep(0.75)
 
                                         openteab.save_screenshot(f"aura_{int(time.time())}.png",self.send_aura_webhook, None, parsed_aura_name, formatted_rarity, biome_message)
@@ -729,7 +730,7 @@ class DetectionMixin:
                                     if getattr(self, "aura_screenshot_var", None) and self.aura_screenshot_var.get():
                                         if not self.is_fishing_mode_enabled():
                                             for _ in range(5):
-                                                roblox.activate_roblox_window()
+                                                roblox.activate_roblox_window(self)
                                                 time.sleep(0.75)
                                         biome_message = f"[From {self.current_biome}!]" if getattr(self, "current_biome", None) and getattr(self, "current_biome") != "NORMAL" else ""
                                         openteab.save_screenshot(f"aura_{int(time.time())}.png",self.send_aura_webhook, None, aura, None, biome_message)
@@ -766,7 +767,7 @@ class DetectionMixin:
                         if biome not in self.biome_data:
                             print(f"New unlisted biome detected from RPC: {biome}")
                             try:
-                                self.append_log(f"Auto-loaded new unlisted biome: {biome}")
+                                print(f"Auto-loaded new unlisted biome: {biome}")
                             except Exception: pass
                             
                             self.biome_data[biome] = {
@@ -804,7 +805,7 @@ class DetectionMixin:
             now = datetime.now(timezone.utc)    
 
             print(f"Detected Biome: {biome}, Color: {biome_info['color']}")
-            self.append_log(f"Detected Biome: {biome}")
+            print(f"Detected Biome: {biome}")
 
             self.current_biome = biome
             self.last_sent[biome] = now
@@ -828,7 +829,7 @@ class DetectionMixin:
                 and bool(getattr(self, "_pending_fishing_failsafe_rejoin", False))
             ):
                 self._pending_fishing_failsafe_rejoin = False
-                self.append_log(
+                print(
                     f"[FishingMode] Rare biome ended with deferred failsafe pending. Rejoining from {biome}."
                 )
                 self.send_webhook_status(
@@ -871,7 +872,7 @@ class DetectionMixin:
                         self.just_reconnected = False
                         self.reconnect_confirm_deadline = None
                     if confirmed is False:
-                        self.append_log(f"[BiomeConfirm] User chose to stop macro for {biome}.")
+                        print(f"[BiomeConfirm] User chose to stop macro for {biome}.")
                         self.stop_detection()
                         return
 
@@ -880,19 +881,19 @@ class DetectionMixin:
                 if biome in rare_biomes and self.config.get("rare_biome_screenshot", False):
                     try:
                         for _ in range(5):
-                            roblox.activate_roblox_window()
+                            roblox.activate_roblox_window(self)
                             time.sleep(0.75)
                         #TODO: openteab.save_screenshot
                         screenshot_dir = openteab.screenshots
                         os.makedirs(screenshot_dir, exist_ok=True)
                         screenshot_path = os.path.join(screenshot_dir, f"rare_biome_{biome.lower()}_{int(time.time())}.png")
                         if not roblox.is_roblox_focused():
-                            self.append_log(f"[Rare Biome Screenshot] Roblox not focused, skipping screenshot")
+                            print(f"[Rare Biome Screenshot] Roblox not focused, skipping screenshot")
                             screenshot_path = None
                         else:
                             img = pyautogui.screenshot()
                             img.save(screenshot_path)
-                            self.append_log(f"[Rare Biome Screenshot] Saved screenshot: {screenshot_path}")
+                            print(f"[Rare Biome Screenshot] Saved screenshot: {screenshot_path}")
                     except Exception as e:
                         self.error_logging(e, "Error taking rare biome screenshot")
                         screenshot_path = None
@@ -979,7 +980,7 @@ class DetectionMixin:
             self.reconnecting_state = False
             self.has_sent_disconnected_message = False
             self.just_reconnected = True
-            self._roblox_fullscreened = False
+            roblox._roblox_fullscreened = False
             self.reconnect_confirm_deadline = time.monotonic() + 60
             self.set_title_threadsafe(f"""Openteab Macro {current_ver} (Running)""")
             self.save_config()
@@ -1280,7 +1281,7 @@ class DetectionMixin:
             for _ in range(4):
                 if not self.detection_running or (hasattr(self, "_is_fishing_blocked") and self._is_fishing_blocked()):
                     return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.8)
             
             aura_menu = self.config.get("aura_menu", [0, 0])
@@ -1308,7 +1309,7 @@ class DetectionMixin:
                     filename = os.path.join(screenshot_dir, f"aura_screenshot_{int(time.time())}.png")
                     if not roblox.is_roblox_focused():
                         #TODO: if autofocus enabled refocus and take screenshot else append log
-                        self.append_log("[Aura Screenshot] Roblox not focused, skipping screenshot")
+                        print("[Aura Screenshot] Roblox not focused, skipping screenshot")
                     else:
                         img = pyautogui.screenshot()
                         img.save(filename)
@@ -1381,7 +1382,7 @@ class DetectionMixin:
 
             for _ in range(4):
                 if _cancelled(): return
-                roblox.activate_roblox_window()
+                roblox.activate_roblox_window(self)
                 time.sleep(0.3)
 
             current_x, current_y = autoit.mouse_get_pos()

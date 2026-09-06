@@ -558,7 +558,7 @@ class Api:
                     setattr(t, flag_name, False)
                     self._fishing_runtime_state[ts_key] = 0
                     try:
-                        t.append_log(
+                        print(
                             f"[FishingMode] Force cleared stale '{flag_name}' flag "
                             f"after {_STALE_TIMEOUT}s — was blocking fishing."
                         )
@@ -587,7 +587,7 @@ class Api:
         if biome in rare_biomes:
             self._tracker._pending_fishing_failsafe_rejoin = True
             try:
-                self._tracker.append_log(f"[FishingMode] Failsafe timed out during {biome}; delaying rejoin.")
+                self._print(f"[FishingMode] Failsafe timed out during {biome}; delaying rejoin.")
                 self._tracker.send_webhook_status(
                     f"Fishing failsafe timed out during {biome}. Rejoin delayed until biome ends.",
                     color=0xffcc00,
@@ -595,7 +595,7 @@ class Api:
             except Exception: pass
             return
 
-        try: self._tracker.terminate_roblox_processes()
+        try: roblox.terminate_roblox_processes()
         except Exception as e: print(f"Fishing failsafe close Roblox failed: {e}")
 
         if not self._fishing_config_provider().get("auto_reconnect", False):
@@ -611,7 +611,7 @@ class Api:
         t._fishing_br_sc_override = True
         ran = False
         try:
-            try: roblox.activate_roblox_window()
+            try: roblox.activate_roblox_window(self)(self)
             except Exception: pass
 
             try:
@@ -640,7 +640,7 @@ class Api:
         t._fishing_br_sc_override = True
         ran = False
         try:
-            try: roblox.activate_roblox_window()
+            try: roblox.activate_roblox_window(self)
             except Exception: pass
 
             merchant_fn = getattr(t, "_merchant_teleporter_impl", None)
@@ -681,7 +681,7 @@ class Api:
                         on_failsafe_timeout=self._on_fishing_failsafe_timeout,
                         run_br_sc_sequence_cb=self._run_fishing_br_sc_sequence,
                         run_merchant_sequence_cb=self._run_fishing_merchant_sequence,
-                        activate_roblox_cb=self._tracker.activate_roblox_window,
+                        activate_roblox_cb=roblox.activate_roblox_window(self),
                         close_chat_fn=self._tracker.close_chat_if_open,
                         runtime_state=self._fishing_runtime_state,
                         set_fishing_busy_cb=lambda busy: setattr(self._tracker, "_fishing_busy", busy),
@@ -1082,21 +1082,21 @@ def launch_app(api_class, tracker=None):
 
     class _WvLog(logging.Handler):
         def emit(self, record):
-            try: tracker.append_log(f"[pywebview] {record.getMessage()}")
+            try: print(f"[pywebview] {record.getMessage()}")
             except Exception: pass
     logging.getLogger("pywebview").addHandler(_WvLog())
 
     # try edgechromium first, fall back to whatever else is available
     try:
-        tracker.append_log("Starting pywebview (edgechromium)")
+        print("Starting pywebview (edgechromium)")
         webview.start(debug=False, gui="edgechromium", private_mode=False)
     except Exception as e:
         print(f"[Webview] edgechromium failed: {e}")
-        tracker.append_log(f"edgechromium failed: {e}, retrying default...")
+        print(f"edgechromium failed: {e}, retrying default...")
         try: webview.start(debug=False, private_mode=False)
         except Exception as e2:
             print(f"[Webview] Default backend also failed: {e2}")
-            tracker.append_log(f"Default backend also failed: {e2}")
+            print(f"Default backend also failed: {e2}")
 
     return tracker
 
@@ -1216,7 +1216,7 @@ def main():
         class _WvLog(logging.Handler):
             def emit(self, record):
                 try:
-                    if tracker: tracker.append_log(f"[pywebview] {record.getMessage()}")
+                    if tracker: print(f"[pywebview] {record.getMessage()}")
                 except Exception: pass
         logging.getLogger("pywebview").addHandler(_WvLog())
 
