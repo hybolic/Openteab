@@ -1,0 +1,131 @@
+{
+    "credits": {
+        "current_developers": {
+            "title": "Credits",
+            "description": "The people behind Openteab Macro",
+            "members": [
+                {
+                    "name": "Nadir Rift",
+                    "role": "Current Maintainer",
+                    "avatarUrl": "https://avatars.githubusercontent.com/u/2791557?v=4",
+                    "backupUrl": "/images/NadirRift.png"
+                }
+            ],
+            "links": [{
+                "label": "GitHub: Coteab Macro!",
+                "url": "https://github.com/hybolic/Openteab"
+            }]
+        },
+        "original_developers": {
+            "title": "Original Creators",
+            "subtitle": "The people behind the original",
+            "projectName": "Coteab Macro",
+            "imageUrl": "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/images/devteam.png",
+            "backupUrl": "/images/devteam.png",
+            "members": [
+                {
+                    "name": "Vapure/\"@criticize.\"",
+                    "role": "Lead Developer, fullstack"
+                },
+                {
+                    "name": "Akito",
+                    "role": "Lead Developer, fullstack"
+                },
+                {
+                    "name": "ManasAarohi",
+                    "role": "Pathing Developer"
+                },
+                {
+                    "name": "Matt",
+                    "role": "Developer"
+                },
+                {
+                    "name": "spacedev0572",
+                    "role": "MacOS Developer"
+                }
+            ],
+            "links": [
+                {
+                    "label": "Join the Coteab Discord server!!!",
+                    "url": "https://discord.gg/coteab"
+                },
+                {
+                    "label": "GitHub: Coteab Macro!",
+                    "url": "https://github.com/xVapure/Noteab-Macro"
+                }
+            ]
+        },
+
+        "inspiration": [{
+            "title": "Inspired Biome Macro Creator: maxstellar",
+            "name": "maxstellar",
+            "avatarUrl": "https://avatars.githubusercontent.com/u/93678379?v=4",
+            "backupUrl": "/images/maxstellar.png",
+            "links": [
+                {
+                    "label": "Their Twitch channel",
+                    "url": "https://www.twitch.tv/maxstellar"
+                }
+            ]
+        }],
+
+        "extra_credits": {
+            "title": "Extra Credits",
+            "description": "Thank you to everyone who helped along the way",
+            "credits": [
+                {
+                    "name": "maxstellar",
+                    "credit": "Inspiration and I used some of his logic & former developer.",
+                    "links": [
+                        {
+                            "label": "maxstellar-Biome-Macro",
+                            "url": "https://github.com/purestellenium/maxstellar-Biome-Macro"
+                        }
+                    ]
+                },
+                {
+                    "name": "Vexthecoder",
+                    "credit": "Thank you for the icons <3"
+                },
+                {
+                    "name": "Cresqnt, Baz & the Scope Team",
+                    "credit": "Anti-AFK inspiration.",
+                    "links": [
+                        {
+                            "label": "SolsScope",
+                            "url": "https://github.com/bazthedev/SolsScope"
+                        }
+                    ]
+                },
+                {
+                    "name": "rnd.xy, imsomeone",
+                    "credit": "For doing external works that I was too lazy to do tysm."
+                },
+                {
+                    "name": "Finnerinch",
+                    "credit": "Former developer."
+                },
+                {
+                    "name": ".ivelchampion249._30053",
+                    "credit": "Fishing logic inspiration.",
+                    "links": [
+                        {
+                            "label": "Fishsols",
+                            "url": "https://github.com/ivelchampion249/FishSol-Macro"
+                        }
+                    ]
+                },
+                {
+                    "name": "Testers",
+                    "credit": "All the testers that made the update possible with as less flaws as possible. Notably:",
+                   "\"extra":["\"gummyballer\"", "\"mightbeanormalguest\"", "\"xdec27.\"", "\"gonebon\"", "\"kira_drago2\"", "\"and others.\""]
+                }
+            ]
+        },
+        "development_server": {
+            "label": "JOIN OUR DEVELOPMENT SERVER",
+            "url": "https://discord.gg/coteab",
+            "message": "to keep in touch with the latest Coteab Macro updates!"
+        }
+    }
+}

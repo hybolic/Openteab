@@ -1,16 +1,56 @@
+import { useEffect, useState } from "react";
+
 export default function CreditsPage() {
+    const [creditsData, setCreditsData] = useState<any>(null);
+
+    async function decodeBackup(data: string): Promise<any> {
+        const bin = Uint8Array.from(
+            atob(data.trim()),
+            (char) => char.charCodeAt(0)
+        );
+
+        const stream = new DecompressionStream("gzip");
+
+        const decompressed = await new Response(new Blob([bin]).stream().pipeThrough(stream))
+        .arrayBuffer();
+
+        const json = new TextDecoder().decode(decompressed);
+
+        return JSON.parse(json);
+    }
+
+    useEffect(() => {
+        fetch("/api/json?credits")
+            .then((response) => response.json())
+            .then((data) => {setCreditsData(data)})
+            .catch((error) => {
+                console.log("FAILED TO GET Credits.json locally, trying github!", error)
+                fetch("https://raw.githubusercontent.com/hybolic/Openteab/refs/heads/Openteab/external_assets/compressed/API/JSON/credits.gz.b64")
+                    .then((response) => response.text())
+                    .then((data) => {decodeBackup(data).then((new_data) => setCreditsData(new_data))})
+                    .catch((error) => {console.log("FAILED TO GET Credits.json from github!", error)})
+            })
+    }, [])
+
+
+    if (!creditsData) {
+        return <div>Loading...</div>;
+    }
+
+    const credits = creditsData.credits;
+
     return (
         <>
-            <div className="page-header">
-                <h2>Credits</h2>
-                <p>The people behind Openteab Macro</p>
-            </div>
-            
             {/* Developers Card */}
+            <div className="page-header">
+                <h2>{credits.current_developers.title}</h2>
+                <p>{credits.current_developers.description}</p>
+            </div>
+
             <div className="card">
                 <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
                     <img
-                        src="https://avatars.githubusercontent.com/u/2791557?v=4"
+                        src={credits.current_developers.members[0].avatarUrl}
                         alt="Current Maintainer"
                         style={{
                             width: "80px",
@@ -20,7 +60,7 @@ export default function CreditsPage() {
                             boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
                             background: "rgba(128, 0, 255, 1)"
                         }}
-                        onError={(e) => e.currentTarget.src = "/images/NadirRift.png" }
+                        onError={(e) => e.currentTarget.src = credits.current_developers.members[0].backupUrl }
                     />
                 </div>
 
@@ -29,31 +69,51 @@ export default function CreditsPage() {
                         <div className="credit-avatar">V</div>
                         <div className="credit-info">
                             <ul style={{ margin: 0, paddingLeft: "16px", listStyle: "disc" }}>
-                                <li><strong>Nadir Rift</strong> (Current Maintainer)</li>
+                                {credits.current_developers.members.map((member: any) => {
+                                    const link = credits.current_developers.links.find(
+                                        (link: any) => link.name === member.name
+                                    );
+
+                                    return (
+                                        <li key={member.name}>
+                                            <strong>
+                                                {link ? (
+                                                    <a href={link.url} target="_blank" rel="noreferrer" title={link.label}>
+                                                        {member.name}
+                                                    </a>
+                                                ) : (
+                                                    member.name
+                                                )}
+                                            </strong> ({member.role})
+                                        </li>
+                                    );
+                                })}
                             </ul>
                         </div>
                     </div>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", marginTop: "16px" }}>
-                    <a href="https://github.com/hybolic/Openteab" target="_blank" rel="noreferrer" style={{ color: "var(--accent)", fontSize: "13px" }}>
-                        GitHub: Coteab Macro!
-                    </a>
+                    {credits.current_developers.links.map((link: any) => (
+                        <a key={link.url} href={link.url} target="_blank" rel="noreferrer" style={{ color: "var(--accent)", fontSize: "13px" }}>
+                            {link.label}
+                        </a>
+                    ))}
                 </div>
             </div>
 
 
             <div className="page-header" style={{textAlign: "center"}}>
-                <h1>Original Creators</h1>
-                <h2>The people behind the original</h2>
-                <h2><strong>Coteab Macro</strong></h2>
+                <h1>{credits.original_developers.title}</h1>
+                <h2>{credits.original_developers.subtitle}</h2>
+                <h2><strong>{credits.original_developers.projectName}</strong></h2>
             </div>
 
             {/* Developers Card */}
             <div className="card">
                 <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
                     <img
-                        src="https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/images/devteam.png"
+                        src={credits.original_developers.imageUrl}
                         alt="Old Dev Team"
                         style={{
                             width: "300px",
@@ -62,7 +122,7 @@ export default function CreditsPage() {
                             border: "1px solid var(--border)",
                             boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
                         }}
-                        onError={(e) => e.currentTarget.src = "/images/devteam.png" }
+                        onError={(e) => e.currentTarget.src = credits.original_developers.backupUrl }
                     />
                 </div>
 
@@ -71,50 +131,57 @@ export default function CreditsPage() {
                         <div className="credit-avatar heart-avatar">&#10084;</div>
                         <div className="credit-info">
                             <ul style={{ margin: 0, paddingLeft: "16px", listStyle: "disc" }}>
-                                <li><strong>Vapure/"@criticize."</strong> (Lead Developer, fullstack)</li>
-                                <li><strong>Akito</strong> (Lead Developer, fullstack)</li>
-                                <li><strong>ManasAarohi</strong> (Pathing Developer)</li>
-                                <li><strong>Matt</strong> (Developer)</li>
-                                <li><strong>spacedev0572</strong> (MacOS Developer)</li>
+                                {credits.original_developers.members.map((member: any) => (
+                                    <li key={member.name}>
+                                        <strong>{member.name}</strong> ({member.role})
+                                    </li>
+                                ))}
                             </ul>
                         </div>
                     </div>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", marginTop: "16px" }}>
-                    <a href="https://discord.gg/coteab" target="_blank" rel="noreferrer"
-                        style={{ color: "var(--accent)", textDecoration: "underline" }}>
-                        Join the Coteab Discord server!!!
-                    </a>
-                    <a href="https://github.com/xVapure/Noteab-Macro" target="_blank" rel="noreferrer" style={{ color: "var(--accent)", fontSize: "13px" }}>
-                        GitHub: Coteab Macro!
-                    </a>
+                    {credits.original_developers.links.map((link: any) => (
+                        <a key={link.url} href={link.url} target="_blank" rel="noreferrer"
+                            style={{ color: "var(--accent)", textDecoration: "underline" }}>
+                            {link.label}
+                        </a>
+                    ))}
                 </div>
             </div>
 
             {/* Inspired By Card */}
             <div className="card" style={{ textAlign: "center" }}>
-                <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
-                    <img
-                        src="https://avatars.githubusercontent.com/u/93678379?v=4"
-                        alt="Maxstellar"
-                        style={{
-                            width: "120px",
-                            height: "auto",
-                            objectFit: "cover",
-                            borderRadius: "8px",
-                            border: "1px solid var(--border)"
-                        }}
-                        onError={(e) => e.currentTarget.src = "/images/maxstellar.png" }
-                    />
-                </div>
-                <h3>Inspired Biome Macro Creator: maxstellar</h3>
-                <p>
-                    <a href="https://www.youtube.com/@maxstellar_" target="_blank" rel="noreferrer"
-                        style={{ color: "var(--accent)", textDecoration: "underline", cursor: "pointer" }}>
-                        Their YT channel
-                    </a>
-                </p>
+                {credits.inspiration.map((person: any) => (
+                    <div key={person.name}>
+                        <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
+                            <img
+                                src={person.avatarUrl}
+                                alt={person.name}
+                                style={{
+                                    width: "120px",
+                                    height: "auto",
+                                    objectFit: "cover",
+                                    borderRadius: "8px",
+                                    border: "1px solid var(--border)"
+                                }}
+                                onError={(e) => e.currentTarget.src = person.backupUrl }
+                            />
+                        </div>
+
+                        <h3>{person.title}: {person.name}</h3>
+
+                        {person.links.map((link: any) => (
+                            <p key={link.url}>
+                                <a href={link.url} target="_blank" rel="noreferrer"
+                                    style={{ color: "var(--accent)", textDecoration: "underline", cursor: "pointer" }}>
+                                    {link.label}
+                                </a>
+                            </p>
+                        ))}
+                    </div>
+                ))}
             </div>
 
             {/* Extra Credits */}
@@ -122,8 +189,8 @@ export default function CreditsPage() {
                 <div className="card-header">
                     <div className="card-icon">🏅</div>
                     <div>
-                        <h3>Extra Credits</h3>
-                        <p>Thank you to everyone who helped along the way</p>
+                        <h3>{credits.extra_credits.title}</h3>
+                        <p>{credits.extra_credits.description}</p>
                     </div>
                 </div>
 
@@ -136,18 +203,29 @@ export default function CreditsPage() {
                     lineHeight: "1.8",
                     color: "var(--text-secondary)",
                 }}>
-                    <div>- maxstellar - Inspiration and I used some of his logic & former developer.</div>
-                    <div>- Vexthecoder - Thank you for the icons &lt;3</div>
-                    <div>- Cresqnt, Baz & the Scope Team - Anti-AFK inspiration.</div>
-                    <div>- rnd.xy, imsomeone - For doing external works that I was too lazy to do tysm.</div>
-                    <div>- Finnerinch - Former developer.</div>
-                    <div>- .ivelchampion249._30053 - Fishing logic inspiration.</div>
-                    <div>- All the testers that made the update possible with as less flaws as possible. Notably: "gummyballer", "mightbeanormalguest", "xdec27.", "gonebon", "kira_drago2",  and others.</div>
+                    {credits.extra_credits.credits.map((credit: any) => {
+                        const link = credit.links?.[0];
+
+                        return (
+                            <div key={credit.name}>
+                                - {link ? (
+                                    <a href={link.url} target="_blank" rel="noreferrer" title={link.label}>
+                                        {credit.name}
+                                    </a>
+                                ) : (
+                                    credit.name
+                                )} - {credit.credit}
+                                {credit.extra?.map((extra: string) => (
+                                    <span key={extra}> {extra}</span>
+                                ))}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
             <div className="info-banner" style={{ marginTop: "16px" }}>
-                🌐 <a href="https://discord.gg/coteab" target="_blank" rel="noreferrer">JOIN OUR DEVELOPMENT SERVER</a> to keep in touch with the latest Coteab Macro updates!
+                🌐 <a href={credits.development_server.url} target="_blank" rel="noreferrer">{credits.development_server.label}</a> {credits.development_server.message}
             </div>
         </>
     );

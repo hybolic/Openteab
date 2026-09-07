@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from openteab.globals import openteab, FROM_PATH, join_path
 from datetime import datetime # do not remove or del used in print
-import atexit;
+import atexit
 
 LOG_DIR = FROM_PATH(openteab.top_directory, "logs")
 LOG_FILE = open(join_path(LOG_DIR, "latest.log"),"w",encoding="utf-8")
@@ -51,8 +51,15 @@ def PreLaunch():
     from os.path import exists, abspath, dirname
     from os import makedirs, remove
     from urllib.request import urlretrieve;
-
-
+    import argparse
+    parser = argparse.ArgumentParser(description="PreLaunch.py Description")
+    parser.add_argument("--rebuild-dist", action="store_true", default=False, help="rebuild the frontend")
+    parser.add_argument("--reinstall",    action="store_true", default=False, help="reinstall node")
+    parser.add_argument("--clear-env",    action="store_true", default=False, help="completely remove env for total rebuild")
+    args = parser.parse_args()
+    if args.clear_env:
+        from pathlib import Path
+        Path(openteab.venv).unlink()
     ### PRE-INIT
 
     #### STATIC DEFINITIONS ####
@@ -241,8 +248,8 @@ def PreLaunch():
             print_exception(e)
             return False
         return True
-        
-    if not is_frontend_availible():
+    print("args.rebuild_dist: " + str(args.rebuild_dist))
+    if (not is_frontend_availible()) or args.reinstall:
         #TODO: add system os checks
         system_os = "WINDOWS"
 
@@ -302,6 +309,11 @@ def PreLaunch():
         npm_install = ["npm.cmd","install"]
         run(npm_install, cwd=openteab.frontend, check=True)
 
+        npm_build = ["npm.cmd","run","build"]
+        run(npm_build,   cwd=openteab.frontend, check=True)
+
+
+    elif args.rebuild_dist:
         npm_build = ["npm.cmd","run","build"]
         run(npm_build,   cwd=openteab.frontend, check=True)
     print_log("PreLanch Done!")

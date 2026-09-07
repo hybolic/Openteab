@@ -1,0 +1,19 @@
+2026-09-07 08:27:59File:      credits.json
+Size:      4,883 B
+GZip:      1,065 B
+Base64:    1,420 B
+Reduction: 70.9% [-3,463 B]
+PASS:      True
+Time:      0s 3ms 272500ns
+
+
+File:      en_us.json
+Size:      10,917 B
+GZip:      3,025 B
+Base64:    4,036 B
+Reduction: 63.0% [-6,881 B]
+PASS:      True
+Time:      0s 1ms 325500ns
+
+
+Total Time:      0s 9ms 637700ns
