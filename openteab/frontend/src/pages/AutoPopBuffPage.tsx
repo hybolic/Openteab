@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useConfig } from "../contexts/ConfigContext";
+import { type ExtendedProperties, PageIcons } from "../utils/ExtendedPageData";
 
 type BuffSelection = [boolean, number];
 type BuffConfig = Record<string, BuffSelection>;
@@ -156,9 +157,12 @@ function getBiomeColor(config: Record<string, unknown>, biomeName: string, conte
     return FALLBACK_BIOME_COLORS[biomeName] ?? "#9ca3af";
 }
 
-export default function AutoPopBuffPage() {
+export default function AutoPopBuffPage({langData}: ExtendedProperties) {
     const { config, saveConfig, error, biomeColors: contextColors } = useConfig();
     const [selectedBiome, setSelectedBiome] = useState<string | null>(null);
+    if (!langData) { console.log("Error Loading LangData!"); return <div>Error Loading LangData!</div>}
+    const Autopop = langData.autopop
+
 
     if (error) {
         return (
@@ -225,10 +229,10 @@ export default function AutoPopBuffPage() {
         return (
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">🧪</div>
+                    <div className="card-icon">{PageIcons.Autopop}</div>
                     <div>
                         <h3>{title}</h3>
-                        <p>Enable exact biome triggers and configure a separate buff loadout for each one</p>
+                        <p>{Autopop.enable_exact_triggers}</p>
                     </div>
                 </div>
 
@@ -257,7 +261,14 @@ export default function AutoPopBuffPage() {
                                         <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{biomeName}</span>
                                     </div>
                                     <div className="form-hint">
-                                        {enabledBuffs > 0 ? `${enabledBuffs} buff${enabledBuffs === 1 ? "" : "s"} selected` : "No buffs selected yet"}
+                                        {(enabledBuffs === 0) ? //if enabledBuffs is zero
+                                            Autopop.no_buff_selection
+                                            ://else
+                                            (enabledBuffs === 1)? //if equal to one
+                                                Autopop.count.one 
+                                                ://else greater then
+                                                    (Autopop.count.many).replace("{count}", String(enabledBuffs))
+                                        }
                                     </div>
                                 </div>
 
@@ -266,7 +277,7 @@ export default function AutoPopBuffPage() {
                                     style={{ whiteSpace: "nowrap" }}
                                     onClick={() => setSelectedBiome(biomeName)}
                                 >
-                                    Buff Selection
+                                    {Autopop.buff_selection}
                                 </button>
 
                                 <label style={{ display: "flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap", color: "var(--text-secondary)" }}>
@@ -276,7 +287,7 @@ export default function AutoPopBuffPage() {
                                         onChange={(event) => updateBiomeEnabled(biomeName, event.target.checked)}
                                         style={{ width: "16px", height: "16px" }}
                                     />
-                                    Enable
+                                    {langData.common.enable}
                                 </label>
                             </div>
                         );
@@ -318,12 +329,12 @@ export default function AutoPopBuffPage() {
                     >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", marginBottom: "18px" }}>
                             <div>
-                                <h3 style={{ margin: 0 }}>{selectedBiome} Buff Selection</h3>
+                                <h3 style={{ margin: 0 }}>{Autopop.biome.selection.replace("{biome}", selectedBiome)}</h3>
                                 <p style={{ margin: "6px 0 0 0", color: "var(--text-secondary)", fontSize: "13px" }}>
-                                    Only the enabled buffs below will be used when auto pop triggers in this biome.
+                                    {Autopop.enable_pop_description}
                                 </p>
                             </div>
-                            <button className="btn btn-secondary" onClick={() => setSelectedBiome(null)}>Close</button>
+                            <button className="btn btn-secondary" onClick={() => setSelectedBiome(null)}>{langData.common.close}</button>
                         </div>
 
                         <div className="buff-grid">
@@ -356,16 +367,16 @@ export default function AutoPopBuffPage() {
             )}
 
             <div className="page-header">
-                <h2>Auto Pop Buff</h2>
-                <p>Use separate biome-specific buff loadouts instead of the old rare-vs-normal grouping</p>
+                <h2>{langData.nav.auto_pop_buff}</h2>
+                <p>{Autopop.autopop_description}</p>
             </div>
 
             <div className="info-banner" style={{ marginBottom: "16px" }}>
-                Auto Pop Buff now interrupts fishing flows, waits 0.3 seconds, uses the selected buffs for the exact biome you enabled, then lets fishing continue. Fishing failsafe rejoin is deferred until rare biomes end.
+                {Autopop.extra_info}
             </div>
 
-            {renderBiomeRows("Rare Biomes", rareBiomes)}
-            {renderBiomeRows("Other Biomes", otherBiomes)}
+            {renderBiomeRows(Autopop.rare_biomes, rareBiomes)}
+            {renderBiomeRows(Autopop.other_biomes, otherBiomes)}
         </>
     );
 }

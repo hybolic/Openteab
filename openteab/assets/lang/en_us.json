@@ -39,50 +39,47 @@
         "activeModules": "Active Modules"
     },
     "auras": {
-        "description": "Aura detection, recording, and notification settings",
+        "header": "Aura detection, recording, and notification settings",
+        "placeholder": "e.g. Oblivion, Illusionary,... (comma-separated)",
         "detection": {
-            "title": "Aura Detection",
-            "description": "Detect and notify about rare auras",
-            "enable": "Enable Aura Detection",
-            "enableDescription": "Detect aura rolls and send webhook notifications",
-            "screenshot": "Aura Detection Screenshot",
-            "screenshotDescription": "Take a screenshot when you rolled a new aura (Only works if Roblox is focused/Fishing mode is OFF!)",
-            "pingMinimumRarity": "Ping Minimum Rarity",
-            "discordUserId": "Discord User ID",
-            "forcePing": "Force Ping Auras",
-            "forcePingHelp": "Pings Discord User ID even if rarity is not met. (otherwise don't put the auras in the box if you don't want the macro to force ping)",
-            "forcePingPlaceholder": "e.g. Oblivion, Illusionary,... (comma-separated)"
+            "aura_detection": "Aura Detection",
+            "detect_notify": "Detect and notify about rare auras",
+            "enable_aura_detection": "Enable Aura Detection",
+            "enable_aura_detection_description": "Detect aura rolls and send webhook notifications",
+            "aura_screenshot": "Aura Detection Screenshot",
+            "aura_screenshot_description": "Take a screenshot when you rolled a new aura (Only works if Roblox is focused/Fishing mode is OFF!)",
+            "ping_min_rarity": "Ping Minimum Rarity",
+            "force_ping_auras": "Force Ping Auras",
+            "ping_help": "Pings Discord User ID even if rarity is not met. (otherwise don't put the auras in the box if you don't want the macro to force ping)"
         },
         "recording": {
-            "title": "Aura Recording",
-            "description": "Auto-clip when a rare aura is rolled",
-            "enable": "Enable Aura Recording",
-            "enableDescription": "Trigger a recording keybind on rare aura rolls",
-            "keybind": "Record Keybind",
-            "testKeybind": "Test Keybind",
-            "keybindDelay": "(Fires after 2s delay)",
-            "minimumRarity": "Min Rarity to Record",
-            "force": "Force Record Auras",
-            "forceHelp": "Force aura record even if rarity is not met (otherwise don't put the auras in the box if you don't want the macro to force record)",
-            "forcePlaceholder": "e.g. Oblivion, Illusionary,... (comma-separated)"
+            "aura_recoding": "Aura Recording",
+            "autoclip_when_rollled": "Auto-clip when a rare aura is rolled",
+            "enable_recording": "Enable Aura Recording",
+            "enable_recording_description": "Trigger a recording keybind on rare aura rolls",
+            "record_keybind": "Record Keybind",
+            "test_keybind": "Test Keybind",
+            "keyboard_delay": "(Fires after 2s delay)",
+            "record_min_rarity": "Min Rarity to Record",
+            "force_record": "Force Record Auras",
+            "force_record_description": "Force aura record even if rarity is not met (otherwise don't put the auras in the box if you don't want the macro to force record)"
         }
     },
     "autopop": {
-        "description": "Use separate biome-specific buff loadouts instead of the old rare-vs-normal grouping",
-        "biome": "Enable exact biome triggers and configure a separate buff loadout for each one",
-        "rareBiomes": "Rare Biomes",
-        "otherBiomes": "Other Biomes",
-        "buffSelection": "Buff Selection",
-        "enable": "Enable",
-        "info": "Auto Pop Buff now interrupts fishing flows, waits 0.3 seconds, uses the selected buffs for the exact biome you enabled, then lets fishing continue. Fishing failsafe rejoin is deferred until rare biomes end.",
-        "noBuffs": "No buffs selected yet",
+        "autopop_description": "Use separate biome-specific buff loadouts instead of the old rare-vs-normal grouping",
+        "enable_exact_triggers": "Enable exact biome triggers and configure a separate buff loadout for each one",
+        "rare_biomes": "Rare Biomes",
+        "other_biomes": "Other Biomes",
+        "buff_selection": "Buff Selection",
+        "extra_info": "Auto Pop Buff now interrupts fishing flows, waits 0.3 seconds, uses the selected buffs for the exact biome you enabled, then lets fishing continue. Fishing failsafe rejoin is deferred until rare biomes end.",
+        "no_buff_selection": "No buffs selected yet",
+        "enable_pop_description": "Only the enabled buffs below will be used when auto pop triggers in this biome.",
         "count": {
             "one": "1 buff selected",
             "many": "{count} buffs selected"
         },
-        "modal": {
-            "description": "Only the enabled buffs below will be used when auto pop triggers in this biome.",
-            "title": "{biome} Buff Selection"
+        "biome": {
+            "selection": "{biome} Buff Selection"
         }
     },
     "biomes": {
@@ -236,7 +233,7 @@
         "userId": "User ID",
         "roleId": "Role ID"
     },
-    "potionCrafting": {
+    "potion_crafting": {
         "autoCraft": "Auto Craft",
         "switching": "Potion Switching",
         "recorder": "Open Potion Recorder",
@@ -271,18 +268,21 @@
         "donators": "Donators Hall of Fame"
     },
     "COMMENT_UI": "generic ui translations",
-    "ui":{
+    "common":{
+        "discord_user_id":"Discord User ID",
         "apply":"Apply",
-        "cancel": "Cancel",
-        "close": "Close",
         "confirm": "Confirm",
+        "cancel": "Cancel",
         "edit" :"Edit",
         "refresh":"Refresh",
         "reset":"Reset",
         "open": "Open",
+        "close": "Close",
         "save": "Save",
         "load": "Load",
         "start":"Start",
-        "stop":"Stop"
+        "stop":"Stop",
+        "enable":"Enable",
+        "disable":"Disable"
     }
 }

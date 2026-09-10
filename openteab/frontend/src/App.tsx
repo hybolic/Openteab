@@ -26,6 +26,14 @@ import MovementsPage from "./pages/MovementsPage";
 import RecorderWindow from "./pages/RecorderWindow";
 import BiomeConfirmWindow from "./pages/BiomeConfirmWindow";
 
+interface CreditsData {
+    credits:any;
+};
+interface LangData {
+    lang:any;
+};
+
+
 // --- Safe Mode (Browser failsafe via HTTP) ---
 const isSafeMode = new URLSearchParams(window.location.search).get("safe_mode");
 if (isSafeMode && !(window as any).pywebview) {
@@ -55,24 +63,24 @@ if (isSafeMode && !(window as any).pywebview) {
   };
 }
 
-const pages: Record<string, React.FC> = {
-  notice: NoticePage,
-  webhook: WebhookPage,
-  calibrations: CalibrationPage,
-  remoteaccess: RemoteAccessPage,
-  misc: MiscPage,
-  fishing: FishingPage,
-  merchant: MerchantPage,
-  autopopbuff: AutoPopBuffPage,
-  auras: AurasPage,
-  movements: MovementsPage,
-  potioncraft: PotionCraftPage,
-  stats: StatsPage,
-  status: StatusPage,
-  otherfeatures: OtherFeaturesPage,
-  customization: CustomizationPage,
-  credits: CreditsPage,
-  donations: DonationsPage,
+const pages: Record<string, React.FC<any>> = {
+    notice: NoticePage,
+    webhook: WebhookPage,
+    calibrations: CalibrationPage,
+    remoteaccess: RemoteAccessPage,
+    misc: MiscPage,
+    fishing: FishingPage,
+    merchant: MerchantPage,
+    autopopbuff: AutoPopBuffPage,
+    auras: AurasPage,
+    movements: MovementsPage,
+    potioncraft: PotionCraftPage,
+    stats: StatsPage,
+    status: StatusPage,
+    otherfeatures: OtherFeaturesPage,
+    customization: CustomizationPage,
+    credits: CreditsPage,
+    donations: DonationsPage,
   // puzzle: PuzzlePage,
 };
 
@@ -88,7 +96,25 @@ function App() {
   const autoUpdateTriggerRef = useRef<string | null>(null);
   const startupUpdateCheckRequestedRef = useRef(false);
   const isAutoUpdateEnabled = config ? (config.auto_update_enabled !== false) : false;
+  const [creditsData, setCreditsData] = useState<CreditsData>();
+  const [langData, setLangData] = useState<LangData|null>(null);
+  
+  //used to decode and decompress data from github backup
+  async function decodeBackup(data: string): Promise<any> {
+      const bin = Uint8Array.from(
+          atob(data.trim()),
+          (char) => char.charCodeAt(0)
+      );
 
+      const stream = new DecompressionStream("gzip");
+
+      const decompressed = await new Response(new Blob([bin]).stream().pipeThrough(stream))
+      .arrayBuffer();
+
+      const json = new TextDecoder().decode(decompressed);
+
+      return JSON.parse(json);
+  }
 
   const startMacro = async () => {
     if (isMacroRunning) return;
@@ -126,6 +152,42 @@ function App() {
   const isRunningRef = useRef(isMacroRunning);
   const processingRef = useRef(false);
 
+  // Credits Json Loader
+  useEffect(() => {
+      console.log("Sending JSON API FETCH to BACKEND")
+      fetch("/api/json?credits")
+          .then((response) => response.json())
+          .then((data) => {
+              setCreditsData(data)
+              console.log("Credits Data received!", data)
+          })
+          .catch((error) => {
+              console.log("FAILED TO GET Credits.json locally, trying github!", error)
+              fetch("https://raw.githubusercontent.com/hybolic/Openteab/refs/heads/Openteab/external_assets/compressed/API/JSON/credits.gz.b64")
+                  .then((response) => response.text())
+                  .then((data) => {decodeBackup(data).then((new_data) => {setCreditsData(new_data);console.log("Credits Data received from Github!", new_data)})})
+                  .catch((error) => {console.log("FAILED TO GET Credits.json from github!", error)})
+          })
+  }, [])
+  
+  // Lang Json Loader temp
+  useEffect(() => {
+      console.log("Sending JSON API FETCH to BACKEND")
+      fetch("/api/lang?en_us")
+          .then((response) => response.json())
+          .then((data) => {
+              setLangData(data)
+              console.log("Lang Data received!", data)
+          })
+          .catch((error) => {
+              console.log("FAILED TO GET en_us.json locally, trying github!", error)
+              fetch("https://raw.githubusercontent.com/hybolic/Openteab/refs/heads/Openteab/external_assets/compressed/API/JSON/lang/en_us.gz.b64")
+                  .then((response) => response.text())
+                  .then((data) => {decodeBackup(data).then((new_data) => {setLangData(new_data);console.log("Lang Data received from Github!", new_data)})})
+                  .catch((error) => {console.log("FAILED TO GET en_us.json from github!", error)})
+          })
+  }, [])
+  
   useEffect(() => {
     isRunningRef.current = isMacroRunning;
   }, [isMacroRunning]);
@@ -448,7 +510,9 @@ function App() {
           )}
           <div className="page-content">
             <div className="fade-in" key={activeTab}>
-              <ActivePage />
+              <ActivePage
+                  {...(activeTab === "credits" ? { langData, creditsData } : {langData})}
+              />
             </div>
           </div>
         </div>

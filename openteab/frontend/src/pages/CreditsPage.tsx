@@ -1,42 +1,12 @@
-import { useEffect, useState } from "react";
+import type { ExtendedProperties } from "../utils/ExtendedPageData";
 
-export default function CreditsPage() {
-    const [creditsData, setCreditsData] = useState<any>(null);
-
-    async function decodeBackup(data: string): Promise<any> {
-        const bin = Uint8Array.from(
-            atob(data.trim()),
-            (char) => char.charCodeAt(0)
-        );
-
-        const stream = new DecompressionStream("gzip");
-
-        const decompressed = await new Response(new Blob([bin]).stream().pipeThrough(stream))
-        .arrayBuffer();
-
-        const json = new TextDecoder().decode(decompressed);
-
-        return JSON.parse(json);
-    }
-
-    useEffect(() => {
-        fetch("/api/json?credits")
-            .then((response) => response.json())
-            .then((data) => {setCreditsData(data)})
-            .catch((error) => {
-                console.log("FAILED TO GET Credits.json locally, trying github!", error)
-                fetch("https://raw.githubusercontent.com/hybolic/Openteab/refs/heads/Openteab/external_assets/compressed/API/JSON/credits.gz.b64")
-                    .then((response) => response.text())
-                    .then((data) => {decodeBackup(data).then((new_data) => setCreditsData(new_data))})
-                    .catch((error) => {console.log("FAILED TO GET Credits.json from github!", error)})
-            })
-    }, [])
-
+export default function CreditsPage({langData,creditsData}: ExtendedProperties) {
 
     if (!creditsData) {
         return <div>Loading...</div>;
     }
-
+    console.log(creditsData)
+    console.log(typeof(langData))
     const credits = creditsData.credits;
 
     return (

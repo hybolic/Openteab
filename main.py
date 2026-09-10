@@ -324,40 +324,87 @@ class Api:
 
     def _setup_emergency_server(self):
         from http.server import BaseHTTPRequestHandler
+        from urllib.parse import urlparse, parse_qs
+        from openteab.main.API import API as handler, JSON_TYPES
         class SafeModeHandler(BaseHTTPRequestHandler):
             api = self
 
             def do_GET(self):
-                if self.path == "/health":
-                    self.send_response(200)
-                    self.end_headers()
-                    self.wfile.write(b"OK")
-                else:
-                    # Serve files from any valid dist directory
-                    file_path = self.path.split('?')[0].lstrip('/')
-                    if not file_path or file_path == 'index.html':
-                        file_path = 'index.html'
-                    
-                    found_full_path = None
-                    for dist_dir in _get_frontend_dist_dirs():
-                        full_path = os.path.join(dist_dir, file_path)
-                        if os.path.exists(full_path) and os.path.isfile(full_path):
-                            found_full_path = full_path
-                            break
-                    
-                    if found_full_path:
+                parsed_url = urlparse(self.path)
+                query      = parse_qs(parsed_url.query,keep_blank_values=True)
+                if "/api/" in parsed_url.path:
+                    print(f"[API-{parsed_url.path.lstrip('/api/').upper()}] API-GET => {' '.join(query.keys())}")
+                    if parsed_url.path == "/api/json":
+                        print("[JSON GET]")
+                        if len(query.get("lang",[])) == 1 and query["lang"][0] != "":
+                            print("LANG!")
+                            file_contents = handler.getJsonFile(query["lang"][0]+".json", JSON_TYPES.LANG).encode("utf-8")
+                        elif len(query.get("credits",[])) == 1:
+                            print("CREDTIS!")
+                            file_contents = handler.getJsonFile("credits.json",JSON_TYPES.CREDITS).encode("utf-8")
+                        else: 
+                            self.send_response(404)
+                            self.end_headers()
+                            self.wfile.write(b"FILE NOT FOUND")
+                            return
                         self.send_response(200)
-                        if file_path.endswith('.js'): self.send_header('Content-type', 'application/javascript')
-                        elif file_path.endswith('.css'): self.send_header('Content-type', 'text/css')
-                        elif file_path.endswith('.html'): self.send_header('Content-type', 'text/html')
+                        self.send_header("Content-Type","application/json; charset=utf-8")
+                        self.send_header("Content-Length", str(len(file_contents)))
                         self.end_headers()
-                        with open(found_full_path, 'rb') as f:
-                            self.wfile.write(f.read())
+                        self.wfile.write(file_contents)
+                    elif parsed_url.path == "/api/lang":
+                        lang = next(iter(query))
+                        print(f"[LANG GET] {lang}")
+                        try:
+                            file_contents = handler.getJsonFile(lang + ".json", JSON_TYPES.LANG)
+                            print(file_contents)
+                            file_contents = file_contents.encode("utf-8")
+                            self.send_response(200)
+                            self.send_header("Content-Type","application/json; charset=utf-8")
+                            self.send_header("Content-Length", str(len(file_contents)))
+                            self.end_headers()
+                            self.wfile.write(file_contents)
+                        except:
+                            print("LANG FAILED")
+                            self.send_response(404)
+                            self.end_headers()
+                            self.wfile.write(b"FILE NOT FOUND")
+                else:
+                    print(f"[do_GET] Standard Get => {self.path}")
+                    if parsed_url.path == "/health":
+                        self.send_response(200)
+                        self.end_headers()
+                        self.wfile.write(b"OK")
                     else:
-                        self.send_response(404)
-                        self.end_headers()
+                        # Serve files from any valid dist directory
+                        file_path = self.path.split('?')[0].lstrip('/')
+                        if not file_path or file_path == 'index.html':
+                            file_path = 'index.html'
+                        
+                        found_full_path = None
+                        for dist_dir in _get_frontend_dist_dirs():
+                            full_path = os.path.join(dist_dir, file_path)
+                            if os.path.exists(full_path) and os.path.isfile(full_path):
+                                found_full_path = full_path
+                                break
+                        
+                        if found_full_path:
+                            self.send_response(200)
+                            if file_path.endswith('.js'): self.send_header('Content-type', 'application/javascript')
+                            elif file_path.endswith('.css'): self.send_header('Content-type', 'text/css')
+                            elif file_path.endswith('.html'): self.send_header('Content-type', 'text/html')
+                            self.end_headers()
+                            with open(found_full_path, 'rb') as f:
+                                self.wfile.write(f.read())
+                        else:
+                            self.send_response(404)
+                            self.end_headers()
 
             def do_POST(self):
+                parsed_url = urlparse(self.path)
+                query      = parse_qs(parsed_url.query,keep_blank_values=True)
+                print(f"[do_POST] {self.path}")
+                print(parsed_url.path)
                 if self.path.startswith("/api/"):
                     method_name = self.path.replace("/api/", "")
                     content_length = int(self.headers['Content-Length'])
@@ -394,7 +441,8 @@ class Api:
             def log_message(self, format, *args): pass
 
         from random import randint
-        self.emergency_port = randint(18000, 19000)
+        self.emergency_port = 5555
+        
         def _run():
             try:
                 from http.server import ThreadingHTTPServer
@@ -1024,16 +1072,15 @@ def launch_app(api_class, tracker=None):
     tracker.on_status_change = lambda status: api._emit_macro_status()
 
     fe = get_frontend_entry_data()
+    api._setup_emergency_server()
     win_args = {
         "title": f"Openteab Macro {openteab.current_version}",
         "js_api": api,
         "width": 985, "height": 550,
         "min_size": (550, 500),
-        "resizable": True, "frameless": False
+        "resizable": True, "frameless": False,
+        "url": f"http://127.0.0.1:{api.emergency_port}/index.html"
     }
-    if fe and "html" in fe: win_args["html"] = fe["html"]
-    else: win_args["url"] = fe["url"] if fe else "http://localhost:5555"
-
     window = webview.create_window(**win_args)
     api.set_window(window)
 
@@ -1112,15 +1159,17 @@ def main():
     api._setup_emergency_hotkey()
     try:
         fe = get_frontend_entry_data()
+        api._setup_emergency_hotkey()
         win_args = {
             "title": f"Openteab Macro {openteab.current_version}",
             "js_api": api,
             "width": 985, "height": 550,
             "min_size": (550, 500),
             "resizable": True, "frameless": False,
+            "url": f"http://127.0.0.1:{api.emergency_port}/index.html"
         }
-        if "html" in fe: win_args["html"] = fe["html"]
-        else: win_args["url"] = fe["url"]
+        # if "html" in fe: win_args["html"] = fe["html"]
+        # else: win_args["url"] = fe["url"]
 
         window = webview.create_window(**win_args)
         api._window = window
@@ -1219,9 +1268,9 @@ def main():
                     if tracker: print(f"[pywebview] {record.getMessage()}")
                 except Exception: pass
         logging.getLogger("pywebview").addHandler(_WvLog())
-
+        DEBUG = True
         try:
-            webview.start(func=_background_init, debug=False, gui="edgechromium", private_mode=False)
+            webview.start(func=_background_init, debug=DEBUG, gui="edgechromium", private_mode=False)
         except Exception as e:
             print(f"[Webview] edgechromium failed: {e}")
             try: webview.start(func=_background_init, debug=False, private_mode=False)

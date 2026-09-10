@@ -16,7 +16,8 @@
 #remove __pycache__ folders from github
 **/__pycache__/*
 
-#remove files used for quick compare
+#remove files used for quick compare or temporary storage
 **/temp.py
 **/temp.json
 **/temp.txt
+**/*.temp

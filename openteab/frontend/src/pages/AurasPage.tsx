@@ -1,7 +1,16 @@
 import { useConfig } from "../contexts/ConfigContext";
 import ToggleSwitch from "../components/ToggleSwitch";
+import { type ExtendedProperties, PageIcons } from "../utils/ExtendedPageData";
 
-export default function AurasPage() {
+export default function AurasPage({langData}: ExtendedProperties) {
+    console.log("LOADING")
+    if (!langData) { console.log("Error Loading LangData!"); return <div>Error Loading LangData!</div>}
+
+    console.log(langData)
+    const NavLang = langData.nav
+    const AuraPageLang = langData.auras
+    const AuraDetection = AuraPageLang.detection
+    const AuraRecording = AuraPageLang.recording
     const { config, saveConfig, error } = useConfig();
 
     if (error) return <div style={{ padding: "20px", color: "red" }}>Error: {error}</div>;
@@ -14,22 +23,22 @@ export default function AurasPage() {
     return (
         <>
             <div className="page-header">
-                <h2>Auras</h2>
-                <p>Aura detection, recording, and notification settings</p>
+                <h2>{NavLang.auras}</h2>
+                <p>{AuraPageLang.header}</p>
             </div>
 
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">✨</div>
+                    <div className="card-icon">{PageIcons.Auras}</div>
                     <div>
-                        <h3>Aura Detection</h3>
-                        <p>Detect and notify about rare auras</p>
+                        <h3>{AuraDetection.aura_detection}</h3>
+                        <p>{AuraDetection.detect_notify}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Enable Aura Detection"
-                    description="Detect aura rolls and send webhook notifications"
+                    label={AuraDetection.enable_aura_detection}
+                    description={AuraDetection.enable_aura_detection_description}
                     checked={config.enable_aura_detection || false}
                     onChange={(val) => updateConfig("enable_aura_detection", val)}
                 />
@@ -37,15 +46,15 @@ export default function AurasPage() {
                 {config.enable_aura_detection && (
                     <>
                         <ToggleSwitch
-                            label="Aura Detection Screenshot"
-                            description="Take a screenshot when you rolled a new aura (Only works if Roblox is focused/Fishing mode is OFF!)"
+                            label={AuraDetection.aura_screenshot}
+                            description={AuraDetection.aura_screenshot_description}
                             checked={config.aura_detection_screenshot || false}
                             onChange={(val) => updateConfig("aura_detection_screenshot", val)}
                         />
 
                         <div className="form-row" style={{ marginTop: "10px" }}>
                             <div className="form-group">
-                                <label className="form-label">Ping Minimum Rarity</label>
+                                <label className="form-label">{AuraDetection.ping_min_rarity}</label>
                                 <input
                                     className="form-input"
                                     value={config.ping_minimum || "100000"}
@@ -54,7 +63,7 @@ export default function AurasPage() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Discord User ID</label>
+                                <label className="form-label">{langData.common.discord_user_id}</label>
                                 <input
                                     className="form-input"
                                     value={config.aura_user_id || ""}
@@ -66,16 +75,16 @@ export default function AurasPage() {
                         </div>
 
                         <div className="form-group" style={{ marginTop: "10px" }}>
-                            <label className="form-label">Force Ping Auras</label>
+                            <label className="form-label">{AuraDetection.force_ping_auras}</label>
                             <input
                                 className="form-input"
                                 value={config.force_ping_auras || ""}
                                 onChange={(e) => updateConfig("force_ping_auras", e.target.value)}
-                                placeholder="e.g. Oblivion, Illusionary,... (comma-separated)"
+                                placeholder={AuraPageLang.placeholder}
                                 style={{ width: "100%" }}
                             />
                             <small style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "4px", display: "block" }}>
-                                Pings Discord User ID even if rarity is not met. (otherwise don't put the auras in the box if you don't want the macro to force ping)
+                                {AuraDetection.ping_help}
                             </small>
                         </div>
                     </>
@@ -84,16 +93,16 @@ export default function AurasPage() {
 
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">🎬</div>
+                    <div className="card-icon">{PageIcons.Record}</div>
                     <div>
-                        <h3>Aura Recording</h3>
-                        <p>Auto-clip when a rare aura is rolled</p>
+                        <h3>{AuraRecording.aura_recoding}</h3>
+                        <p>{AuraRecording.autoclip_when_rollled}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Enable Aura Recording"
-                    description="Trigger a recording keybind on rare aura rolls"
+                    label={AuraRecording.enable_recording}
+                    description={AuraRecording.enable_recording_description}
                     checked={config.enable_aura_record || false}
                     onChange={(val) => updateConfig("enable_aura_record", val)}
                 />
@@ -102,7 +111,7 @@ export default function AurasPage() {
                     <>
                         <div className="form-row" style={{ marginTop: "10px" }}>
                             <div className="form-group">
-                                <label className="form-label">Record Keybind</label>
+                                <label className="form-label">{AuraRecording.record_keybind}</label>
                                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                                     <input
                                         className="form-input"
@@ -119,15 +128,15 @@ export default function AurasPage() {
                                         }}
                                         style={{ padding: "8px 16px", whiteSpace: "nowrap" }}
                                     >
-                                        Test Keybind
+                                        {AuraRecording.test_keybind}
                                     </button>
                                     <small style={{ color: "var(--text-muted)", fontSize: "11px", whiteSpace: "nowrap" }}>
-                                        (Fires after 2s delay)
+                                        {AuraRecording.keyboard_delay}
                                     </small>
                                 </div>
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Min Rarity to Record</label>
+                                <label className="form-label">{AuraRecording.record_min_rarity}</label>
                                 <input
                                     className="form-input"
                                     value={config.aura_record_minimum || "100000"}
@@ -138,16 +147,16 @@ export default function AurasPage() {
                         </div>
 
                         <div className="form-group" style={{ marginTop: "10px" }}>
-                            <label className="form-label">Force Record Auras</label>
+                            <label className="form-label">{AuraRecording.force_record}</label>
                             <input
                                 className="form-input"
                                 value={config.force_record_auras || ""}
                                 onChange={(e) => updateConfig("force_record_auras", e.target.value)}
-                                placeholder="e.g. Oblivion, Illusionary,... (comma-separated)"
+                                placeholder={AuraPageLang.placeholder}
                                 style={{ width: "100%" }}
                             />
                             <small style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "4px", display: "block" }}>
-                                Force aura record even if rarity is not met (otherwise don't put the auras in the box if you don't want the macro to force record)
+                                {AuraRecording.force_record_description}
                             </small>
                         </div>
                     </>
