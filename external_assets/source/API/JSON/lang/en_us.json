@@ -99,6 +99,13 @@
         "starfall": "STARFALL",
         "windy": "WINDY"
     },
+    "biome_confirm_window":{
+        "rare_biome_after_rejoin":"Rare Biome Detected After Rejoin!",
+        "desc" : "You just rejoined a server that has a <b style={{ color: '#ff6b6b' }}>rare biome</b> active.<br />Did you forget to close the macro before joining?<br /><br />If you forgot, the macro will <b style={{ color: '#ff6b6b' }}>stop immediately!!</b>",
+        "confirm" : "✅ Nah. I'm good, keep this tuff macro running 🗣️🔥",
+        "cancel" : "❌ I forgot to turn the macro off please spare me 😭🥀",
+        "response" :"Response sent!"
+    },
     "calibration": {
         "movements": {
             "collectionMenu": "Collection Menu",
@@ -265,7 +272,86 @@
         "originalCreators": "Original Creators",
         "extra": "Extra Credits",
         "support": "Support Us",
-        "donators": "Donators Hall of Fame"
+        "donators": "Donators Hall of Fame",
+        "credits":{
+            "current_developers": {
+                "title": "Credits",
+                "description": "The people behind Openteab Macro",
+                "members": [
+                    {
+                        "role": "Current Maintainer"
+                    }
+                ],
+                "links": [{
+                    "label": "GitHub: Openteab Macro!"
+                }]
+            },
+            "original_developers": {
+                "title": "Original Creators",
+                "subtitle": "The people behind the original",
+                "members": [
+                    {
+                        "role": "Lead Developer, fullstack"
+                    },
+                    {
+                        "role": "Lead Developer, fullstack"
+                    },
+                    {
+                        "role": "Pathing Developer"
+                    },
+                    {
+                        "role": "Developer"
+                    },
+                    {
+                        "role": "MacOS Developer"
+                    }
+                ],
+                "links": [
+                    {
+                        "label": "Join the Coteab Discord server!!!"
+                    },
+                    {
+                        "label": "GitHub: Coteab Macro!"
+                    }
+                ]
+            },
+            "inspiration": [{
+                "title": "Inspired Biome Macro Creator: maxstellar",
+                "links": [{"label": "Their Twitch channel"}]
+            }],
+            "extra_credits": {
+                "title": "Extra Credits",
+                "description": "Thank you to everyone who helped along the way",
+                "credits": [
+                    {
+                        "credit": "Inspiration and I used some of his logic & former developer."
+                    },
+                    {
+                        "credit": "Thank you for the icons <3"
+                    },
+                    {
+                        "credit": "Anti-AFK inspiration."
+                    },
+                    {
+                        "credit": "For doing external works that I was too lazy to do tysm."
+                    },
+                    {
+                        "credit": "Former developer."
+                    },
+                    {
+                        "credit": "Fishing logic inspiration."
+                    },
+                    {
+                        "name": "Testers",
+                        "credit": "All the testers that made the update possible with as less flaws as possible. Notably:"
+                    }
+                ]
+            },
+            "development_server": {
+                "label": "JOIN OUR DEVELOPMENT SERVER",
+                "message": "to keep in touch with the latest Coteab Macro updates!"
+            }
+        }
     },
     "COMMENT_UI": "generic ui translations",
     "common":{

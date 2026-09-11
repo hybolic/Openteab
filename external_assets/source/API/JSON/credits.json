@@ -12,7 +12,7 @@
                 }
             ],
             "links": [{
-                "label": "GitHub: Coteab Macro!",
+                "label": "GitHub: Openteab Macro!",
                 "url": "https://github.com/hybolic/Openteab"
             }]
         },
@@ -118,7 +118,7 @@
                 {
                     "name": "Testers",
                     "credit": "All the testers that made the update possible with as less flaws as possible. Notably:",
-                   "\"extra":["\"gummyballer\"", "\"mightbeanormalguest\"", "\"xdec27.\"", "\"gonebon\"", "\"kira_drago2\"", "\"and others.\""]
+                    "extra":["\"gummyballer\",", "\"mightbeanormalguest\",", "\"xdec27.\",", "\"gonebon\",", "\"kira_drago2\",", "and others."]
                 }
             ]
         },

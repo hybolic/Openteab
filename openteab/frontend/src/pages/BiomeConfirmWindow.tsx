@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import "../App.css";
+import { type ExtendedProperties/*, PageIcons*/ } from "../utils/ExtendedPageData";
 
-export default function BiomeConfirmWindow() {
+export default function BiomeConfirmWindow({langData}: ExtendedProperties) {
+    if (!langData) { console.log("Error Loading LangData!"); return <div>Error Loading LangData!</div>}
     const params = new URLSearchParams(window.location.search);
     const biome = (window as any).__INJECTED_BIOME__ || params.get("biome") || "UNKNOWN";
 
@@ -68,7 +70,7 @@ export default function BiomeConfirmWindow() {
                 color: "#ff6b6b",
                 marginBottom: "8px",
             }}>
-                Rare Biome Detected After Rejoin!
+                {langData.biome_confirm_window.rare_biome_after_rejoin}
             </h2>
 
             <div style={{
@@ -86,9 +88,7 @@ export default function BiomeConfirmWindow() {
                 color: "var(--text-secondary)",
                 marginBottom: "20px",
             }}>
-                You just rejoined a server that has a <b style={{ color: "#ff6b6b" }}>rare biome</b> active.<br />
-                Did you forget to close the macro before joining?<br /><br />
-                If you forgot, the macro will <b style={{ color: "#ff6b6b" }}>stop immediately!!</b>
+                {langData.biome_confirm_window.desc}
             </p>
 
             {!responded ? (
@@ -106,7 +106,7 @@ export default function BiomeConfirmWindow() {
                             color: "#fff",
                         }}
                     >
-                        ✅ Nah. I'm good, keep this tuff macro running 🗣️🔥
+                        {langData.biome_confirm_window.confirm}
                     </button>
                     <button
                         onClick={handleCancel}
@@ -121,12 +121,12 @@ export default function BiomeConfirmWindow() {
                             color: "#fff",
                         }}
                     >
-                        ❌ I forgot to turn the macro off please spare me 😭🥀
+                        {langData.biome_confirm_window.cancel}
                     </button>
                 </div>
             ) : (
                 <div style={{ fontSize: "14px", color: "var(--accent)" }}>
-                    Response sent!
+                    {langData.biome_confirm_window.response}
                 </div>
             )}
 
@@ -136,6 +136,7 @@ export default function BiomeConfirmWindow() {
                 color: "var(--text-secondary)",
                 opacity: 0.6,
             }}>
+                {/* TODO: add this to translation using same thign from other page */}
                 {responded ? "" : countdown > 0 ? `Auto-continuing in ${countdown}s...` : "Auto-continuing..."}
             </div>
         </div>

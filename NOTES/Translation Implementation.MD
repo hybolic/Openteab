@@ -14,9 +14,9 @@ current list of translate friendly tsx files completed for frontend
  - [ ] pages
  - - [X] AurasPage
  - - [X] AutoPopBuffPage
- - - [ ] BiomeConfirmWindow
+ - - [X] BiomeConfirmWindow
  - - [ ] CalibrationPage
- - &boxminus; CreditsPage
+ - - [X] CreditsPage
  - - [ ] CustomizationPage
  - - [ ] DonationsPage
  - - [ ] FishingPage
