@@ -311,11 +311,14 @@ def PreLaunch():
 
         npm_build = ["npm.cmd","run","build"]
         run(npm_build,   cwd=openteab.frontend, check=True)
+        import external_assets.compress_assets
 
 
     elif args.rebuild_dist:
         npm_build = ["npm.cmd","run","build"]
         run(npm_build,   cwd=openteab.frontend, check=True)
+        import external_assets.compress_assets
+
     print_log("PreLanch Done!")
 
 #### END NPM ####

@@ -1,8 +1,11 @@
 import { useConfig } from "../contexts/ConfigContext";
 import { useState, useEffect, useRef } from "react";
+import { type ExtendedProperties} from "../utils/ExtendedPageData";
 
-export default function CustomizationPage() {
+export default function CustomizationPage({langData}:ExtendedProperties) {
     const { config, saveConfig } = useConfig();
+    if (!langData)
+        return
     const handleSave = (newConfig: any) => {
         saveConfig(newConfig as any);
     };
@@ -139,8 +142,8 @@ export default function CustomizationPage() {
     return (
         <div className="page-container fade-in" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
             <div className="page-header">
-                <h2>Discord Webhook Customization</h2>
-                <p>Dynamically configure what your webhook embeds look like when a biome starts</p>
+                <h2>{langData.webhook.customization}</h2>
+                <p>{langData.custimization.dynamic_configure_biome}</p>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "10px", minHeight: "0", maxWidth: "560px", margin: "0 auto", paddingBottom: "30px" }}>
@@ -171,7 +174,7 @@ export default function CustomizationPage() {
                         {/* Message Content */}
                         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
                             <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "2px", flexWrap: "wrap" }}>
-                                <span style={{ color: "#F2F3F5", fontSize: "15px", fontWeight: "500", lineHeight: "1.2" }}>Your webhook name go here cuz idk</span>
+                                <span style={{ color: "#F2F3F5", fontSize: "15px", fontWeight: "500", lineHeight: "1.2" }}>{langData.custimization.webhook_name_example}</span>
                                 <span style={{ 
                                     backgroundColor: "#5865F2", color: "#FFFFFF", fontSize: "9px", 
                                     padding: "0 4px", borderRadius: "3px", fontWeight: "600",
@@ -281,8 +284,8 @@ export default function CustomizationPage() {
                 {/* MIDDLE: Select Biome */}
                 <div className="card" title="Scroll with your mouse wheel here to quickly cycle through biomes!">
                     <label className="form-label" style={{ display: "flex", justifyContent: "space-between" }}>
-                        Select Biome
-                        <span style={{ fontSize: "0.8em", color: "#64748b", fontWeight: "normal" }}>(Scroll wheel supported)</span>
+                        {langData.custimization.select_biome}
+                        <span style={{ fontSize: "0.8em", color: "#64748b", fontWeight: "normal" }}>{langData.custimization.scrollwheel}</span>
                     </label>
                     <select 
                         ref={selectRef}
@@ -301,9 +304,9 @@ export default function CustomizationPage() {
                 <div className="card" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                         <div>
                             <label className="form-label" style={{ display: "flex", justifyContent: "space-between" }}>
-                                Hex Color
+                                {langData.custimization.hex_color}
                                 <a href="#" style={{ color: "#0ea5e9", fontSize: "0.8em", textDecoration: "none" }} onClick={(e) => { e.preventDefault(); if ((window as any).pywebview) (window as any).pywebview.api.open_url("https://htmlcolorcodes.com/"); }}>
-                                    Get Colors
+                                    {langData.custimization.get_colors}
                                 </a>
                             </label>
                             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -325,7 +328,7 @@ export default function CustomizationPage() {
                         </div>
 
                         <div>
-                            <label className="form-label">Thumbnail URL</label>
+                            <label className="form-label">{langData.custimization.thumbnail_url}</label>
                             <input 
                                 type="text" 
                                 className="form-input" 
@@ -339,7 +342,7 @@ export default function CustomizationPage() {
 
                         
                         <button className="btn btn-primary" style={{ backgroundColor: "#d97706", marginTop: "10px" }} onClick={saveBiomes}>
-                            Save Configuration (reopen the macro to take effect!)
+                            {langData.common.save_config}{" "}{langData.custimization.save_config}
                         </button>
                     </div>
                 </div>

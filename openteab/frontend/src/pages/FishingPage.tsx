@@ -1,5 +1,6 @@
 import { useConfig } from "../contexts/ConfigContext";
 import ToggleSwitch from "../components/ToggleSwitch";
+import { type ExtendedProperties, PageIcons} from "../utils/ExtendedPageData";
 
 type FishingCalibrationItem = {
     key: string;
@@ -8,33 +9,36 @@ type FishingCalibrationItem = {
     fallback: number[];
 };
 
-const FISHING_CALIBRATIONS: FishingCalibrationItem[] = [
-    { key: "fishing_detect_pixel", label: "Fishing Detect Pixel", fallback: [1176, 836] },
-    { key: "fishing_click_position", label: "Start Fishing Button", fallback: [862, 843] },
-    { key: "fishing_midbar_sample_pos", label: "Mid Bar Sample Position", fallback: [955, 767] },
-    { key: "fishing_close_button_pos", label: "Fishing Close Button", fallback: [1113, 342] },
-    { key: "fishing_bar_region", label: "Fishing Bar Region", isRegion: true, fallback: [757, 762, 405, 21] },
-    { key: "fishing_flarg_dialogue_box", label: "Captain Flarg Dialogue Box", fallback: [1046, 782] },
-    { key: "fishing_shop_open_button", label: "Open Fishing Shop", fallback: [616, 938] },
-    { key: "fishing_shop_sell_tab", label: "Fishing Shop Sell Tab", fallback: [1285, 312] },
-    { key: "fishing_shop_close_button", label: "Close Fishing Shop", fallback: [1458, 269] },
-    { key: "fishing_shop_first_fish", label: "First Fish In Shop", fallback: [827, 404] },
-    { key: "fishing_shop_sell_all_button", label: "Sell All Button", fallback: [662, 799] },
-    { key: "fishing_confirm_sell_all_button", label: "Confirm Sell All Button", fallback: [800, 619] },
-];
-
-function formatPoint(value: any, fallback: number[]) {
-    const arr = Array.isArray(value) ? value : fallback;
-    return `[${Number(arr[0]) || 0}, ${Number(arr[1]) || 0}]`;
-}
-
-function formatRegion(value: any, fallback: number[]) {
-    const arr = Array.isArray(value) ? value : fallback;
-    return `[${Number(arr[0]) || 0}, ${Number(arr[1]) || 0}, ${Number(arr[2]) || 0}, ${Number(arr[3]) || 0}]`;
-}
-
-export default function FishingPage() {
+export default function FishingPage({langData}:ExtendedProperties) {
+    if (!langData) return
+    if (!PageIcons) return
     const { config, saveConfig, error } = useConfig();
+
+    const LABELS = langData.fishing.fishing_calibrations_labels
+    const FISHING_CALIBRATIONS: FishingCalibrationItem[] = [
+        { key: "fishing_detect_pixel",              label: LABELS.fishing_detect_pixel, fallback: [1176, 836] },
+        { key: "fishing_click_position",            label: LABELS.fishing_click_position, fallback: [862, 843] },
+        { key: "fishing_midbar_sample_pos",         label: LABELS.fishing_midbar_sample_pos, fallback: [955, 767] },
+        { key: "fishing_close_button_pos",          label: LABELS.fishing_close_button_pos, fallback: [1113, 342] },
+        { key: "fishing_bar_region",                label: LABELS.fishing_bar_region, isRegion: true, fallback: [757, 762, 405, 21] },
+        { key: "fishing_flarg_dialogue_box",        label: LABELS.fishing_flarg_dialogue_box, fallback: [1046, 782] },
+        { key: "fishing_shop_open_button",          label: LABELS.fishing_shop_open_button, fallback: [616, 938] },
+        { key: "fishing_shop_sell_tab",             label: LABELS.fishing_shop_sell_tab, fallback: [1285, 312] },
+        { key: "fishing_shop_close_button",         label: LABELS.fishing_shop_close_button, fallback: [1458, 269] },
+        { key: "fishing_shop_first_fish",           label: LABELS.fishing_shop_first_fish, fallback: [827, 404] },
+        { key: "fishing_shop_sell_all_button",      label: LABELS.fishing_shop_sell_all_button, fallback: [662, 799] },
+        { key: "fishing_confirm_sell_all_button",   label: LABELS.fishing_confirm_sell_all_button, fallback: [800, 619] },
+    ];
+
+    function formatPoint(value: any, fallback: number[]) {
+        const arr = Array.isArray(value) ? value : fallback;
+        return `[${Number(arr[0]) || 0}, ${Number(arr[1]) || 0}]`;
+    }
+
+    function formatRegion(value: any, fallback: number[]) {
+        const arr = Array.isArray(value) ? value : fallback;
+        return `[${Number(arr[0]) || 0}, ${Number(arr[1]) || 0}, ${Number(arr[2]) || 0}, ${Number(arr[3]) || 0}]`;
+    }
 
     if (error) return <div style={{ padding: "20px", color: "red" }}>Error: {error}</div>;
     if (!config) return <div style={{ padding: "20px" }}>Loading...</div>;
@@ -99,29 +103,29 @@ export default function FishingPage() {
     return (
         <>
             <div className="page-header">
-                <h2>Fishing</h2>
-                <p>Run fishing logic while suppressing other automatic feature loops</p>
+                <h2>{langData.nav.fishing}</h2>
+                <p>{langData.fishing.description}</p>
             </div>
 
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">🎣</div>
+                    <div className="card-icon">{PageIcons.Fishing}</div>
                     <div>
-                        <h3>Fishing Mode</h3>
-                        <p>When enabled, the macro runs fishing logic and pauses most other automations</p>
+                        <h3>{langData.fishing.fishing_mode}</h3>
+                        <p>{langData.fishing.fishing_mode_description}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Enable Fishing Mode"
-                    description="Auto Pop Buff still has priority and will interrupt fishing. Remote Control stays enabled."
+                    label={langData.fishing.enable_fishing_mode}
+                    description={langData.fishing.enable_fishing_mode_description}
                     checked={fishingMode}
                     onChange={(val) => updateConfig("fishing_mode", val)}
                 />
 
                 <div className="form-row" style={{ marginTop: "8px" }}>
                     <div className="form-group">
-                        <label className="form-label">Fishing actions delay (in miliseconds)</label>
+                        <label className="form-label">{langData.fishing.fishing_delay}</label>
                         <input
                             className="form-input"
                             value={config.fishing_actions_delay_ms ?? "100"}
@@ -133,9 +137,9 @@ export default function FishingPage() {
 
                 <div className="form-row" style={{ marginTop: "15px", marginLeft: "10px", paddingBottom: "10px" }}>
                     <div className="form-group">
-                        <label className="form-label" style={{ fontWeight: "bold" }}>Fishing Path Playback Multiplier (FPS Compensation)</label>
+                        <label className="form-label" style={{ fontWeight: "bold" }}>{langData.fishing.fishing_path_playback}</label>
                         <p style={{ margin: "2px 0 8px 0", fontSize: "0.85em", color: "var(--text-color)", opacity: 0.8 }}>
-                            If you get stuck or fall short while walking during fishing or fish selling (due to low FPS), increase this (e.g. 1.1 or 1.25). Higher multiplier = character walks for longer (otherwise keep it at 1.0 if you got consistent fps around 60+)
+                            {langData.fishing.fishing_path_description}
                         </p>
                         <input
                             className="form-input"
@@ -155,27 +159,27 @@ export default function FishingPage() {
                 </div>
                 {Number(config.fishing_playback_multiplier) < 1 && (
                     <div className="info-banner" style={{ marginTop: "5px", color: "var(--warning-color, #ffaa00)" }}>
-                        ⚠️ If you set fish path multiplier below 1.0, the macro will automatically default it back to 1.0 :aga:
+                        {langData.fishing.warning}
                     </div>
                 )}
 
                 <ToggleSwitch
-                    label="Fishing failsafe (rejoin if timeout)"
-                    description="If no fishing minigame is detected for 60 seconds after the last Start Fishing click, close Roblox so reconnect logic can take over."
+                    label={langData.fishing.fishing_failsafe}
+                    description={langData.fishing.fishing_failsafe_description}
                     checked={fishingFailsafe}
                     onChange={handleFishingFailsafeToggle}
                 />
 
                 <ToggleSwitch
-                    label="Enable fish selling"
-                    description="Automatically run fish selling flow after enough catches."
+                    label={langData.fishing.enable_fish_sell}
+                    description={langData.fishing.enable_fish_sell_description}
                     checked={fishSellingEnabled}
                     onChange={(val) => updateConfig("fishing_enable_selling", val)}
                 />
                 {fishSellingEnabled && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">Sell after x fish</label>
+                            <label className="form-label">{langData.fishing.enable_fish_sell_after_x}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_sell_after_x_fish ?? "30"}
@@ -184,7 +188,7 @@ export default function FishingPage() {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Sell how many fish</label>
+                            <label className="form-label">{langData.fishing.enable_fish_sell_amount}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_sell_how_many_fish ?? "1"}
@@ -196,36 +200,36 @@ export default function FishingPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Equip an aura before movement"
-                    description="Before walking to fish or sell fish, equip the aura name below using Aura calibration points."
+                    label={langData.fishing.equip_aura_before_move}
+                    description={langData.fishing.equip_aura_before_move_description}
                     checked={equipAuraBeforeMovement}
                     onChange={(val) => updateConfig("fishing_equip_aura_before_movement", val)}
                 />
                 {equipAuraBeforeMovement && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">Aura name to equip</label>
+                            <label className="form-label">{langData.fishing.equip_aura_before_move_name_to_equip}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_movement_aura_name || ""}
                                 onChange={(e) => updateConfig("fishing_movement_aura_name", e.target.value)}
                                 style={{ width: "220px" }}
-                                placeholder="Enter aura name"
+                                placeholder={langData.fishing.equip_aura_before_move_enter_name}
                             />
                         </div>
                     </div>
                 )}
 
                 <ToggleSwitch
-                    label="Use merchant teleporter every x fishes"
-                    description="Runs full auto-merchant flow directly from fishing mode."
+                    label={langData.fishing.merchant_tele}
+                    description={langData.fishing.merchant_tele_description}
                     checked={fishingMerchantEnabled}
                     onChange={handleFishingMerchantMTPToggle}
                 />
                 {fishingMerchantEnabled && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">Use merchant teleporter every x fish</label>
+                            <label className="form-label">{langData.fishing.merchant_tele_use_every_x}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_merchant_every_x_fish ?? "30"}
@@ -237,15 +241,15 @@ export default function FishingPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Check merchant on roblox chat (OCR) every x fishes"
-                    description="Check chat for merchant spawns via OCR directly from fishing mode."
+                    label={langData.fishing.merchant_ocr}
+                    description={langData.fishing.merchant_ocr_description}
                     checked={config.fishing_use_merchant_ocr_every_x_fish || false}
                     onChange={handleFishingMerchantOCRToggle}
                 />
                 {config.fishing_use_merchant_ocr_every_x_fish && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">Check OCR every x fish</label>
+                            <label className="form-label">{langData.fishing.merchant_ocr_use_every_x}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_merchant_ocr_every_x_fish_amt ?? "30"}
@@ -257,15 +261,15 @@ export default function FishingPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Use BR/SC every x fishes"
-                    description="After x fish catches, run BR then SC with the usual OCR failsafe. If multiple flows trigger together, order is: sell -> merchant -> BR/SC."
+                    label={langData.fishing.use_br_sc}
+                    description={langData.fishing.use_br_sc_description}
                     checked={fishingBrScEnabled}
                     onChange={(val) => updateConfig("fishing_use_br_sc_every_x_fish", val)}
                 />
                 {fishingBrScEnabled && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">Use BR/SC every x fish</label>
+                            <label className="form-label">{langData.fishing.use_br_sc_use_every_x}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_br_sc_every_x_fish ?? "30"}
@@ -278,17 +282,17 @@ export default function FishingPage() {
 
                 {fishingMode && (
                     <div className="info-banner" style={{ marginTop: "10px" }}>
-                        Fishing mode is active. Movements, potion crafting, periodic screenshots, aura screenshots, daily quest claiming, and other non-essential mouse actions are paused. Fishing auto-merchant can still run if enabled above.
+                        {langData.fishing.fishing_mode_warning}
                     </div>
                 )}
             </div>
 
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">📍</div>
+                    <div className="card-icon">{PageIcons.Fishing_cal}</div>
                     <div>
-                        <h3>Fishing Calibration Values</h3>
-                        <p>Edit these in Macro Calibrations &gt; Fishing Calibration</p>
+                        <h3>{langData.fishing.fishing_calibration}</h3>
+                        <p>{langData.fishing.fishing_calibration_description}</p>
                     </div>
                 </div>
 
@@ -298,7 +302,7 @@ export default function FishingPage() {
                         style={{ whiteSpace: "nowrap", padding: "6px 12px" }}
                         onClick={displayAllCalibrationsOnScreen}
                     >
-                        Display On Screen Calibration
+                        {langData.fishing.osd_calibration}
                     </button>
                 </div>
 

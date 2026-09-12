@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import { useConfig } from "./contexts/ConfigContext";
+import { type LangData, type CreditsData, LoadEmotes } from "./utils/ExtendedPageData";
 import Sidebar from "./components/Sidebar";
 import HeaderBar from "./components/HeaderBar";
 import NoticePage from "./pages/NoticePage";
@@ -25,13 +26,6 @@ import CustomizationPage from "./pages/CustomizationPage";
 import MovementsPage from "./pages/MovementsPage";
 import RecorderWindow from "./pages/RecorderWindow";
 import BiomeConfirmWindow from "./pages/BiomeConfirmWindow";
-
-interface CreditsData {
-    credits:any;
-};
-interface LangData {
-    lang:any;
-};
 
 
 // --- Safe Mode (Browser failsafe via HTTP) ---
@@ -97,7 +91,8 @@ function App() {
   const startupUpdateCheckRequestedRef = useRef(false);
   const isAutoUpdateEnabled = config ? (config.auto_update_enabled !== false) : false;
   const [creditsData, setCreditsData] = useState<CreditsData>();
-  const [langData, setLangData] = useState<LangData|null>(null);
+  const [langData, setLangData] = useState<LangData>();
+  const [fallbackLangData, setFallbackLangDataData] = useState<LangData>();
   
   //used to decode and decompress data from github backup
   async function decodeBackup(data: string): Promise<any> {
@@ -114,6 +109,71 @@ function App() {
       const json = new TextDecoder().decode(decompressed);
 
       return JSON.parse(json);
+  }
+
+  // Credits Json Loader
+  useEffect(() => {
+      console.log("Sending JSON API FETCH to BACKEND")
+      fetch("/api/json?credits")
+          .then((response) => response.json())
+          .then((data) => {
+              setCreditsData(data)
+              console.log("Credits Data received!", data)
+          })
+          .catch((error) => {
+              console.log("FAILED TO GET Credits.json locally, trying github!", error)
+              fetch("https://raw.githubusercontent.com/hybolic/Openteab/refs/heads/Openteab/external_assets/compressed/API/JSON/credits.gz.b64")
+                  .then((response) => response.text())
+                  .then((data) => {decodeBackup(data).then((new_data) => {setCreditsData(new_data);console.log("Credits Data received from Github!", new_data)})})
+                  .catch((error) => {console.log("FAILED TO GET Credits.json from github!", error)})
+          })
+  }, [])
+  
+  // Lang Json Loader temp
+  useEffect(() => {
+    async function LOAD(){
+      console.log("[FALLBACK] Sending JSON API FETCH to BACKEND")
+      let response = await fetch("/api/lang?en_us")
+      if (!response.ok)
+      {
+        console.log("[FALLBACK] FAILED TO GET en_us.json locally, trying github!")
+        response = await fetch("https://raw.githubusercontent.com/hybolic/Openteab/refs/heads/Openteab/external_assets/compressed/API/JSON/lang/en_us.gz.b64")
+        if (!response.ok)
+        {
+          console.log("[FALLBACK] FAILED TO GET en_us.json from github, this is a big exception!!!")
+          return
+        }
+      }
+      const data = await response.json()
+      console.log("Lang Data received!", data)
+      setFallbackLangDataData(data)
+      LoadLang("en_us")
+    }
+    LOAD()
+  }, [])
+
+  useEffect(() => {LoadEmotes()}, [])
+  async function LoadLang(lang_code:string):Promise<any>
+  {
+    const url_github = "https://raw.githubusercontent.com/hybolic/Openteab/refs/heads/Openteab/external_assets/compressed/API/JSON/lang/" + lang_code + ".gz.b64"
+    const url ="/api/lang?" + lang_code
+    console.log("[LoadLang] Sending JSON API FETCH to BACKEND")
+    let response = await fetch(url)
+    if (!response.ok)
+    {
+      console.log("[LoadLang] FAILED TO GET en_us.json locally, trying github!")
+      response = await fetch(url_github)
+      if (!response.ok)
+      {
+        console.log("[LoadLang] FAILED TO GET en_us.json from github, using fallback en_us")
+        setLangData(fallbackLangData)
+        return fallbackLangData
+      }
+    }
+    const data = await response.json()
+    console.log("[LoadLang] Lang Data received!", data)
+    setLangData(data)
+    return langData
   }
 
   const startMacro = async () => {
@@ -151,42 +211,6 @@ function App() {
   // track running state inside event callbacks
   const isRunningRef = useRef(isMacroRunning);
   const processingRef = useRef(false);
-
-  // Credits Json Loader
-  useEffect(() => {
-      console.log("Sending JSON API FETCH to BACKEND")
-      fetch("/api/json?credits")
-          .then((response) => response.json())
-          .then((data) => {
-              setCreditsData(data)
-              console.log("Credits Data received!", data)
-          })
-          .catch((error) => {
-              console.log("FAILED TO GET Credits.json locally, trying github!", error)
-              fetch("https://raw.githubusercontent.com/hybolic/Openteab/refs/heads/Openteab/external_assets/compressed/API/JSON/credits.gz.b64")
-                  .then((response) => response.text())
-                  .then((data) => {decodeBackup(data).then((new_data) => {setCreditsData(new_data);console.log("Credits Data received from Github!", new_data)})})
-                  .catch((error) => {console.log("FAILED TO GET Credits.json from github!", error)})
-          })
-  }, [])
-  
-  // Lang Json Loader temp
-  useEffect(() => {
-      console.log("Sending JSON API FETCH to BACKEND")
-      fetch("/api/lang?en_us")
-          .then((response) => response.json())
-          .then((data) => {
-              setLangData(data)
-              console.log("Lang Data received!", data)
-          })
-          .catch((error) => {
-              console.log("FAILED TO GET en_us.json locally, trying github!", error)
-              fetch("https://raw.githubusercontent.com/hybolic/Openteab/refs/heads/Openteab/external_assets/compressed/API/JSON/lang/en_us.gz.b64")
-                  .then((response) => response.text())
-                  .then((data) => {decodeBackup(data).then((new_data) => {setLangData(new_data);console.log("Lang Data received from Github!", new_data)})})
-                  .catch((error) => {console.log("FAILED TO GET en_us.json from github!", error)})
-          })
-  }, [])
   
   useEffect(() => {
     isRunningRef.current = isMacroRunning;
@@ -322,8 +346,8 @@ function App() {
 
   useEffect(() => {
     if (!config) return;
-    if (startupUpdateCheckRequestedRef.current) return;
-    startupUpdateCheckRequestedRef.current = true;
+    if (startupUpdateCheckRequestedRef.current) return
+    startupUpdateCheckRequestedRef.current = true
 
     const requestUpdateCheck = async () => {
       try {
@@ -456,72 +480,78 @@ function App() {
   const activePageQuery = (window as any).__INJECTED_OVERLAY__ || new URLSearchParams(window.location.search).get("overlay");
   const windowType = (window as any).__INJECTED_WINDOW_TYPE__ || new URLSearchParams(window.location.search).get("window");
 
-  if (windowType === "recorder") {
-    return <RecorderWindow />;
+
+  if (!langData) {
+      return <div>Loading language data...</div>;
   }
+  else{
+    if (windowType === "recorder") {
+      return <RecorderWindow />;
+    }
 
-  if (windowType === "biome_confirm") {
-    return <BiomeConfirmWindow />;
-  }
+    if (windowType === "biome_confirm") {
+      return <BiomeConfirmWindow langData={langData} />;
+    }
 
-  if (activePageQuery) {
-    const mode = activePageQuery === "region" ? "region" : "point";
-    return <CalibrationOverlay mode={mode} />;
-  }
+    if (activePageQuery) {
+      const mode = activePageQuery === "region" ? "region" : "point";
+      return <CalibrationOverlay mode={mode} />;
+    }
 
-  const ActivePage = pages[activeTab] ?? NoticePage;
+    const ActivePage = pages[activeTab] ?? NoticePage;
 
-  return (
+    return (
 
-    <div className={`window-frame ${isGlitching ? 'is-glitching' : ''}`} style={{
-      backgroundImage: config?.custom_background_image ? `url("file://${config.custom_background_image}")` : undefined,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat"
-    }}>
-      <div className="corner-bracket tl" />
-      <div className="corner-bracket tr" />
-      <div className="corner-bracket bl" />
-      <div className="corner-bracket br" />
-      <div className="app-layout" style={(!isApiReady && !(window as any).isSafeMode) ? { pointerEvents: 'none', opacity: 0.7 } : {}}>
-        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isGlitching={isGlitching} macroVersion={macroVersion} />
-        <div className="main-content" style={{ position: "relative" }}>
-          <HeaderBar
-            isRunning={isMacroRunning}
-            onToggle={toggleMacro}
-            theme={theme}
-            onThemeChange={handleThemeChange}
-            isGlitching={isGlitching}
-            setActiveTab={setActiveTab}
-          />
-          {updateInfo && (
-            <UpdateBanner
-              version={updateInfo.version}
-              downloadUrl={updateInfo.url}
-              updateStatus={updateStatus}
-              onDismiss={() => setUpdateInfo(null)}
-              onDontAskAgain={async () => {
-                if (config) {
-                  await saveConfig({ ...config, dont_ask_for_update: true });
-                }
-                setUpdateInfo(null);
-              }}
+      <div className={`window-frame ${isGlitching ? 'is-glitching' : ''}`} style={{
+        backgroundImage: config?.custom_background_image ? `url("file://${config.custom_background_image}")` : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat"
+      }}>
+        <div className="corner-bracket tl" />
+        <div className="corner-bracket tr" />
+        <div className="corner-bracket bl" />
+        <div className="corner-bracket br" />
+        <div className="app-layout" style={(!isApiReady && !(window as any).isSafeMode) ? { pointerEvents: 'none', opacity: 0.7 } : {}}>
+          <Sidebar activeTab={activeTab} onTabChange={setActiveTab} isGlitching={isGlitching} macroVersion={macroVersion} />
+          <div className="main-content" style={{ position: "relative" }}>
+            <HeaderBar
+              isRunning={isMacroRunning}
+              onToggle={toggleMacro}
+              theme={theme}
+              onThemeChange={handleThemeChange}
+              isGlitching={isGlitching}
+              setActiveTab={setActiveTab}
             />
-          )}
-          <div className="page-content">
-            <div className="fade-in" key={activeTab}>
-              <ActivePage
-                  {...(activeTab === "credits" ? { langData, creditsData } : {langData})}
+            {updateInfo && (
+              <UpdateBanner
+                version={updateInfo.version}
+                downloadUrl={updateInfo.url}
+                updateStatus={updateStatus}
+                onDismiss={() => setUpdateInfo(null)}
+                onDontAskAgain={async () => {
+                  if (config) {
+                    await saveConfig({ ...config, dont_ask_for_update: true });
+                  }
+                  setUpdateInfo(null);
+                }}
               />
+            )}
+            <div className="page-content">
+              <div className="fade-in" key={activeTab}>
+                <ActivePage
+                    {...(activeTab === "credits" ? { langData, creditsData } : {langData})}
+                />
+              </div>
             </div>
           </div>
         </div>
+        {isGlitching && <GlitchOverlay />}
+
+
       </div>
-      {isGlitching && <GlitchOverlay />}
-
-
-    </div>
-  );
+    );
+}
 }
 
 export default App;

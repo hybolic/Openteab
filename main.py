@@ -357,7 +357,7 @@ class Api:
                         print(f"[LANG GET] {lang}")
                         try:
                             file_contents = handler.getJsonFile(lang + ".json", JSON_TYPES.LANG)
-                            print(file_contents)
+                            # print(file_contents)
                             file_contents = file_contents.encode("utf-8")
                             self.send_response(200)
                             self.send_header("Content-Type","application/json; charset=utf-8")
@@ -369,6 +369,33 @@ class Api:
                             self.send_response(404)
                             self.end_headers()
                             self.wfile.write(b"FILE NOT FOUND")
+                    elif parsed_url.path == "/api/emote":
+                        emote = query.get("file")[0]
+                        nofile = query.get("nofile") in ("true", "1", 1)
+                        print(f"[EMOTE GET] {emote}")
+                        try:
+                            path = "openteab/assets/images/emotes/" + emote + ".webp"
+                            if not os.path.exists(path):
+                                raise FileNotFoundError("File not Found")
+                            self.send_response(200)
+                            if not nofile:
+                                print("[EMOTE GET] sending emote!")
+                                with open(path, "rb") as file:
+                                    file_contents = file.read()
+                                self.send_header("Content-Type", "image/webp")
+                                self.send_header("Content-Length", str(len(file_contents)))
+                                self.end_headers()
+                                self.wfile.write(file_contents)
+                            else:
+                                print("[EMOTE GET] skip file!")
+                                self.end_headers()
+                                self.wfile.write(b"FILE FOUND")
+                        except:
+                            print("[EMOTE GET] Emote Not Found!")
+                            self.send_response(404)
+                            self.end_headers()
+                            self.wfile.write(b"FILE NOT FOUND")
+                        
                 else:
                     print(f"[do_GET] Standard Get => {self.path}")
                     if parsed_url.path == "/health":

@@ -1,281 +1,287 @@
 import { useConfig } from "../contexts/ConfigContext";
 import { useState, useEffect } from "react";
+import { type ExtendedProperties, replaceWithEmote } from "../utils/ExtendedPageData";
 
-type CalibrationField = {
-    key: string;
-    label: string;
-    isRegion?: boolean;
-};
 
-type CalibrationGroup = {
-    id: string;
-    label: string;
-    color: string;
-    fields: CalibrationField[];
-};
-
-type MouseActionRequirement = {
-    feature: string;
-    page: string;
-    calibrations: string[];
-};
-
-const CALIBRATION_GROUPS: CalibrationGroup[] = [
-    {
-        id: "movements",
-        label: "Movements Calibration",
-        color: "#d4a843",
-        fields: [
-            { key: "collections_button", label: "Collection Menu" },
-            { key: "exit_collections_button", label: "Exit Collection" },
-            { key: "chat_hover_pos", label: "Roblox Chat Box" },
-            { key: "chat_tab_ocr_pos", label: "Chat Tab OCR Region (either 'General' or 'Server Message')", isRegion: true },
-            { key: "chat_close_button", label: "Roblox Chat Icon (to close chat box)" },
-            { key: "chat_box_ocr_pos", label: "Chat Box OCR Region (to reads text inside Roblox chat)", isRegion: true },
-
-        ]
-    },
-    {
-        id: "quest",
-        label: "Quest Claim Calibration",
-        color: "#d4a843",
-        fields: [
-            { key: "quest_menu", label: "Quest Menu Button" },
-            { key: "quest1_button", label: "Quest 1 Position" },
-            { key: "quest2_button", label: "Quest 2 Position" },
-            { key: "quest3_button", label: "Quest 3 Position" },
-            { key: "claim_quest_button", label: "Claim Button" },
-            { key: "quest_reroll_button", label: "Reroll Button" },
-        ]
-    },
-    {
-        id: "merchant",
-        label: "Merchant Calibrations",
-        color: "#7c5bf5",
-        fields: [
-            { key: "merchant_open_button", label: "Open Button" },
-            { key: "jester_exchange_button", label: "Jester Exchange Button" },
-            { key: "merchant_dialogue_box", label: "Dialogue Box" },
-            { key: "purchase_amount_button", label: "Amount Input" },
-            { key: "purchase_button", label: "Purchase Button" },
-            { key: "autobuy_set_to_max_button", label: "Autobuy - Set to Max" },
-            { key: "jester_exchange_set_to_max_button", label: "Jester Exchange - Set to Max" },
-            { key: "first_item_merchant_slot_pos", label: "First Item Slot" },
-            { key: "merchant_close_button", label: "Sell Menu Close Button" },
-            { key: "merchant_name_ocr_pos", label: "Merchant Name OCR Region", isRegion: true },
-            { key: "item_name_ocr_pos", label: "Item Name OCR Region", isRegion: true },
-        ]
-    },
-    {
-        id: "buff",
-        label: "Enable Buff Calibration",
-        color: "#ef4444",
-        fields: [
-            { key: "glitched_menu_button", label: "Menu Button" },
-            { key: "glitched_settings_button", label: "Settings Button" },
-            { key: "glitched_buff_enable_button", label: "Buff Toggle" },
-        ]
-    },
-    {
-        id: "aura",
-        label: "Equip Aura Calibration",
-        color: "#ec4899",
-        fields: [
-            { key: "aura_menu", label: "Aura Menu" },
-            { key: "aura_search_bar", label: "Aura Search Bar Calibration (X,Y)" },
-            { key: "first_aura_slot_pos", label: "First Aura Slot" },
-            { key: "equip_aura_button", label: "Equip Aura Button" },
-        ]
-    },
-    {
-        id: "inventory",
-        label: "Inventory Click Calibration",
-        color: "#22c55e",
-        fields: [
-            { key: "inventory_menu", label: "Inventory Menu" },
-            { key: "items_tab", label: "Items Tab" },
-            { key: "search_bar", label: "Search Bar" },
-            { key: "first_item_inventory_slot_pos", label: "First Inventory Item Slot" },
-            { key: "amount_box", label: "Amount Box" },
-            { key: "use_button", label: "Use Button" },
-            { key: "inventory_close_button", label: "Inventory Close Button" },
-            { key: "reconnect_start_button", label: "Join Button in Sol's RNG" },
-            { key: "first_item_slot_ocr_pos", label: "First Item Slot OCR Region", isRegion: true },
-        ]
-    },
-    {
-        id: "potion",
-        label: "Potion Crafting Calibration",
-        color: "#0ea5e9",
-        fields: [
-            { key: "potion_items_tab", label: "Stella's Items Tab" },
-            { key: "potion_search_bar", label: "Stella's Search Bar" },
-            { key: "potion_first_potion_slot_pos", label: "First Potion Slot" },
-            { key: "potion_recipe_button", label: "Open Recipe Button" },
-            { key: "potion_auto_add_button", label: "Auto Add button" },
-        ]
-    },
-    {
-        id: "fishing",
-        label: "Fishing Calibration",
-        color: "#06b6d4",
-        fields: [
-            { key: "fishing_bar_region", label: "Fishing Bar Region", isRegion: true },
-            { key: "fishing_detect_pixel", label: "Fish Indicator Pixel" },
-            { key: "fishing_click_position", label: "Start fishing button" },
-            { key: "fishing_midbar_sample_pos", label: "Mid Bar Color Sample" },
-            { key: "fishing_close_button_pos", label: "Close Button" },
-            { key: "fishing_flarg_dialogue_box", label: "Captain Flarg Dialogue Box" },
-            { key: "fishing_shop_open_button", label: "Open Fishing Shop" },
-            { key: "fishing_shop_sell_tab", label: "Fishing Shop Sell Tab" },
-            { key: "fishing_shop_close_button", label: "Close Fishing Shop" },
-            { key: "fishing_shop_first_fish", label: "First Fish In Shop" },
-            { key: "fishing_shop_sell_all_button", label: "Sell All Button" },
-            { key: "fishing_confirm_sell_all_button", label: "Confirm Sell All Button" },
-        ]
-    }
-];
-
-const CALIBRATION_MODE_BY_KEY = CALIBRATION_GROUPS.reduce((acc, group) => {
-    group.fields.forEach((field) => {
-        acc[field.key] = field.isRegion ? "region" : "point";
-    });
-    return acc;
-}, {} as Record<string, "point" | "region">);
-
-const MOUSE_ACTION_REQUIREMENTS: MouseActionRequirement[] = [
-    { page: "Fishing", feature: "Fishing Mode Core Loop", calibrations: ["Fishing Calibration"] },
-    { page: "Fishing", feature: "Fishing Auto Sell", calibrations: ["Fishing Calibration"] },
-    { page: "Fishing", feature: "Fishing Auto Merchant Every X Fish", calibrations: ["Inventory Click Calibration", "Merchant Calibrations"] },
-    { page: "Fishing", feature: "Fishing BR/SC Every X Fish", calibrations: ["Inventory Click Calibration"] },
-
-    { page: "Merchant", feature: "Auto Merchant Teleporter", calibrations: ["Inventory Click Calibration", "Merchant Calibrations"] },
-    { page: "Merchant", feature: "Auto Merchant in Limbo", calibrations: ["Inventory Click Calibration", "Merchant Calibrations"] },
-
-    { page: "Misc", feature: "Biome Randomizer (BR)", calibrations: ["Inventory Click Calibration"] },
-    { page: "Misc", feature: "Strange Controller (SC)", calibrations: ["Inventory Click Calibration"] },
-    { page: "Auto Pop Buff", feature: "Auto Pop Buffs", calibrations: ["Inventory Click Calibration"] },
-    { page: "Misc", feature: "Auto Reconnect (Join Button in Sol's RNG)", calibrations: ["Inventory Click Calibration"] },
-    { page: "Misc", feature: "Periodical Aura Screenshot", calibrations: ["Equip Aura Calibration", "Inventory Click Calibration"] },
-    { page: "Misc", feature: "Periodical Inventory Screenshot", calibrations: ["Inventory Click Calibration"] },
-    { page: "Misc", feature: "Auto Claim Daily Quests", calibrations: ["Quest Claim Calibration"] },
-    { page: "Misc", feature: "OCR Failsafe", calibrations: ["Inventory Click Calibration"] },
-
-    { page: "Other Features", feature: "Enable Buff in Glitched/Dreamspace", calibrations: ["Enable Buff Calibration"] },
-    { page: "Other Features", feature: "Teleport Back to Limbo", calibrations: ["Inventory Click Calibration"] },
-
-    { page: "Movements", feature: "Auto Complete Basic Obby", calibrations: ["Movements Calibration"] },
-    { page: "Movements", feature: "Use Float Aura", calibrations: ["Equip Aura Calibration", "Inventory Click Calibration"] },
-    { page: "Movements", feature: "Easter Egg Collection", calibrations: ["Movements Calibration"] },
-    { page: "Movements", feature: "Easter Egg OCR Special Detection", calibrations: ["Movements Calibration"] },
-
-    { page: "Potion Craft", feature: "Potion Auto Craft / Switching", calibrations: ["Potion Crafting Calibration"] },
-
-    { page: "Remote", feature: "Remote check_merchant command", calibrations: ["Inventory Click Calibration", "Merchant Calibrations"] },
-    { page: "Remote", feature: "Remote use item command", calibrations: ["Inventory Click Calibration"] },
-];
-
-function normalizeCalibrationData(data: any, expectedMode: "point" | "region"): number[] | null {
-    let value: unknown = data?.value;
-
-    if (!Array.isArray(value)) {
-        if (expectedMode === "region" && data && data.x !== undefined && data.y !== undefined && data.w !== undefined && data.h !== undefined) {
-            value = [data.x, data.y, data.w, data.h];
-        } else if (expectedMode === "point" && data && data.x !== undefined && data.y !== undefined) {
-            value = [data.x, data.y];
-        } else {
-            return null;
-        }
-    }
-
-    const arr = value as unknown[];
-    const expectedLength = expectedMode === "region" ? 4 : 2;
-    if (arr.length < expectedLength) return null;
-
-    const normalized = arr.slice(0, expectedLength).map((v: any) => Math.round(Number(v)));
-    if (normalized.some((n) => !Number.isFinite(n))) return null;
-
-    if (expectedMode === "region" && (normalized[2] <= 0 || normalized[3] <= 0)) return null;
-    return normalized;
-}
-
-// Helper component for coordinate inputs
-function CoordInput({ label, value, onChange, isRegion = false, onCalibrate }: {
-    label: string,
-    value: number[],
-    onChange: (val: number[]) => void,
-    isRegion?: boolean,
-    onCalibrate: () => void
-}) {
-    const vals = value || (isRegion ? [0, 0, 0, 0] : [0, 0]);
-
-    const update = (idx: number, val: string) => {
-        const num = parseInt(val) || 0;
-        const next = [...vals];
-        next[idx] = num;
-        onChange(next);
+export default function CalibrationPage({langData}:ExtendedProperties) {
+    if (!langData) return
+    
+    type CalibrationField = {
+        key: string;
+        label: string;
+        isRegion?: boolean;
     };
 
-    return (
-        <div className="coord-input-group" style={{ marginBottom: "12px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <label style={{ fontSize: "13px", color: "var(--text-secondary)", fontWeight: 500 }}>
-                        {label}
-                    </label>
-                </div>
-                <button
-                    className="btn btn-sm"
-                    style={{
-                        fontSize: "10px",
-                        padding: "2px 8px",
-                        background: "var(--accent)",
-                        color: "white",
-                        opacity: 0.9,
-                        border: "none",
-                        borderRadius: "2px",
-                        letterSpacing: "0.5px",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                        height: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        cursor: "pointer"
-                    }}
-                    onClick={onCalibrate}
-                >
-                    {isRegion ? "SELECT REGION" : "SELECT POS"}
-                </button>
-            </div>
-            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                {/* X */}
-                <div className="coord-box">
-                    <span className="coord-label">X</span>
-                    <input className="coord-input" type="number" value={vals[0]} onChange={(e) => update(0, e.target.value)} />
-                </div>
-                {/* Y */}
-                <div className="coord-box">
-                    <span className="coord-label">Y</span>
-                    <input className="coord-input" type="number" value={vals[1]} onChange={(e) => update(1, e.target.value)} />
-                </div>
-                {/* W/H if region */}
-                {isRegion && (
-                    <>
-                        <div className="coord-box">
-                            <span className="coord-label">W</span>
-                            <input className="coord-input" type="number" value={vals[2]} onChange={(e) => update(2, e.target.value)} />
-                        </div>
-                        <div className="coord-box">
-                            <span className="coord-label">H</span>
-                            <input className="coord-input" type="number" value={vals[3]} onChange={(e) => update(3, e.target.value)} />
-                        </div>
-                    </>
-                )}
-            </div>
-        </div>
-    );
-}
+    type CalibrationGroup = {
+        id: string;
+        label: string;
+        color: string;
+        fields: CalibrationField[];
+    };
 
-export default function CalibrationPage() {
+    type MouseActionRequirement = {
+        feature: string;
+        page: string;
+        calibrations: string[];
+    };
+    let GROUPS:any = langData.calibration.calibration_groups
+    const CALIBRATION_GROUPS: CalibrationGroup[] = [
+        {
+            id: "movements",
+            label: GROUPS.movements.label,
+            color: "#d4a843",
+            fields: [
+                { key: "collections_button", label: GROUPS.movements.collections_button },
+                { key: "exit_collections_button", label: GROUPS.movements.exit_collections_button },
+                { key: "chat_hover_pos", label: GROUPS.movements.chat_hover_pos },
+                { key: "chat_tab_ocr_pos", label: GROUPS.movements.chat_tab_ocr_pos, isRegion: true },
+                { key: "chat_close_button", label: GROUPS.movements.chat_close_button },
+                { key: "chat_box_ocr_pos", label: GROUPS.movements.chat_box_ocr_pos, isRegion: true },
+
+            ]
+        },
+        {
+            id: "quest",
+            label: GROUPS.quest.label,
+            color: "#d4a843",
+            fields: [
+                { key: "quest_menu", label: GROUPS.quest.quest_menu },
+                { key: "quest1_button", label: GROUPS.quest.quest1_button },
+                { key: "quest2_button", label: GROUPS.quest.quest2_button },
+                { key: "quest3_button", label: GROUPS.quest.quest3_button },
+                { key: "claim_quest_button", label: GROUPS.quest.claim_quest_button },
+                { key: "quest_reroll_button", label: GROUPS.quest.quest_reroll_button },
+            ]
+        },
+        {
+            id: "merchant",
+            label: "Merchant Calibrations",
+            color: "#7c5bf5",
+            fields: [
+                { key: "merchant_open_button", label: GROUPS.merchant.merchant_open_button },
+                { key: "jester_exchange_button", label: GROUPS.merchant.jester_exchange_button },
+                { key: "merchant_dialogue_box", label: GROUPS.merchant.merchant_dialogue_box },
+                { key: "purchase_amount_button", label: GROUPS.merchant.purchase_amount_button },
+                { key: "purchase_button", label: GROUPS.merchant.purchase_button },
+                { key: "autobuy_set_to_max_button", label: GROUPS.merchant.autobuy_set_to_max_button },
+                { key: "jester_exchange_set_to_max_button", label: GROUPS.merchant.jester_exchange_set_to_max_button },
+                { key: "first_item_merchant_slot_pos", label: GROUPS.merchant.first_item_merchant_slot_pos },
+                { key: "merchant_close_button", label: GROUPS.merchant.merchant_close_button },
+                { key: "merchant_name_ocr_pos", label: GROUPS.merchant.merchant_name_ocr_pos, isRegion: true },
+                { key: "item_name_ocr_pos", label: GROUPS.merchant.item_name_ocr_pos, isRegion: true },
+            ]
+        },
+        {
+            id: "buff",
+            label: "Enable Buff Calibration",
+            color: "#ef4444",
+            fields: [
+                { key: "glitched_menu_button", label: GROUPS.buff.glitched_menu_button},
+                { key: "glitched_settings_button", label: GROUPS.buff.glitched_settings_button},
+                { key: "glitched_buff_enable_button", label: GROUPS.buff.glitched_buff_enable_button},
+            ]
+        },
+        {
+            id: "aura",
+            label: "Equip Aura Calibration",
+            color: "#ec4899",
+            fields: [
+                { key: "aura_menu", label: GROUPS.aura.aura_menu},
+                { key: "aura_search_bar", label: GROUPS.aura.aura_search_bar},
+                { key: "first_aura_slot_pos", label: GROUPS.aura.first_aura_slot_pos},
+                { key: "equip_aura_button", label: GROUPS.aura.equip_aura_button},
+            ]
+        },
+        {
+            id: "inventory",
+            label: "Inventory Click Calibration",
+            color: "#22c55e",
+            fields: [
+                { key: "inventory_menu", label: GROUPS.inventory.inventory_menu},
+                { key: "items_tab", label: GROUPS.inventory.items_tab},
+                { key: "search_bar", label: GROUPS.inventory.search_bar},
+                { key: "first_item_inventory_slot_pos", label: GROUPS.inventory.first_item_inventory_slot_pos},
+                { key: "amount_box", label: GROUPS.inventory.amount_box},
+                { key: "use_button", label: GROUPS.inventory.use_button},
+                { key: "inventory_close_button", label: GROUPS.inventory.inventory_close_button},
+                { key: "reconnect_start_button", label: GROUPS.inventory.reconnect_start_button},
+                { key: "first_item_slot_ocr_pos", label: GROUPS.inventory.first_item_slot_ocr_pos, isRegion: true },
+            ]
+        },
+        {
+            id: "potion",
+            label: "Potion Crafting Calibration",
+            color: "#0ea5e9",
+            fields: [
+                { key: "potion_items_tab", label: GROUPS.potion.potion_items_tab},
+                { key: "potion_search_bar", label: GROUPS.potion.potion_search_bar},
+                { key: "potion_first_potion_slot_pos", label: GROUPS.potion.potion_first_potion_slot_pos},
+                { key: "potion_recipe_button", label: GROUPS.potion.potion_recipe_button},
+                { key: "potion_auto_add_button", label: GROUPS.potion.potion_auto_add_button},
+            ]
+        },
+        {
+            id: "fishing",
+            label: "Fishing Calibration",
+            color: "#06b6d4",
+            fields: [
+                { key: "fishing_bar_region", label: GROUPS.fishing.fishing_bar_region, isRegion: true },
+                { key: "fishing_detect_pixel", label: GROUPS.fishing.fishing_detect_pixel},
+                { key: "fishing_click_position", label: GROUPS.fishing.fishing_click_position},
+                { key: "fishing_midbar_sample_pos", label: GROUPS.fishing.fishing_midbar_sample_pos},
+                { key: "fishing_close_button_pos", label: GROUPS.fishing.fishing_close_button_pos},
+                { key: "fishing_flarg_dialogue_box", label: GROUPS.fishing.fishing_flarg_dialogue_box},
+                { key: "fishing_shop_open_button", label: GROUPS.fishing.fishing_shop_open_button},
+                { key: "fishing_shop_sell_tab", label: GROUPS.fishing.fishing_shop_sell_tab},
+                { key: "fishing_shop_close_button", label: GROUPS.fishing.fishing_shop_close_button},
+                { key: "fishing_shop_first_fish", label: GROUPS.fishing.fishing_shop_first_fish},
+                { key: "fishing_shop_sell_all_button", label: GROUPS.fishing.fishing_shop_sell_all_button},
+                { key: "fishing_confirm_sell_all_button", label: GROUPS.fishing.fishing_confirm_sell_all_button},
+            ]
+        }
+    ];
+
+    const CALIBRATION_MODE_BY_KEY = CALIBRATION_GROUPS.reduce((acc, group) => {
+        group.fields.forEach((field) => {
+            acc[field.key] = field.isRegion ? "region" : "point";
+        });
+        return acc;
+    }, {} as Record<string, "point" | "region">);
+
+    GROUPS = langData.calibration.mouse_action_req
+    const MOUSE_ACTION_REQUIREMENTS: MouseActionRequirement[] = [
+        { page: "Fishing", feature:GROUPS.fishing.fishmode_loop, calibrations: ["Fishing Calibration"] },
+        { page: "Fishing", feature:GROUPS.fishing.fish_auto_sel, calibrations: ["Fishing Calibration"] },
+        { page: "Fishing", feature:GROUPS.fishing.merchant_x, calibrations: ["Inventory Click Calibration", "Merchant Calibrations"] },
+        { page: "Fishing", feature:GROUPS.fishing.br_sc_x, calibrations: ["Inventory Click Calibration"] },
+
+        { page: "Merchant", feature:GROUPS.merchant.auto_merchante, calibrations: ["Inventory Click Calibration", "Merchant Calibrations"] },
+        { page: "Merchant", feature:GROUPS.merchant.auto_in_limbo, calibrations: ["Inventory Click Calibration", "Merchant Calibrations"] },
+
+        { page: "Misc", feature:GROUPS.misc.biome_random, calibrations: ["Inventory Click Calibration"] },
+        { page: "Misc", feature:GROUPS.misc.strange_controller, calibrations: ["Inventory Click Calibration"] },
+        { page: "Auto Pop Buff", feature:GROUPS.autopop.autopop_buffs, calibrations: ["Inventory Click Calibration"] },
+        { page: "Misc", feature:GROUPS.misc.reconnect, calibrations: ["Inventory Click Calibration"] },
+        { page: "Misc", feature:GROUPS.misc.aura_screenshot, calibrations: ["Equip Aura Calibration", "Inventory Click Calibration"] },
+        { page: "Misc", feature:GROUPS.misc.inventory_screenshot, calibrations: ["Inventory Click Calibration"] },
+        { page: "Misc", feature:GROUPS.misc.claim_daily, calibrations: ["Quest Claim Calibration"] },
+        { page: "Misc", feature:GROUPS.misc.ocr_failsafe, calibrations: ["Inventory Click Calibration"] },
+        
+
+        { page: "Other Features", feature:GROUPS.other.enable_in_rare, calibrations: ["Enable Buff Calibration"] },
+        { page: "Other Features", feature:GROUPS.other.tele_back_limbo, calibrations: ["Inventory Click Calibration"] },
+
+        { page: "Movements", feature:GROUPS.movements.obby, calibrations: ["Movements Calibration"] },
+        { page: "Movements", feature:GROUPS.movements.use_float_aura, calibrations: ["Equip Aura Calibration", "Inventory Click Calibration"] },
+        { page: "Movements", feature:GROUPS.movements.egg_collection, calibrations: ["Movements Calibration"] },
+        { page: "Movements", feature:GROUPS.movements.egg_collection_ocr, calibrations: ["Movements Calibration"] },
+
+        { page: "Potion Craft", feature:GROUPS.potion_crafting.potion_craft, calibrations: ["Potion Crafting Calibration"] },
+
+        { page: "Remote", feature:GROUPS.remote.remote_merchant, calibrations: ["Inventory Click Calibration", "Merchant Calibrations"] },
+        { page: "Remote", feature:GROUPS.remote.remote_use_item, calibrations: ["Inventory Click Calibration"] },
+    ];
+
+    function normalizeCalibrationData(data: any, expectedMode: "point" | "region"): number[] | null {
+        let value: unknown = data?.value;
+
+        if (!Array.isArray(value)) {
+            if (expectedMode === "region" && data && data.x !== undefined && data.y !== undefined && data.w !== undefined && data.h !== undefined) {
+                value = [data.x, data.y, data.w, data.h];
+            } else if (expectedMode === "point" && data && data.x !== undefined && data.y !== undefined) {
+                value = [data.x, data.y];
+            } else {
+                return null;
+            }
+        }
+
+        const arr = value as unknown[];
+        const expectedLength = expectedMode === "region" ? 4 : 2;
+        if (arr.length < expectedLength) return null;
+
+        const normalized = arr.slice(0, expectedLength).map((v: any) => Math.round(Number(v)));
+        if (normalized.some((n) => !Number.isFinite(n))) return null;
+
+        if (expectedMode === "region" && (normalized[2] <= 0 || normalized[3] <= 0)) return null;
+        return normalized;
+    }
+
+    // Helper component for coordinate inputs
+    function CoordInput({ label, value, onChange, isRegion = false, onCalibrate }: {
+        label: string,
+        value: number[],
+        onChange: (val: number[]) => void,
+        isRegion?: boolean,
+        onCalibrate: () => void
+    }) {
+        if (!langData && langData === undefined) return
+        const vals = value || (isRegion ? [0, 0, 0, 0] : [0, 0]);
+
+        const update = (idx: number, val: string) => {
+            const num = parseInt(val) || 0;
+            const next = [...vals];
+            next[idx] = num;
+            onChange(next);
+        };
+
+        return (
+            <div className="coord-input-group" style={{ marginBottom: "12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <label style={{ fontSize: "13px", color: "var(--text-secondary)", fontWeight: 500 }}>
+                            {label}
+                        </label>
+                    </div>
+                    <button
+                        className="btn btn-sm"
+                        style={{
+                            fontSize: "10px",
+                            padding: "2px 8px",
+                            background: "var(--accent)",
+                            color: "white",
+                            opacity: 0.9,
+                            border: "none",
+                            borderRadius: "2px",
+                            letterSpacing: "0.5px",
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                            height: "20px",
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer"
+                        }}
+                        onClick={onCalibrate}
+                    >
+                        {isRegion ? langData.calibration.select_region : langData.calibration.select_position}
+                    </button>
+                </div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    {/* X */}
+                    <div className="coord-box">
+                        <span className="coord-label">X</span>
+                        <input className="coord-input" type="number" value={vals[0]} onChange={(e) => update(0, e.target.value)} />
+                    </div>
+                    {/* Y */}
+                    <div className="coord-box">
+                        <span className="coord-label">Y</span>
+                        <input className="coord-input" type="number" value={vals[1]} onChange={(e) => update(1, e.target.value)} />
+                    </div>
+                    {/* W/H if region */}
+                    {isRegion && (
+                        <>
+                            <div className="coord-box">
+                                <span className="coord-label">W</span>
+                                <input className="coord-input" type="number" value={vals[2]} onChange={(e) => update(2, e.target.value)} />
+                            </div>
+                            <div className="coord-box">
+                                <span className="coord-label">H</span>
+                                <input className="coord-input" type="number" value={vals[3]} onChange={(e) => update(3, e.target.value)} />
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
+    }
     const { config, setConfig, saveConfig, error } = useConfig();
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
@@ -401,31 +407,31 @@ export default function CalibrationPage() {
             {showPresetModal && pendingPreset && (
                 <div className="biome-confirm-overlay" onClick={() => setShowPresetModal(false)}>
                     <div className="biome-confirm-modal" onClick={e => e.stopPropagation()} style={{ textAlign: "left" }}>
-                        <h3 className="biome-confirm-title" style={{ textAlign: "center" }}>Overwrite Calibrations?</h3>
+                        <h3 className="biome-confirm-title" style={{ textAlign: "center" }}>{langData.settings.overwrite}</h3>
                         <p style={{ color: "var(--text-secondary)", marginBottom: "20px", lineHeight: "1.6", textAlign: "center", fontSize: "14px" }}>
-                            This will overwrite your current calibrations with the
+                            {langData.calibration.overwrite_box.box_1}
                             <br />
-                            <strong style={{ color: "var(--text-primary)" }}>{pendingPreset.resolution} ({pendingPreset.scale} {pendingPreset.mode})</strong> preset.
+                            <strong style={{ color: "var(--text-primary)" }}>{pendingPreset.resolution} ({pendingPreset.scale} {pendingPreset.mode})</strong> {langData.calibration.overwrite_box.box_2}
                             <br /><br />
-                            <span style={{ color: "var(--text-muted)", fontSize: "0.85em" }}>This action cannot be undone.</span>
+                            <span style={{ color: "var(--text-muted)", fontSize: "0.85em" }}>{langData.calibration.overwrite_box.box_3}</span>
                         </p>
                         <div className="biome-confirm-buttons">
-                            <button className="biome-confirm-btn confirm" onClick={confirmPresetApply}>Yes, Overwrite</button>
-                            <button className="biome-confirm-btn cancel" onClick={() => setShowPresetModal(false)}>Cancel</button>
+                            <button className="biome-confirm-btn confirm" onClick={confirmPresetApply}>{langData.settings.confirm_overwrite}</button>
+                            <button className="biome-confirm-btn cancel" onClick={() => setShowPresetModal(false)}>{langData.common.cancel}</button>
                         </div>
                     </div>
                 </div>
             )}
 
             <div className="page-header">
-                <h2>Macro Calibrations</h2>
-                <p>View and manually edit calibration coordinates</p>
+                <h2>{langData.nav.auras}</h2>
+                <p>{langData.calibration.description}</p>
             </div>
 
             <div className="info-banner" style={{ marginBottom: "16px" }}>
-                <div>ℹ️ Use "Select Pos" or "Select Region" to launch the calibration overlay :)</div>
+                <div>{langData.calibration.instruction_basic}</div>
                 <div style={{ marginTop: "6px" }}>
-                    If you have troubles understanding refer to this tutorial:{" "}
+                    {langData.calibration.instruction_tutorial}{" "}
                     <a href="https://www.youtube.com/watch?v=dZzQytUMlCE" target="_blank" rel="noreferrer">
                         https://www.youtube.com/watch?v=dZzQytUMlCE
                     </a>
@@ -488,13 +494,13 @@ export default function CalibrationPage() {
                 <div className="card-header">
                     <div className="card-icon">⚡</div>
                     <div style={{ flex: 1 }}>
-                        <h3>Macro Calibrations Preset</h3>
-                        <p>Pre-made macro calibrations for common screen resolutions, display scales, and window modes (so u don't have to set it up manually :umamusume_mambo_dancing:)</p>
+                        <h3>{langData.settings.calibration_preset}</h3>
+                        {replaceWithEmote(langData.calibration.calibration_preset_description)}
                     </div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: "10px", alignItems: "end", marginTop: "12px" }}>
                     <div>
-                        <label style={{ display: "block", fontSize: "11px", color: "var(--text-muted)", marginBottom: "4px", letterSpacing: "0.5px" }}>RESOLUTION</label>
+                        <label style={{ display: "block", fontSize: "11px", color: "var(--text-muted)", marginBottom: "4px", letterSpacing: "0.5px" }}>{langData.calibration.resolution}</label>
                         <select
                             className="form-input"
                             style={{ width: "100%", cursor: "pointer" }}
@@ -505,7 +511,7 @@ export default function CalibrationPage() {
                                 setSelectedMode("");
                             }}
                         >
-                            <option value="">Select Resolution</option>
+                            <option value="">{langData.calibration.select_resolution}</option>
                             {uniqueResolutions.map((res: any) => (
                                 <option key={res} value={res}>{res}</option>
                             ))}
@@ -513,7 +519,7 @@ export default function CalibrationPage() {
                     </div>
 
                     <div>
-                        <label style={{ display: "block", fontSize: "11px", color: "var(--text-muted)", marginBottom: "4px", letterSpacing: "0.5px" }}>DISPLAY SCALE</label>
+                        <label style={{ display: "block", fontSize: "11px", color: "var(--text-muted)", marginBottom: "4px", letterSpacing: "0.5px" }}>{langData.calibration.display_scale}</label>
                         <select
                             className="form-input"
                             style={{ width: "100%", cursor: selectedRes ? "pointer" : "not-allowed", opacity: selectedRes ? 1 : 0.5 }}
@@ -524,7 +530,7 @@ export default function CalibrationPage() {
                             }}
                             disabled={!selectedRes}
                         >
-                            <option value="">Select Scale</option>
+                            <option value="">{langData.calibration.select_scale}</option>
                             {availableScales.map((scale: any) => (
                                 <option key={scale} value={scale}>{scale}</option>
                             ))}
@@ -532,7 +538,7 @@ export default function CalibrationPage() {
                     </div>
 
                     <div>
-                        <label style={{ display: "block", fontSize: "11px", color: "var(--text-muted)", marginBottom: "4px", letterSpacing: "0.5px" }}>WINDOW MODE</label>
+                        <label style={{ display: "block", fontSize: "11px", color: "var(--text-muted)", marginBottom: "4px", letterSpacing: "0.5px" }}>{langData.calibration.window_mode}</label>
                         <select
                             className="form-input"
                             style={{ width: "100%", cursor: selectedScale ? "pointer" : "not-allowed", opacity: selectedScale ? 1 : 0.5 }}
@@ -540,7 +546,7 @@ export default function CalibrationPage() {
                             onChange={(e) => setSelectedMode(e.target.value)}
                             disabled={!selectedScale}
                         >
-                            <option value="">Select Mode</option>
+                            <option value="">{langData.calibration.select_mode}</option>
                             {availableModes.map((mode: any) => (
                                 <option key={mode} value={mode}>{mode}</option>
                             ))}
@@ -553,12 +559,12 @@ export default function CalibrationPage() {
                         disabled={!selectedRes || !selectedScale || !selectedMode}
                         style={{ height: "36px", whiteSpace: "nowrap" }}
                     >
-                        Apply Preset
+                        {langData.calibration.apply_preset}
                     </button>
                 </div>
                 {presets.length === 0 && (
                     <div style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "8px" }}>
-                        Presets not found on github or failed to fetch.
+                        {langData.calibration.presets_not_found}
                     </div>
                 )}
                 {presetStatus && (
@@ -592,7 +598,7 @@ export default function CalibrationPage() {
                             <div className="card-icon" style={{ borderColor: group.color }}>🎯</div>
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ color: group.color }}>{group.label}</h3>
-                                <p>Click to view/edit coordinates</p>
+                                <p>{langData.calibration.click_to_view_edit}</p>
                             </div>
                             <div>{expandedSection === group.id ? "▲" : "▼"}</div>
                         </div>

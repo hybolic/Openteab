@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { type ExtendedProperties, PageIcons} from "../utils/ExtendedPageData";
 
-export default function DonationsPage() {
+export default function DonationsPage({langData}:ExtendedProperties) {
     const [donators, setDonators] = useState<string>("Loading appreciation list...");
-
+    if(!langData)return
     useEffect(() => {
         fetch("https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/appreciation_list.txt")
             .then(res => res.text())
@@ -13,32 +14,28 @@ export default function DonationsPage() {
     return (
         <>
             <div className="page-header">
-                <h2>Donations {"<3"}</h2>
-                <p>Support the Developers of Coteab Macro</p>
+                <h2>{langData.nav.donations}</h2>
+                <p>{langData.donate.description}</p>
             </div>
 
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">💎</div>
+                    <div className="card-icon">{PageIcons.SupportUs}</div>
                     <div>
-                        <h3>Support Us</h3>
-                        <p>Help us keep the project alive</p>
+                        <h3>{langData.credits.support}</h3>
+                        <p>{langData.donate.help_project}</p>
                     </div>
                 </div>
 
                 <div style={{ padding: "0 15px 15px 15px", color: "var(--text-secondary)", lineHeight: "1.6" }}>
                     <p style={{ marginBottom: "12px" }}>
-                        Our projects are 100% free to use and you're allowed to recycle any fraction of our code with proper credits.
-                        However, if you want to support our team, you can help us by purchasing any of the gamepasses below :)
+                        {langData.donate.p1}
                     </p>
                     <p style={{ marginBottom: "12px" }}>
-                        It helps us out a lot mentally, any donations above 100 Robux will get you on the appreciation list below,
-                        500 Robux will give you the permission to leave a special message on the appreciation list (must be sfw though)
-                        & 1000 Robux will give you access to early Coteab macro releases (beta vers) :D
+                        {langData.donate.p2}
                     </p>
                     <p style={{ marginBottom: "15px" }}>
-                        Normally we will check donations history daily, but if your Roblox username isn't displayed here please DM "@criticize." on Discord.
-                        The appreciation list also takes up to 5 minutes to update due to Github.
+                        {langData.donate.p3}
                     </p>
 
                     <a
@@ -55,7 +52,7 @@ export default function DonationsPage() {
                             alignItems: "center"
                         }}
                     >
-                        Visit Gamepass Store
+                        {langData.donate.gamepass_store}
                     </a>
                     <div style={{ textAlign: "center", marginTop: "8px", fontSize: "12px", opacity: 0.7 }}>
                         https://www.roblox.com/games/18203398779/Medival-castle#!/store
@@ -65,10 +62,10 @@ export default function DonationsPage() {
 
             <div className="card" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "300px" }}>
                 <div className="card-header">
-                    <div className="card-icon">🏆</div>
+                    <div className="card-icon">{PageIcons.Donator}</div>
                     <div>
-                        <h3>Donators Hall of Fame</h3>
-                        <p>It automatically updates from GitHub</p>
+                        <h3>{langData.credits.donators}</h3>
+                        <p>{langData.donate.donator_update}</p>
                     </div>
                 </div>
 

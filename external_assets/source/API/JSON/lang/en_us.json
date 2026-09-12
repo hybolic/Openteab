@@ -107,88 +107,156 @@
         "response" :"Response sent!"
     },
     "calibration": {
-        "movements": {
-            "collectionMenu": "Collection Menu",
-            "exitCollection": "Exit Collection",
-            "chatBox": "Roblox Chat Box",
-            "chatTabRegion": "Chat Tab OCR Region (either 'General' or 'Server Message')",
-            "chatIcon": "Roblox Chat Icon (to close chat box)",
-            "chatRegion": "Chat Box OCR Region (to reads text inside Roblox chat)"
-        },
-        "quest": {
-            "title": "Quest Claim Calibration",
-            "menu": "Quest Menu Button",
-            "positions": {
-                "one": "Quest 1 Position",
-                "two": "Quest 2 Position",
-                "three": "Quest 3 Position"
+        "mouse_action_req":{
+            "fishing":{
+                "fishmode_loop":"Fishing Mode Core Loop",
+                "fish_auto_sel":"Fishing Auto Sell",
+                "merchant_x":"Fishing Auto Merchant Every X Fish",
+                "br_sc_x":"Fishing BR/SC Every X Fish"
             },
-            "claim": "Claim Button",
-            "reroll": "Reroll Button"
+            "merchant":{
+                "auto_merchante":"Auto Merchant Teleporter",
+                "auto_in_limbo":"Auto Merchant in Limbo"
+            },
+            "misc":{
+                "biome_random":"Biome Randomizer (BR)",
+                "strange_controller":"Strange Controller (SC)",
+                "reconnect":"Auto Reconnect (Join Button in Sol's RNG)",
+                "aura_screenshot":"Periodical Aura Screenshot",
+                "inventory_screenshot":"Periodical Inventory Screenshot",
+                "claim_daily":"Auto Claim Daily Quests",
+                "ocr_failsafe":"OCR Failsafe"
+            },
+            "autopop":{
+                "autopop_buffs":"Auto Pop Buffs"
+            },
+            "other":{
+                "enable_in_rare":"Enable Buff in Glitched/Dreamspace",
+                "tele_back_limbo":"Teleport Back to Limbo"
+            },
+            "movements":{
+                "obby":"Auto Complete Basic Obby",
+                "use_float_aura":"Use Float Aura",
+                "egg_collection":"Easter Egg Collection",
+                "egg_collection_ocr":"Easter Egg OCR Special Detection"
+            },
+            "potion_crafting":{
+                "potion_craft":"Potion Auto Craft / Switching"
+            },
+            "remote":{
+                "remote_merchant":"Remote check_merchant command",
+                "remote_use_item":"Remote use item command"
+            }
         },
-        "merchant": {
-            "title": "Merchant Calibrations",
-            "open": "Open Button",
-            "exchange": "Jester Exchange Button",
-            "dialogue": "Dialogue Box",
-            "amount": "Amount Input",
-            "purchase": "Purchase Button",
-            "autobuyMax": "Autobuy - Set to Max",
-            "exchangeMax": "Jester Exchange - Set to Max",
-            "firstItem": "First Item Slot",
-            "sellClose": "Sell Menu Close Button",
-            "merchantName": "Merchant Name OCR Region",
-            "itemName": "Item Name OCR Region",
-            "menu": "Menu Button",
-            "settings": "Settings Button"
+        "calibration_groups":{
+            "movements":
+            {
+                "label":"Movements Calibration",
+                "collections_button":"Collection Menu",
+                "exit_collections_button":"Exit Collection",
+                "chat_hover_pos":"Roblox Chat Box",
+                "chat_tab_ocr_pos":"at Tab OCR Region (either 'General' or 'Server Message')",
+                "chat_close_button":"Roblox Chat Icon (to close chat box)",
+                "chat_box_ocr_pos":"Chat Box OCR Region (to reads text inside Roblox chat)"
+            },
+            "quest":
+            {
+                "label":"Quest Claim Calibration",
+                "quest_menu":"Quest Menu Button",
+                "quest1_button":"Quest 1 Position",
+                "quest2_button":"Quest 2 Position",
+                "quest3_button":"Quest 3 Position",
+                "claim_quest_button":"Claim Button",
+                "quest_reroll_button":"Reroll Button"
+            },
+            "merchant":
+            {
+                "label":"Quest Merchant Calibrations",
+                "merchant_open_button": "Open Button",
+                "jester_exchange_button": "Jester Exchange Button",
+                "merchant_dialogue_box": "Dialogue Box",
+                "purchase_amount_button": "Amount Input",
+                "purchase_button": "Purchase Button",
+                "autobuy_set_to_max_button": "Autobuy - Set to Max",
+                "jester_exchange_set_to_max_button": "Jester Exchange - Set to Max",
+                "first_item_merchant_slot_pos": "First Item Slot",
+                "merchant_close_button": "Sell Menu Close Button",
+                "merchant_name_ocr_pos": "Merchant Name OCR Region",
+                "item_name_ocr_pos": "Item Name OCR Region"
+            },
+            
+            "buff":{
+                "label": "Enable Buff Calibration",
+                "glitched_menu_button":"Menu Button",
+                "glitched_settings_button":"Settings Button",
+                "glitched_buff_enable_button":"Buff Toggle"
+            },
+            "aura":{
+                "label": "Equip Aura Calibration",
+                "aura_menu":"Aura Menu",
+                "aura_search_bar":"Aura Search Bar Calibration (X,Y)",
+                "first_aura_slot_pos":"First Aura Slot",
+                "equip_aura_button":"Equip Aura Button"
+            },
+            "inventory":{
+                "label": "Inventory Click Calibration",
+                "inventory_menu":"Inventory Menu",
+                "items_tab":"Items Tab",
+                "search_bar":"Search Bar",
+                "first_item_inventory_slot_pos":"First Inventory Item Slot",
+                "amount_box":"Amount Box",
+                "use_button":"Use Button",
+                "inventory_close_button":"Inventory Close Button",
+                "reconnect_start_button":"Join Button in Sol's RNG",
+                "first_item_slot_ocr_pos":"First Item Slot OCR Region"
+            },
+            "potion":{
+                "label": "Potion Crafting Calibration",
+                "potion_items_tab":"Stella's Items Tab",
+                "potion_search_bar":"Stella's Search Bar",
+                "potion_first_potion_slot_pos":"First Potion Slot",
+                "potion_recipe_button":"Open Recipe Button",
+                "potion_auto_add_button":"Auto Add button"
+            },
+            "fishing":{
+                "label": "Fishing Calibration",
+                "fishing_bar_region":"Fishing Bar Region",
+                "fishing_detect_pixel":"Fish Indicator Pixel",
+                "fishing_click_position":"Start fishing button",
+                "fishing_midbar_sample_pos":"Mid Bar Color Sample",
+                "fishing_close_button_pos":"Close Button",
+                "fishing_flarg_dialogue_box":"Captain Flarg Dialogue Box",
+                "fishing_shop_open_button":"Open Fishing Shop",
+                "fishing_shop_sell_tab":"Fishing Shop Sell Tab",
+                "fishing_shop_close_button":"Close Fishing Shop",
+                "fishing_shop_first_fish":"First Fish In Shop",
+                "fishing_shop_sell_all_button":"Sell All Button",
+                "fishing_confirm_sell_all_button":"Confirm Sell All Button"
+            }
         },
-        "buff": {
-            "title": "Enable Buff Calibration",
-            "toggle": "Buff Toggle"
+
+        "select_region": "SELECT REGION",
+        "select_position": "SELECT POS",
+        "description":"View and manually edit calibration coordinates",
+        "instruction_basic":"ℹ️ Use \"Select Pos\" or \"Select Region\" to launch the calibration overlay :)",
+        "instruction_tutorial":"If you have troubles understanding refer to this tutorial:",
+        "calibration_preset_description":"Pre-made macro calibrations for common screen resolutions, display scales, and window modes (so u don't have to set it up manually :umamusume_mambo_dancing:)",
+        "resolution":"RESOLUTION",
+        "display_scale":"DISPLAY SCALE",
+        "window_mode":"WINDOW MODE",
+        "select_resolution":"Select Resolution",
+        "select_scale":"Select Scale",
+        "select_mode":"Select Mode",
+        "apply_preset":"Apply Preset",
+        "presets_not_found":"Presets not found on github or failed to fetch.",
+        "click_to_view_edit":"Click to view/edit coordinates",
+        "overwrite_box":
+        {
+            "overrite" : "Overwrite Calibrations?",
+            "box_1":"This will overwrite your current calibrations with the",
+            "box_2":"preset.",
+            "box_3":"This action cannot be undone."
         },
-        "aura": {
-            "title": "Equip Aura Calibration",
-            "menu": "Aura Menu",
-            "search": "Aura Search Bar Calibration (X,Y)",
-            "firstSlot": "First Aura Slot",
-            "equip": "Equip Aura Button"
-        },
-        "inventory": {
-            "title": "Inventory Click Calibration",
-            "menu": "Inventory Menu",
-            "itemsTab": "Items Tab",
-            "search": "Search Bar",
-            "firstItem": "First Inventory Item Slot",
-            "amount": "Amount Box",
-            "use": "Use Button",
-            "close": "Inventory Close Button"
-        },
-        "potion": {
-            "title": "Potion Crafting Calibration",
-            "join": "Join Button in Sol's RNG",
-            "firstItemRegion": "First Item Slot OCR Region",
-            "stellaItems": "Stella's Items Tab",
-            "stellaSearch": "Stella's Search Bar",
-            "firstPotion": "First Potion Slot",
-            "recipe": "Open Recipe Button",
-            "autoAdd": "Auto Add button"
-        },
-        "fishing": {
-            "title": "Fishing Calibration",
-            "bar": "Fishing Bar Region",
-            "fishIndicator": "Fish Indicator Pixel",
-            "start": "Start fishing button",
-            "midBar": "Mid Bar Color Sample",
-            "close": "Close Button",
-            "openShop": "Open Fishing Shop",
-            "sellTab": "Fishing Shop Sell Tab",
-            "closeShop": "Close Fishing Shop",
-            "firstFish": "First Fish In Shop",
-            "sellAll": "Sell All Button",
-            "confirmSellAll": "Confirm Sell All Button"
-        },
-        "selectRegion": "SELECT REGION",
-        "selectPosition": "SELECT POS",
         "coordinates": {
             "x": "X",
             "y": "Y",
@@ -218,11 +286,52 @@
         "xyz": "Xyz Potion"
     },
     "fishing": {
-        "mode": "Fishing Mode",
-        "enableMode": "Enable Fishing Mode",
-        "failsafe": "Fishing failsafe (rejoin if timeout)",
-        "sellFish": "Enable fish selling",
-        "sellAfter": "Sell after x fish"
+        "description":"Run fishing logic while suppressing other automatic feature loops",
+        "fishing_mode":"Fishing Mode",
+        "fishing_mode_description":"When enabled, the macro runs fishing logic and pauses most other automations",
+        "enable_fishing_mode":"Enable Fishing Mode",
+        "enable_fishing_mode_description":"Auto Pop Buff still has priority and will interrupt fishing. Remote Control stays enabled.",
+        "fishing_delay":"Fishing actions delay (in miliseconds)",
+        "fishing_path_playback" : "Fishing Path Playback Multiplier (FPS Compensation)",
+        "fishing_path_description":"If you get stuck or fall short while walking during fishing or fish selling (due to low FPS), increase this (e.g. 1.1 or 1.25). Higher multiplier = character walks for longer (otherwise keep it at 1.0 if you got consistent fps around 60+)",
+        "warning":"⚠️ If you set fish path multiplier below 1.0, the macro will automatically default it back to 1.0 :aga:",
+        "fishing_failsafe":"Fishing failsafe (rejoin if timeout)",
+        "fishing_failsafe_description":"If no fishing minigame is detected for 60 seconds after the last Start Fishing click, close Roblox so reconnect logic can take over.",
+        "enable_fish_sell":"Enable fish selling",
+        "enable_fish_sell_description":"Automatically run fish selling flow after enough catches.",
+        "enable_fish_sell_after_x":"Sell after x fish",
+        "enable_fish_sell_amount":"Sell how many fish",
+        "equip_aura_before_move":"Equip an aura before movement",
+        "equip_aura_before_move_description":"Before walking to fish or sell fish, equip the aura name below using Aura calibration points.",
+        "equip_aura_before_move_name_to_equip":"Aura name to equip",
+        "equip_aura_before_move_enter_name":"Enter aura name",
+        "merchant_tele":"Use merchant teleporter every x fishes",
+        "merchant_tele_description":"Runs full auto-merchant flow directly from fishing mode.",
+        "merchant_tele_use_every_x":"Use merchant teleporter every x fish",
+        "merchant_ocr":"Check merchant on roblox chat (OCR) every x fishes",
+        "merchant_ocr_description":"Check chat for merchant spawns via OCR directly from fishing mode.",
+        "merchant_ocr_use_every_x":"Check OCR every x fish",
+        "use_br_sc":"Use BR/SC every x fishes",
+        "use_br_sc_description":"After x fish catches, run BR then SC with the usual OCR failsafe. If multiple flows trigger together, order is: sell -> merchant -> BR/SC.",
+        "use_br_sc_use_every_x":"Use BR/SC every x fish",
+        "fishing_mode_warning":"Fishing mode is active. Movements, potion crafting, periodic screenshots, aura screenshots, daily quest claiming, and other non-essential mouse actions are paused. Fishing auto-merchant can still run if enabled above.",
+        "fishing_calibration" : "Fishing Calibration Values",
+        "fishing_calibration_description" : "Edit these in Macro Calibrations &gt; Fishing Calibration",
+        "osd_calibration":"Display On Screen Calibration",
+        "fishing_calibrations_labels":{
+            "fishing_detect_pixel": "Fishing Detect Pixel", 
+            "fishing_click_position": "Start Fishing Button", 
+            "fishing_midbar_sample_pos": "Mid Bar Sample Position",
+            "fishing_close_button_pos": "Fishing Close Button", 
+            "fishing_bar_region": "Fishing Bar Region", 
+            "fishing_flarg_dialogue_box": "Captain Flarg Dialogue Box",
+            "fishing_shop_open_button": "Open Fishing Shop", 
+            "fishing_shop_sell_tab": "Fishing Shop Sell Tab",
+            "fishing_shop_close_button": "Close Fishing Shop", 
+            "fishing_shop_first_fish": "First Fish In Shop",
+            "fishing_shop_sell_all_button": "Sell All Button", 
+            "fishing_confirm_sell_all_button": "Confirm Sell All Button"
+        }
     },
     "merchant": {
         "teleporter": "Merchant Teleporter",
@@ -240,6 +349,16 @@
         "userId": "User ID",
         "roleId": "Role ID"
     },
+    "custimization": {
+        "dynamic_configure_biome":"Dynamically configure what your webhook embeds look like when a biome starts",
+        "webhook_name_example":"Your webhook name go here cuz idk",
+        "select_biome":"Select Biome",
+        "scrollwheel":"(Scroll wheel supported)",
+        "thumbnail_url":"Thumbnail URL",
+        "hex_color": "Hex Color",
+        "get_colors":"Get Colors",
+        "save_config":"(reopen the macro to take effect!)"
+    },
     "potion_crafting": {
         "autoCraft": "Auto Craft",
         "switching": "Potion Switching",
@@ -253,9 +372,9 @@
         "scale": "Select Scale",
         "mode": "Select Mode",
         "applyPreset": "Apply Preset",
-        "calibrationPreset": "Macro Calibrations Preset",
+        "calibration_preset": "Macro Calibrations Preset",
         "overwrite": "Overwrite Calibrations?",
-        "confirmOverwrite": "Yes, Overwrite",
+        "confirm_overwrite": "Yes, Overwrite",
         "filterIndex": "Filter index",
         "antiAfk": "Anti-AFK",
         "autoUpdate": "Auto Update (startup)",
@@ -267,6 +386,15 @@
         "accessControl": "Remote Access Control",
         "botToken": "Discord Bot Token",
         "allowedUserId": "Allowed User ID"
+    },
+    "donate":{
+        "description":"Support the Developers of Coteab Macro",
+        "help_project":"Help us keep the project alive",
+        "p1":"Our projects are 100% free to use and you're allowed to recycle any fraction of our code with proper credits.However, if you want to support our team, you can help us by purchasing any of the gamepasses below :)",
+        "p2":"It helps us out a lot mentally, any donations above 100 Robux will get you on the appreciation list below,500 Robux will give you the permission to leave a special message on the appreciation list (must be sfw though) & 1000 Robux will give you access to early Coteab macro releases (beta vers) :D",
+        "p3":"Normally we will check donations history daily, but if your Roblox username isn't displayed here please DM \"@criticize.\" on Discord. The appreciation list also takes up to 5 minutes to update due to Github.",
+        "gamepass_store":"Visit Gamepass Store",
+        "donator_update":"It automatically updates from GitHub"
     },
     "credits": {
         "originalCreators": "Original Creators",
@@ -365,6 +493,7 @@
         "open": "Open",
         "close": "Close",
         "save": "Save",
+        "save_config": "Save Configuration",
         "load": "Load",
         "start":"Start",
         "stop":"Stop",

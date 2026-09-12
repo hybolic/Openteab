@@ -1,19 +1,19 @@
-2026-09-10 08:57:06File:      credits.json
-Size:      4,883 B
-GZip:      1,065 B
-Base64:    1,420 B
-Reduction: 70.9% [-3,463 B]
+2026-09-12 08:10:19File:      credits.json
+Size:      4,885 B
+GZip:      1,066 B
+Base64:    1,424 B
+Reduction: 70.8% [-3,461 B]
 PASS:      True
-Time:      0s 3ms 77300ns
+Time:      0s 2ms 493300ns
 
 
 File:      en_us.json
-Size:      11,028 B
-GZip:      3,087 B
-Base64:    4,116 B
-Reduction: 62.7% [-6,912 B]
+Size:      23,690 B
+GZip:      6,377 B
+Base64:    8,504 B
+Reduction: 64.1% [-15,186 B]
 PASS:      True
-Time:      0s 1ms 458000ns
+Time:      0s 1ms 458500ns
 
 
-Total Time:      0s 9ms 414800ns
+Total Time:      0s 6ms 952100ns

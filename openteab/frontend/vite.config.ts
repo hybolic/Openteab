@@ -38,4 +38,12 @@ export default defineConfig({
   server: {
     port: 5555,
   },
+  //used to help find issues before its minified
+  // esbuild: {
+  //   pure: ['console.log'],    // example: have esbuild remove any console.log
+  //   minifyIdentifiers: false, // but keep variable names
+  // },
+  // build: {
+  //     minify: 'esbuild',
+  // }
 })
