@@ -1,6 +1,7 @@
 import { useConfig } from "../contexts/ConfigContext";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { useEffect, useState } from "react";
+import { PageIcons, Translate} from "../utils/ExtendedPageData";
 
 interface MerchantItem {
     name: string;
@@ -51,9 +52,9 @@ function ItemTable({ items, onChange, accent }: {
     return (
         <div className="item-table">
             <div className="item-table-header">
-                <span className="item-col-name">Item Name</span>
-                <span className="item-col-amount">Amount</span>
-                <span style={{ width: "70px", textAlign: "center", fontSize: "12px" }}>Buy All</span>
+                <span className="item-col-name">{Translate("merchant.item_name")}</span>
+                <span className="item-col-amount">{Translate("merchant.item_amount")}</span>
+                <span style={{ width: "70px", textAlign: "center", fontSize: "12px" }}>{Translate("merchant.buy_all")}</span>
             </div>
             {items.map((item, i) => (
                 <div key={item.name} className={`item-table-row ${item.enabled ? "item-row-active" : ""}`}>
@@ -83,7 +84,7 @@ function ItemTable({ items, onChange, accent }: {
                             onChange={() => toggle(i, "buyAll")}
                             className="item-checkbox"
                             style={{ accentColor: accent }}
-                            title="Buy maximum amount (uses Set to Max button)"
+                            title={Translate("merchant.max_buy_amount")}
                         />
                     </div>
                 </div>
@@ -197,50 +198,50 @@ export default function MerchantPage() {
     return (
         <>
             <div className="page-header">
-                <h2>Merchant</h2>
-                <p>Configure merchant detection and auto-purchase settings</p>
+                <h2>{Translate("merchant.merchant")}</h2>
+                <p>{Translate("merchant.merchant_description")}</p>
             </div>
 
             {/* Merchant Settings */}
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">🏪</div>
+                    <div className="card-icon">{PageIcons.Merchant}</div>
                     <div>
-                        <h3>Merchant Teleporter</h3>
-                        <p>Auto-use merchant teleporter to find merchants</p>
+                        <h3>{Translate("merchant.teleporter")}</h3>
+                        <p>{Translate("merchant.teleporter_description")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Enable Auto Merchant (requires merchant teleporter)"
-                    description="Use merchant teleporter item periodically"
+                    label={Translate("merchant.auto_merchant")}
+                    description={Translate("merchant.auto_merchant_description")}
                     checked={config.merchant_teleporter || false}
                     onChange={handleMerchantTeleporterToggle}
                 />
                 {config.merchant_teleporter && (
                     <div className="duration-input" style={{ marginTop: "6px", marginBottom: "10px" }}>
-                        <label className="form-label">Usage Duration:</label>
+                        <label className="form-label">{Translate("merchant.usage_duration")}:</label>
                         <input
                             className="form-input"
                             value={config.mt_duration || "1"}
                             onChange={(e) => updateConfig("mt_duration", e.target.value)}
                         />
-                        <span className="unit">min</span>
+                        <span className="unit">{Translate("common.min")}</span>
                     </div>
                 )}
 
                 <ToggleSwitch
-                    label="Detect merchant on chat (using OCR)"
-                    description="Periodically check the Roblox chat for merchant spawn messages"
+                    label={Translate("merchant.merchant_ocr")}
+                    description={Translate("merchant.merchant_ocr_description")}
                     checked={config.merchant_ocr || false}
                     onChange={handleMerchantOcrToggle}
                 />
                 {config.merchant_ocr && (
                     <div className="info-banner" style={{ marginTop: "10px", marginBottom: "10px" }}>
-                        <strong>Reminder:</strong> This only detects the merchant and pings you if found on Roblox chat, so you have to interact with the merchant yourself.
+                        <strong>{Translate("merchant.merchant_ocr_reminder")}:</strong>{" "}{Translate("merchant.merchant_ocr_text")}
                         <div className="form-row" style={{ marginTop: "10px" }}>
                             <div className="form-group">
-                                <label className="form-label">Check interval (in secs)</label>
+                                <label className="form-label">{Translate("merchant.merchant_ocr_interval")}</label>
                                 <input
                                     className="form-input"
                                     type="number"
@@ -255,16 +256,16 @@ export default function MerchantPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Auto Merchant in Limbo"
-                    description="Automatically interact with merchants in Limbo"
+                    label={Translate("merchant.auto_limbo")}
+                    description={Translate("merchant.auto_limbo_description")}
                     checked={config.auto_merchant_in_limbo || false}
                     onChange={(val) => updateConfig("auto_merchant_in_limbo", val)}
                 />
 
                 <div className="form-row" style={{ marginTop: "10px" }}>
                     <div className="form-group">
-                        <label className="form-label">Merchant item extra slot</label>
-                        <p className="form-hint">Extra slot if your mouse missed / cannot reach merchant's 5th slot</p>
+                        <label className="form-label">{Translate("merchant.extra_slot")}</label>
+                        <p className="form-hint">{Translate("merchant.extra_slot_description")}</p>
                         <input
                             className="form-input"
                             value={config.merchant_extra_slot || "0"}
@@ -278,15 +279,15 @@ export default function MerchantPage() {
             {/* Jester Exchange Settings */}
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">💱</div>
+                    <div className="card-icon">{PageIcons.JesterExchange}</div>
                     <div>
-                        <h3>Jester Exchange Settings</h3>
-                        <p>Configure auto-exchange logic after a certain amount of Jester autobuy</p>
+                        <h3>{Translate("merchant.jester_exchange")}</h3>
+                        <p>{Translate("merchant.jester_exchange_description")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Enable Jester Auto Exchange"
+                    label={Translate("merchant.enable_jester")}
                     checked={config.enable_jester_exchange || false}
                     onChange={(val) => updateConfig("enable_jester_exchange", val)}
                 />
@@ -294,7 +295,7 @@ export default function MerchantPage() {
                 {config.enable_jester_exchange && (
                     <div className="form-row" style={{ marginTop: "10px", marginBottom: "10px" }}>
                         <div className="form-group">
-                            <label className="form-label">Exchange every X jester spawns</label>
+                            <label className="form-label">{Translate("merchant.jester_exchange_x")}</label>
                             <input
                                 className="form-input"
                                 type="number"
@@ -313,13 +314,13 @@ export default function MerchantPage() {
                             className="card-header"
                             onClick={() => setJesterExchangeOpen(!jesterExchangeOpen)}
                             style={{ cursor: "pointer", userSelect: "none", padding: "10px", background: "rgba(0,0,0,0.1)", borderRadius: "6px" }}
-                            title="Click to toggle"
+                            title={Translate("common.click_to_toggle")}
                         >
                             <div style={{ flexGrow: 1 }}>
-                                <h4>Select Items to Exchange</h4>
+                                <h4>{Translate("merchant.select_items_to_exchange")}</h4>
                             </div>
                             <div style={{ fontSize: "1.2rem", color: "var(--text-secondary)", transform: jesterExchangeOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
-                                ▼
+                                {PageIcons.DOWN}
                             </div>
                         </div>
                         {jesterExchangeOpen && <ItemTable items={jesterExchangeItems} onChange={handleJesterExchangeChange} accent="#10b981" />}
@@ -330,22 +331,22 @@ export default function MerchantPage() {
             {/* Ping Settings */}
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">🔔</div>
+                    <div className="card-icon">{PageIcons.Ping}</div>
                     <div>
-                        <h3>Discord Pings</h3>
-                        <p>Get notified when merchants are found</p>
+                        <h3>{Translate("webhook.discord_pings")}</h3>
+                        <p>{Translate("merchant.notify_when_found")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Ping if Mari found?"
-                    description="Custom Ping UserID/RoleID"
+                    label={Translate("merchant.ping_mari")}
+                    description={Translate("webhook.custom_ping")}
                     checked={config.ping_mari || false}
                     onChange={(val) => updateConfig("ping_mari", val)}
                 />
                 {config.ping_mari && (
                     <div className="form-group" style={{ marginTop: "6px", marginBottom: "10px" }}>
-                        <label className="form-label">UserID / RoleID</label>
+                        <label className="form-label">{Translate("webhook.user_roleid")}</label>
                         <input
                             className="form-input"
                             value={config.mari_user_id || ""}
@@ -357,14 +358,14 @@ export default function MerchantPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Ping if Jester found?"
-                    description="Custom Ping UserID/RoleID"
+                    label={Translate("merchant.ping_jester")}
+                    description={Translate("webhook.custom_ping")}
                     checked={config.ping_jester || false}
                     onChange={(val) => updateConfig("ping_jester", val)}
                 />
                 {config.ping_jester && (
                     <div className="form-group" style={{ marginTop: "6px", marginBottom: "10px" }}>
-                        <label className="form-label">UserID / RoleID</label>
+                        <label className="form-label">{Translate("webhook.user_roleid")}</label>
                         <input
                             className="form-input"
                             value={config.jester_user_id || ""}
@@ -376,14 +377,14 @@ export default function MerchantPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Ping if Rin found?"
-                    description="Custom Ping UserID/RoleID"
+                    label={Translate("merchant.ping_rin")}
+                    description={Translate("webhook.custom_ping")}
                     checked={config.ping_rin || false}
                     onChange={(val) => updateConfig("ping_rin", val)}
                 />
                 {config.ping_rin && (
                     <div className="form-group" style={{ marginTop: "6px", marginBottom: "10px" }}>
-                        <label className="form-label">UserID / RoleID</label>
+                        <label className="form-label">{Translate("webhook.user_roleid")}</label>
                         <input
                             className="form-input"
                             value={config.rin_user_id || ""}
@@ -401,15 +402,15 @@ export default function MerchantPage() {
                     className="card-header"
                     onClick={() => setMariOpen(!mariOpen)}
                     style={{ cursor: "pointer", userSelect: "none" }}
-                    title="Click to toggle"
+                    title={Translate("common.click_to_toggle")}
                 >
-                    <div className="card-icon">🎒</div>
+                    <div className="card-icon">{PageIcons.Mari}</div>
                     <div style={{ flexGrow: 1 }}>
-                        <h3>Mari Item Settings</h3>
-                        <p>Select items to auto-purchase from Mari</p>
+                        <h3>{Translate("merchant.item_settings",[{from:"merchant",to:"Mari"}])}</h3>
+                        <p>{Translate("merchant.autopurchase_select_items",[{from:"merchant",to:"Mari"}])}</p>
                     </div>
                     <div style={{ fontSize: "1.2rem", color: "var(--text-secondary)", transform: mariOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
-                        ▼
+                        {PageIcons.DOWN}
                     </div>
                 </div>
                 {mariOpen && <ItemTable items={mariItems} onChange={handleMariChange} accent="#7c5bf5" />}
@@ -421,15 +422,15 @@ export default function MerchantPage() {
                     className="card-header"
                     onClick={() => setJesterOpen(!jesterOpen)}
                     style={{ cursor: "pointer", userSelect: "none" }}
-                    title="Click to toggle"
+                    title={Translate("common.click_to_toggle")}
                 >
-                    <div className="card-icon">🃏</div>
+                    <div className="card-icon">{PageIcons.Jester}</div>
                     <div style={{ flexGrow: 1 }}>
-                        <h3>Jester Item Settings</h3>
-                        <p>Select items to auto-purchase from Jester</p>
+                        <h3>{Translate("merchant.item_settings",[{from:"merchant",to:"Jester"}])}</h3>
+                        <p>{Translate("merchant.autopurchase_select_items",[{from:"merchant",to:"Jester"}])}</p>
                     </div>
                     <div style={{ fontSize: "1.2rem", color: "var(--text-secondary)", transform: jesterOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
-                        ▼
+                        {PageIcons.DOWN}
                     </div>
                 </div>
                 {jesterOpen && <ItemTable items={jesterItems} onChange={handleJesterChange} accent="#f59e0b" />}
@@ -441,15 +442,15 @@ export default function MerchantPage() {
                     className="card-header"
                     onClick={() => setRinOpen(!rinOpen)}
                     style={{ cursor: "pointer", userSelect: "none" }}
-                    title="Click to toggle"
+                    title={Translate("common.click_to_toggle")}
                 >
-                    <div className="card-icon">🦊</div>
+                    <div className="card-icon">{PageIcons.Rin}</div>
                     <div style={{ flexGrow: 1 }}>
-                        <h3>Rin Item Settings</h3>
-                        <p>Select items to auto-purchase from Rin</p>
+                        <h3>{Translate("merchant.item_settings",[{from:"merchant",to:"Rin"}])}</h3>
+                        <p>{Translate("merchant.autopurchase_select_items",[{from:"merchant",to:"Rin"}])}</p>
                     </div>
                     <div style={{ fontSize: "1.2rem", color: "var(--text-secondary)", transform: rinOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>
-                        ▼
+                        {PageIcons.DOWN}
                     </div>
                 </div>
                 {rinOpen && <ItemTable items={rinItems} onChange={handleRinChange} accent="#06b6d4" />}

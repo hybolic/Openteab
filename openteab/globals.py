@@ -13,12 +13,13 @@ import pyautogui
 from typing import Callable
 from time import sleep
 from autoit import win_activate
+from pathlib import Path
 
 class Roblox:
     def __init__(self):
         pass
-    logs = join_path(getenv("LOCALAPPDATA"), "Roblox", "logs")
-    versions = join_path(getenv("LOCALAPPDATA"), "Roblox", "Versions")
+    logs = Path(join_path(getenv("LOCALAPPDATA"), "Roblox", "logs"))
+    versions = Path(join_path(getenv("LOCALAPPDATA"), "Roblox", "Versions"))
     _roblox_fullscreened = False
 
     def _focus_window_hwnd(self, hwnd, max_attempts=20, sleep_between=0.25, other=None):
@@ -262,11 +263,12 @@ class Roblox:
 
         except Exception as e:
             self.error_logging(e, "Error in terminate_roblox_processes function.")
-
-
+del join_path
+def join_path(top:Path, next:Path|str) -> Path:
+    return top / next
 roblox = Roblox()
 class Openteab:
-    cwd = getcwd()
+    cwd = Path(getcwd())
     """ ./ """
     virtual_dir_name = ".python"
     current_version = "v2.1.8"

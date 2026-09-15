@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useConfig } from "../contexts/ConfigContext";
-import { type ExtendedProperties, PageIcons } from "../utils/ExtendedPageData";
+import { PageIcons, Translate } from "../utils/ExtendedPageData";
 
 type BuffSelection = [boolean, number];
 type BuffConfig = Record<string, BuffSelection>;
@@ -157,13 +157,10 @@ function getBiomeColor(config: Record<string, unknown>, biomeName: string, conte
     return FALLBACK_BIOME_COLORS[biomeName] ?? "#9ca3af";
 }
 
-export default function AutoPopBuffPage({langData}: ExtendedProperties) {
+export default function AutoPopBuffPage() {
     const { config, saveConfig, error, biomeColors: contextColors } = useConfig();
     const [selectedBiome, setSelectedBiome] = useState<string | null>(null);
-    if (!langData) { console.log("Error Loading LangData!"); return <div>Error Loading LangData!</div>}
-    const Autopop = langData.autopop
-
-
+    
     if (error) {
         return (
             <div style={{ padding: "20px", color: "#ef4444" }}>
@@ -232,7 +229,7 @@ export default function AutoPopBuffPage({langData}: ExtendedProperties) {
                     <div className="card-icon">{PageIcons.Autopop}</div>
                     <div>
                         <h3>{title}</h3>
-                        <p>{Autopop.enable_exact_triggers}</p>
+                        <p>{Translate("autopop.enable_exact_triggers")}</p>
                     </div>
                 </div>
 
@@ -262,12 +259,12 @@ export default function AutoPopBuffPage({langData}: ExtendedProperties) {
                                     </div>
                                     <div className="form-hint">
                                         {(enabledBuffs === 0) ? //if enabledBuffs is zero
-                                            Autopop.no_buff_selection
+                                            Translate("autopop.no_buff_selection")
                                             ://else
                                             (enabledBuffs === 1)? //if equal to one
-                                                Autopop.count.one 
+                                                Translate("autopop.count.one") 
                                                 ://else greater then
-                                                    (Autopop.count.many).replace("{count}", String(enabledBuffs))
+                                                    (Translate("autopop.count.many",[{from:"count",to:enabledBuffs}]))
                                         }
                                     </div>
                                 </div>
@@ -277,7 +274,7 @@ export default function AutoPopBuffPage({langData}: ExtendedProperties) {
                                     style={{ whiteSpace: "nowrap" }}
                                     onClick={() => setSelectedBiome(biomeName)}
                                 >
-                                    {Autopop.buff_selection}
+                                    {Translate("autopop.buff_selection")}
                                 </button>
 
                                 <label style={{ display: "flex", alignItems: "center", gap: "8px", whiteSpace: "nowrap", color: "var(--text-secondary)" }}>
@@ -287,7 +284,7 @@ export default function AutoPopBuffPage({langData}: ExtendedProperties) {
                                         onChange={(event) => updateBiomeEnabled(biomeName, event.target.checked)}
                                         style={{ width: "16px", height: "16px" }}
                                     />
-                                    {langData.common.enable}
+                                    {Translate("common.enable")}
                                 </label>
                             </div>
                         );
@@ -329,12 +326,12 @@ export default function AutoPopBuffPage({langData}: ExtendedProperties) {
                     >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", marginBottom: "18px" }}>
                             <div>
-                                <h3 style={{ margin: 0 }}>{Autopop.biome.selection.replace("{biome}", selectedBiome)}</h3>
+                                <h3 style={{ margin: 0 }}>{Translate("autopop.biome.selection",[{from:"biome",to:selectedBiome}])}</h3>
                                 <p style={{ margin: "6px 0 0 0", color: "var(--text-secondary)", fontSize: "13px" }}>
-                                    {Autopop.enable_pop_description}
+                                    {Translate("autopop.enable_pop_description")}
                                 </p>
                             </div>
-                            <button className="btn btn-secondary" onClick={() => setSelectedBiome(null)}>{langData.common.close}</button>
+                            <button className="btn btn-secondary" onClick={() => setSelectedBiome(null)}>{Translate("common.close")}</button>
                         </div>
 
                         <div className="buff-grid">
@@ -367,16 +364,16 @@ export default function AutoPopBuffPage({langData}: ExtendedProperties) {
             )}
 
             <div className="page-header">
-                <h2>{langData.nav.auto_pop_buff}</h2>
-                <p>{Autopop.autopop_description}</p>
+                <h2>{Translate("nav.auto_pop_buff")}</h2>
+                <p>{Translate("autopop.autopop_description")}</p>
             </div>
 
             <div className="info-banner" style={{ marginBottom: "16px" }}>
-                {Autopop.extra_info}
+                {Translate("autopop.extra_info")}
             </div>
 
-            {renderBiomeRows(Autopop.rare_biomes, rareBiomes)}
-            {renderBiomeRows(Autopop.other_biomes, otherBiomes)}
+            {renderBiomeRows(Translate("autopop.rare_biomes"), rareBiomes)}
+            {renderBiomeRows(Translate("autopop.other_biomes"), otherBiomes)}
         </>
     );
 }

@@ -1,6 +1,6 @@
 import { useConfig } from "../contexts/ConfigContext";
 import ToggleSwitch from "../components/ToggleSwitch";
-import { type ExtendedProperties, PageIcons} from "../utils/ExtendedPageData";
+import { Translate, PageIcons} from "../utils/ExtendedPageData";
 
 type FishingCalibrationItem = {
     key: string;
@@ -9,25 +9,23 @@ type FishingCalibrationItem = {
     fallback: number[];
 };
 
-export default function FishingPage({langData}:ExtendedProperties) {
-    if (!langData) return
+export default function FishingPage() {
     if (!PageIcons) return
     const { config, saveConfig, error } = useConfig();
 
-    const LABELS = langData.fishing.fishing_calibrations_labels
     const FISHING_CALIBRATIONS: FishingCalibrationItem[] = [
-        { key: "fishing_detect_pixel",              label: LABELS.fishing_detect_pixel, fallback: [1176, 836] },
-        { key: "fishing_click_position",            label: LABELS.fishing_click_position, fallback: [862, 843] },
-        { key: "fishing_midbar_sample_pos",         label: LABELS.fishing_midbar_sample_pos, fallback: [955, 767] },
-        { key: "fishing_close_button_pos",          label: LABELS.fishing_close_button_pos, fallback: [1113, 342] },
-        { key: "fishing_bar_region",                label: LABELS.fishing_bar_region, isRegion: true, fallback: [757, 762, 405, 21] },
-        { key: "fishing_flarg_dialogue_box",        label: LABELS.fishing_flarg_dialogue_box, fallback: [1046, 782] },
-        { key: "fishing_shop_open_button",          label: LABELS.fishing_shop_open_button, fallback: [616, 938] },
-        { key: "fishing_shop_sell_tab",             label: LABELS.fishing_shop_sell_tab, fallback: [1285, 312] },
-        { key: "fishing_shop_close_button",         label: LABELS.fishing_shop_close_button, fallback: [1458, 269] },
-        { key: "fishing_shop_first_fish",           label: LABELS.fishing_shop_first_fish, fallback: [827, 404] },
-        { key: "fishing_shop_sell_all_button",      label: LABELS.fishing_shop_sell_all_button, fallback: [662, 799] },
-        { key: "fishing_confirm_sell_all_button",   label: LABELS.fishing_confirm_sell_all_button, fallback: [800, 619] },
+        { key: "fishing_detect_pixel",              label: Translate("fishing.fishing_calibrations_labels.fishing_detect_pixel"), fallback: [1176, 836] },
+        { key: "fishing_click_position",            label: Translate("fishing.fishing_calibrations_labels.fishing_click_position"), fallback: [862, 843] },
+        { key: "fishing_midbar_sample_pos",         label: Translate("fishing.fishing_calibrations_labels.fishing_midbar_sample_pos"), fallback: [955, 767] },
+        { key: "fishing_close_button_pos",          label: Translate("fishing.fishing_calibrations_labels.fishing_close_button_pos"), fallback: [1113, 342] },
+        { key: "fishing_bar_region",                label: Translate("fishing.fishing_calibrations_labels.fishing_bar_region"), isRegion: true, fallback: [757, 762, 405, 21] },
+        { key: "fishing_flarg_dialogue_box",        label: Translate("fishing.fishing_calibrations_labels.fishing_flarg_dialogue_box"), fallback: [1046, 782] },
+        { key: "fishing_shop_open_button",          label: Translate("fishing.fishing_calibrations_labels.fishing_shop_open_button"), fallback: [616, 938] },
+        { key: "fishing_shop_sell_tab",             label: Translate("fishing.fishing_calibrations_labels.fishing_shop_sell_tab"), fallback: [1285, 312] },
+        { key: "fishing_shop_close_button",         label: Translate("fishing.fishing_calibrations_labels.fishing_shop_close_button"), fallback: [1458, 269] },
+        { key: "fishing_shop_first_fish",           label: Translate("fishing.fishing_calibrations_labels.fishing_shop_first_fish"), fallback: [827, 404] },
+        { key: "fishing_shop_sell_all_button",      label: Translate("fishing.fishing_calibrations_labels.fishing_shop_sell_all_button"), fallback: [662, 799] },
+        { key: "fishing_confirm_sell_all_button",   label: Translate("fishing.fishing_calibrations_labels.fishing_confirm_sell_all_button"), fallback: [800, 619] },
     ];
 
     function formatPoint(value: any, fallback: number[]) {
@@ -103,29 +101,29 @@ export default function FishingPage({langData}:ExtendedProperties) {
     return (
         <>
             <div className="page-header">
-                <h2>{langData.nav.fishing}</h2>
-                <p>{langData.fishing.description}</p>
+                <h2>{Translate("nav.fishing")}</h2>
+                <p>{Translate("fishing.description")}</p>
             </div>
 
             <div className="card">
                 <div className="card-header">
                     <div className="card-icon">{PageIcons.Fishing}</div>
                     <div>
-                        <h3>{langData.fishing.fishing_mode}</h3>
-                        <p>{langData.fishing.fishing_mode_description}</p>
+                        <h3>{Translate("fishing.fishing_mode")}</h3>
+                        <p>{Translate("fishing.fishing_mode_description")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label={langData.fishing.enable_fishing_mode}
-                    description={langData.fishing.enable_fishing_mode_description}
+                    label={Translate("fishing.enable_fishing_mode")}
+                    description={Translate("fishing.enable_fishing_mode_description")}
                     checked={fishingMode}
                     onChange={(val) => updateConfig("fishing_mode", val)}
                 />
 
                 <div className="form-row" style={{ marginTop: "8px" }}>
                     <div className="form-group">
-                        <label className="form-label">{langData.fishing.fishing_delay}</label>
+                        <label className="form-label">{Translate("fishing.fishing_delay")}</label>
                         <input
                             className="form-input"
                             value={config.fishing_actions_delay_ms ?? "100"}
@@ -137,9 +135,9 @@ export default function FishingPage({langData}:ExtendedProperties) {
 
                 <div className="form-row" style={{ marginTop: "15px", marginLeft: "10px", paddingBottom: "10px" }}>
                     <div className="form-group">
-                        <label className="form-label" style={{ fontWeight: "bold" }}>{langData.fishing.fishing_path_playback}</label>
+                        <label className="form-label" style={{ fontWeight: "bold" }}>{Translate("fishing.fishing_path_playback")}</label>
                         <p style={{ margin: "2px 0 8px 0", fontSize: "0.85em", color: "var(--text-color)", opacity: 0.8 }}>
-                            {langData.fishing.fishing_path_description}
+                            {Translate("fishing.fishing_path_description")}
                         </p>
                         <input
                             className="form-input"
@@ -159,27 +157,27 @@ export default function FishingPage({langData}:ExtendedProperties) {
                 </div>
                 {Number(config.fishing_playback_multiplier) < 1 && (
                     <div className="info-banner" style={{ marginTop: "5px", color: "var(--warning-color, #ffaa00)" }}>
-                        {langData.fishing.warning}
+                        {Translate("fishing.warning")}
                     </div>
                 )}
 
                 <ToggleSwitch
-                    label={langData.fishing.fishing_failsafe}
-                    description={langData.fishing.fishing_failsafe_description}
+                    label={Translate("fishing.fishing_failsafe")}
+                    description={Translate("fishing.fishing_failsafe_description")}
                     checked={fishingFailsafe}
                     onChange={handleFishingFailsafeToggle}
                 />
 
                 <ToggleSwitch
-                    label={langData.fishing.enable_fish_sell}
-                    description={langData.fishing.enable_fish_sell_description}
+                    label={Translate("fishing.enable_fish_sell")}
+                    description={Translate("fishing.enable_fish_sell_description")}
                     checked={fishSellingEnabled}
                     onChange={(val) => updateConfig("fishing_enable_selling", val)}
                 />
                 {fishSellingEnabled && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">{langData.fishing.enable_fish_sell_after_x}</label>
+                            <label className="form-label">{Translate("fishing.enable_fish_sell_after_x")}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_sell_after_x_fish ?? "30"}
@@ -188,7 +186,7 @@ export default function FishingPage({langData}:ExtendedProperties) {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">{langData.fishing.enable_fish_sell_amount}</label>
+                            <label className="form-label">{Translate("fishing.enable_fish_sell_amount")}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_sell_how_many_fish ?? "1"}
@@ -200,36 +198,36 @@ export default function FishingPage({langData}:ExtendedProperties) {
                 )}
 
                 <ToggleSwitch
-                    label={langData.fishing.equip_aura_before_move}
-                    description={langData.fishing.equip_aura_before_move_description}
+                    label={Translate("fishing.equip_aura_before_move")}
+                    description={Translate("fishing.equip_aura_before_move_description")}
                     checked={equipAuraBeforeMovement}
                     onChange={(val) => updateConfig("fishing_equip_aura_before_movement", val)}
                 />
                 {equipAuraBeforeMovement && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">{langData.fishing.equip_aura_before_move_name_to_equip}</label>
+                            <label className="form-label">{Translate("fishing.equip_aura_before_move_name_to_equip")}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_movement_aura_name || ""}
                                 onChange={(e) => updateConfig("fishing_movement_aura_name", e.target.value)}
                                 style={{ width: "220px" }}
-                                placeholder={langData.fishing.equip_aura_before_move_enter_name}
+                                placeholder={Translate("fishing.equip_aura_before_move_enter_name")}
                             />
                         </div>
                     </div>
                 )}
 
                 <ToggleSwitch
-                    label={langData.fishing.merchant_tele}
-                    description={langData.fishing.merchant_tele_description}
+                    label={Translate("fishing.merchant_tele")}
+                    description={Translate("fishing.merchant_tele_description")}
                     checked={fishingMerchantEnabled}
                     onChange={handleFishingMerchantMTPToggle}
                 />
                 {fishingMerchantEnabled && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">{langData.fishing.merchant_tele_use_every_x}</label>
+                            <label className="form-label">{Translate("fishing.merchant_tele_use_every_x")}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_merchant_every_x_fish ?? "30"}
@@ -241,15 +239,15 @@ export default function FishingPage({langData}:ExtendedProperties) {
                 )}
 
                 <ToggleSwitch
-                    label={langData.fishing.merchant_ocr}
-                    description={langData.fishing.merchant_ocr_description}
+                    label={Translate("fishing.merchant_ocr")}
+                    description={Translate("fishing.merchant_ocr_description")}
                     checked={config.fishing_use_merchant_ocr_every_x_fish || false}
                     onChange={handleFishingMerchantOCRToggle}
                 />
                 {config.fishing_use_merchant_ocr_every_x_fish && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">{langData.fishing.merchant_ocr_use_every_x}</label>
+                            <label className="form-label">{Translate("fishing.merchant_ocr_use_every_x")}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_merchant_ocr_every_x_fish_amt ?? "30"}
@@ -261,15 +259,15 @@ export default function FishingPage({langData}:ExtendedProperties) {
                 )}
 
                 <ToggleSwitch
-                    label={langData.fishing.use_br_sc}
-                    description={langData.fishing.use_br_sc_description}
+                    label={Translate("fishing.use_br_sc")}
+                    description={Translate("fishing.use_br_sc_description")}
                     checked={fishingBrScEnabled}
                     onChange={(val) => updateConfig("fishing_use_br_sc_every_x_fish", val)}
                 />
                 {fishingBrScEnabled && (
                     <div className="form-row" style={{ marginTop: "8px" }}>
                         <div className="form-group">
-                            <label className="form-label">{langData.fishing.use_br_sc_use_every_x}</label>
+                            <label className="form-label">{Translate("fishing.use_br_sc_use_every_x")}</label>
                             <input
                                 className="form-input"
                                 value={config.fishing_br_sc_every_x_fish ?? "30"}
@@ -282,7 +280,7 @@ export default function FishingPage({langData}:ExtendedProperties) {
 
                 {fishingMode && (
                     <div className="info-banner" style={{ marginTop: "10px" }}>
-                        {langData.fishing.fishing_mode_warning}
+                        {Translate("fishing.fishing_mode_warning")}
                     </div>
                 )}
             </div>
@@ -291,8 +289,8 @@ export default function FishingPage({langData}:ExtendedProperties) {
                 <div className="card-header">
                     <div className="card-icon">{PageIcons.Fishing_cal}</div>
                     <div>
-                        <h3>{langData.fishing.fishing_calibration}</h3>
-                        <p>{langData.fishing.fishing_calibration_description}</p>
+                        <h3>{Translate("fishing.fishing_calibration")}</h3>
+                        <p>{Translate("fishing.fishing_calibration_description")}</p>
                     </div>
                 </div>
 
@@ -302,7 +300,7 @@ export default function FishingPage({langData}:ExtendedProperties) {
                         style={{ whiteSpace: "nowrap", padding: "6px 12px" }}
                         onClick={displayAllCalibrationsOnScreen}
                     >
-                        {langData.fishing.osd_calibration}
+                        {Translate("fishing.osd_calibration")}
                     </button>
                 </div>
 

@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { type ExtendedProperties, PageIcons} from "../utils/ExtendedPageData";
+import { Translate, openteab, PageIcons} from "../utils/ExtendedPageData";
 
-export default function DonationsPage({langData}:ExtendedProperties) {
+export default function DonationsPage() {
     const [donators, setDonators] = useState<string>("Loading appreciation list...");
-    if(!langData)return
     useEffect(() => {
-        fetch("https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/appreciation_list.txt")
+        fetch(openteab.donations.url)
             .then(res => res.text())
             .then(text => setDonators(text))
             .catch(err => setDonators("Unable to load appreciation list.\n" + err));
@@ -14,32 +13,32 @@ export default function DonationsPage({langData}:ExtendedProperties) {
     return (
         <>
             <div className="page-header">
-                <h2>{langData.nav.donations}</h2>
-                <p>{langData.donate.description}</p>
+                <h2>{Translate("nav.donations")}</h2>
+                <p>{Translate("donate.description")}</p>
             </div>
 
             <div className="card">
                 <div className="card-header">
                     <div className="card-icon">{PageIcons.SupportUs}</div>
                     <div>
-                        <h3>{langData.credits.support}</h3>
-                        <p>{langData.donate.help_project}</p>
+                        <h3>{Translate("credits.support")}</h3>
+                        <p>{Translate("donate.help_project")}</p>
                     </div>
                 </div>
 
                 <div style={{ padding: "0 15px 15px 15px", color: "var(--text-secondary)", lineHeight: "1.6" }}>
                     <p style={{ marginBottom: "12px" }}>
-                        {langData.donate.p1}
+                        {Translate("donate.p1")}
                     </p>
                     <p style={{ marginBottom: "12px" }}>
-                        {langData.donate.p2}
+                        {Translate("donate.p2")}
                     </p>
                     <p style={{ marginBottom: "15px" }}>
-                        {langData.donate.p3}
+                        {Translate("donate.p3")}
                     </p>
 
                     <a
-                        href="https://www.roblox.com/games/18203398779/Medival-castle#!/store"
+                        href={openteab.donations.link}
                         target="_blank"
                         rel="noreferrer"
                         className="btn btn-accent"
@@ -52,10 +51,10 @@ export default function DonationsPage({langData}:ExtendedProperties) {
                             alignItems: "center"
                         }}
                     >
-                        {langData.donate.gamepass_store}
+                        {Translate("donate.gamepass_store")}
                     </a>
                     <div style={{ textAlign: "center", marginTop: "8px", fontSize: "12px", opacity: 0.7 }}>
-                        https://www.roblox.com/games/18203398779/Medival-castle#!/store
+                        {openteab.donations.link}
                     </div>
                 </div>
             </div>
@@ -64,8 +63,8 @@ export default function DonationsPage({langData}:ExtendedProperties) {
                 <div className="card-header">
                     <div className="card-icon">{PageIcons.Donator}</div>
                     <div>
-                        <h3>{langData.credits.donators}</h3>
-                        <p>{langData.donate.donator_update}</p>
+                        <h3>{Translate("credits.donators")}</h3>
+                        <p>{Translate("donate.donator_update")}</p>
                     </div>
                 </div>
 

@@ -65,7 +65,7 @@ def PreLaunch():
     #### STATIC DEFINITIONS ####
     retry = 0 # used for import tester
     WORKING_DIR       = abspath(dirname(sys.argv[0]))
-    virtual_dir_abs   = "'"+openteab.venv+"'"
+    virtual_dir_abs   = "'"+str(openteab.venv)+"'"
     requirements_path = ".\\requirements.txt"
 
     #required!
@@ -91,8 +91,8 @@ def PreLaunch():
     def active_venv():
 
         #script location
-        activatorpy = openteab.venv_activate_this
-        activator   = openteab.venv_activate
+        activatorpy = str(openteab.venv_activate_this)
+        activator   = str(openteab.venv_activate)
         
         #enter virtual enviroment
         activator_command = activator + " & "
@@ -101,21 +101,21 @@ def PreLaunch():
         UpgradePip = (
             "" + activator_command +
             # upgrade pip
-            "" + openteab.python_exe + " -m pip install --upgrade pip" )
+            "" + str(openteab.python_exe) + " -m pip install --upgrade pip" )
         
         #install requirements.txt
         InstallRequirements = (
             #enter virtual enviroment
             "" + activator_command +
             #install requirements
-            "" + openteab.pip_exe + " install --no-input -r " + requirements_path)
+            "" + str(openteab.pip_exe) + " install --no-input -r " + requirements_path)
         
         #check if we are in an venv if not we make and enter one. this keeps the main python install clean
         if not (sys.prefix != (getattr(sys, "base_prefix", None) or getattr(sys, "real_prefix", None) or sys.prefix)) or not exists(openteab.venv + "/pyvenv.cfg"):
             print_log("FORCING VIRTUAL ENVIROMENT")
             
             #check if path exists
-            if not (exists(openteab.venv) and exists(openteab.venv + "/pyvenv.cfg")):
+            if not (exists(openteab.venv) and exists(openteab.venv / "pyvenv.cfg")):
                 #build venv
                 virtual = EnvBuilder(with_pip=True)
                 virtual.create(env_dir=openteab.venv)
@@ -189,8 +189,8 @@ def PreLaunch():
     #### END OF VENV LOADER ###
     
     #### NODE.js ####
-    frontend_dist = join_path(openteab.frontend, "dist")
-    frontend_file = join_path(frontend_dist,     "index.html")
+    frontend_dist = openteab.frontend / "dist"
+    frontend_file = openteab.frontend / "index.html"
 
     def is_frontend_availible():
         if not exists(frontend_file):
@@ -233,16 +233,19 @@ def PreLaunch():
             for resource in resources:
                 if resource in seen:
                     continue
+                #ignore main.tsx
+                if resource == "/src/main.tsx":
+                    continue
                 resource_path = resource.lstrip("/").replace("./","/").replace("/", "\\")
                 resource_abs = join_path(frontend_dist, resource_path.lstrip("\\"))
-                if resource_abs == frontend_dist: continue
-                if resource_path.startswith(frontend_dist+"\\"): continue
+                if str(resource_abs) == frontend_dist: continue
+                if resource_path.startswith(str(frontend_dist)+"\\"): continue
                 seen.add(resource)
                 if not exists(resource_abs):
-                    print("file missing! " + resource_abs + " " + resource_path + " " + resource, type="FileCheck")
+                    print("file missing! " + str(resource_abs) + " " + resource_path + " " + resource, type="FileCheck")
                     return False
                 else:
-                    print("file found! " + resource_abs, type="FileCheck")
+                    print("file found! " + str(resource_abs), type="FileCheck")
             print("all files found! " + ", ".join(seen), type="FileCheck")
         except Exception as e:
             print_exception(e)

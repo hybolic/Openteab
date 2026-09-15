@@ -104,7 +104,9 @@
         "desc" : "You just rejoined a server that has a <b style={{ color: '#ff6b6b' }}>rare biome</b> active.<br />Did you forget to close the macro before joining?<br /><br />If you forgot, the macro will <b style={{ color: '#ff6b6b' }}>stop immediately!!</b>",
         "confirm" : "✅ Nah. I'm good, keep this tuff macro running 🗣️🔥",
         "cancel" : "❌ I forgot to turn the macro off please spare me 😭🥀",
-        "response" :"Response sent!"
+        "response" :"Response sent!",
+        "auto_continue_in_x":"Auto-continuing in {countdown}s...",
+        "auto_continue":"Auto-continuing..."
     },
     "calibration": {
         "mouse_action_req":{
@@ -250,6 +252,9 @@
         "apply_preset":"Apply Preset",
         "presets_not_found":"Presets not found on github or failed to fetch.",
         "click_to_view_edit":"Click to view/edit coordinates",
+        "mouse_action_calibration":"Mouse Action Calibration Requirements",
+        "mouse_action_calibration_description":"Feature-to-calibration tracking for actions that use mouse inputs",
+        "mouse_action_ocr_note":"Note: Features using OCR failsafe also require calibrating First Item Slot OCR Region under Inventory Click Calibration.",
         "overwrite_box":
         {
             "overrite" : "Overwrite Calibrations?",
@@ -334,20 +339,47 @@
         }
     },
     "merchant": {
+        "merchant":"Merchant",
+        "merchant_description":"Configure merchant detection and auto-purchase settings",
+        "item_name":"Item Name",
+        "item_amount":"Amount",
+        "buy_all": "Buy All",
+        "select_items_to_exchange":"Select Items to Exchange",
+        "max_buy_amount":"Buy maximum amount (uses Set to Max button)",
         "teleporter": "Merchant Teleporter",
-        "rareBiomeActions": "Rare Biome Actions",
-        "pingMari": "Ping if Mari found?",
-        "pingJester": "Ping if Jester found?",
-        "pingRin": "Ping if Rin found?"
+        "teleporter_description":"Auto-use merchant teleporter to find merchants",
+        "auto_merchant":"Enable Auto Merchant (requires merchant teleporter)",
+        "auto_merchant_description":"Use merchant teleporter item periodically",
+        "usage_duration":"Usage Duration",
+        "merchant_ocr":"Detect merchant on chat (using OCR)",
+        "merchant_ocr_description":"Periodically check the Roblox chat for merchant spawn messages",
+        "merchant_ocr_reminder":"Reminder",
+        "merchant_ocr_text":"This only detects the merchant and pings you if found on Roblox chat, so you have to interact with the merchant yourself.",
+        "merchant_ocr_interval":"Check interval (in secs)",
+        "auto_limbo":"Auto Merchant in Limbo",
+        "auto_limbo_description":"Automatically interact with merchants in Limbo",
+        "extra_slot":"Merchant item extra slot",
+        "extra_slot_description":"Extra slot if your mouse missed / cannot reach merchant's 5th slot",
+        "enable_jester":"Enable Jester Auto Exchange",
+        "jester_exchange":"Jester Exchange Settings",
+        "jester_exchange_description":"Configure auto-exchange logic after a certain amount of Jester autobuy",
+        "jester_exchange_x":"Exchange every X jester spawns",
+        "notify_when_found": "Get notified when merchants are found",
+        "ping_mari":"Ping if Mari found?",
+        "ping_jester":"Ping if Jester found?",
+        "ping_rin":"Ping if Rin found?",
+        "item_settings":"{merchant} Item Settings",
+        "autopurchase_select_items" : "Select items to auto-purchase from {merchant}"
     },
     "webhook": {
-        "discordPings": "Discord Pings",
+        "discord_pings": "Discord Pings",
         "customization": "Discord Webhook Customization",
         "test": "Test Webhooks",
-        "privateServer": "Private Server Link",
-        "userOrRoleId": "User/Role ID",
-        "userId": "User ID",
-        "roleId": "Role ID"
+        "private_server": "Private Server Link",
+        "custom_ping":"Custom Ping UserID/RoleID",
+        "user_roleid": "UserID/RoleID",
+        "userid": "User ID",
+        "roleid": "Role ID"
     },
     "custimization": {
         "dynamic_configure_biome":"Dynamically configure what your webhook embeds look like when a biome starts",
@@ -498,6 +530,9 @@
         "start":"Start",
         "stop":"Stop",
         "enable":"Enable",
-        "disable":"Disable"
+        "disable":"Disable",
+        "min":"min",
+        "max":"max",
+        "click_to_toggle":"Click to toggle"
     }
 }

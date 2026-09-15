@@ -1,0 +1,16 @@
+{
+    "umamusume_mambo_dancing":{
+        "emote":":umamusume_mambo_dancing:",
+        "url":"/api/emote?file=mambo-dancing",
+        "klipy":
+        {
+            "slug":"mambo-dancing",
+            "fallback":"https://static2.klipy.com/ii/2fd1ee858360694ebc7272832a866c2b/0d/9e/XNlKvEr2fq3CD2M.gif",
+            "file_type":"GIF"
+        }
+    },
+    "aga":{
+        "emote":":aga:",
+        "url":"/api/emote?file=aga"
+    }
+}

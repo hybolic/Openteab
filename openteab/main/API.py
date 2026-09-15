@@ -104,7 +104,7 @@ import requests
 
 ASSETS = Path(openteab.assets)
 
-GithubURL = "https://raw.githubusercontent.com/hybolic/Openteab/Openteab/external_assets/compressed/API/JSON/"
+GithubURL = "https://raw.githubusercontent.com/hybolic/Openteab/Openteab/external_assets/compressed/API/JSON"
 
 
 class jtypes_storage:
@@ -144,11 +144,14 @@ class API:
 
     @staticmethod
     def getJsonFile(file:str,type:jtypes_storage.TYPE=JSON_TYPES.OTHER,encoding="utf-8", MINIFY_OUTPUT=False): 
-        file_path = Path(type) / file
+        file_path = Path(type) / f"{file.removesuffix('.json')}.json"
         if not file_path.exists():
             print(f"file not found \'{file}\', Downloading latest from github!")
-            URLS =[ GithubURL + file + ".gz.b54",
-                    GithubURL + file.rstrip(".json") + ".gz.b54"]
+            special_type = "/"
+            if type.name != "":
+                special_type = f"/{type.name.upper()}/"
+            URLS =[ f"{GithubURL}{special_type}{file.removesuffix('.json')}.json.gz.b64",
+                    f"{GithubURL}{special_type}{file.removesuffix('.json')}.gz.b64"]
             for url in URLS:
                 print(f"Trying {url}")
                 response = requests.get(url,timeout=10)
@@ -165,10 +168,12 @@ class API:
             with open(str(file_path) + ".temp", "wb") as outfile:
                 outfile.write(decompressed_data)
         else:
+            print(f"file exists! {str(file_path)}")
             with open(file_path,"r",encoding=encoding) as json_file:
                 json_text = json_file.read()
         if MINIFY_OUTPUT:
             json_text = json.dumps(json.loads(json_text),separators=(",",":"))
         return json_text
         
-API.getJsonFile("c.json")
+API.getJsonFile("en_us", type=JSON_TYPES.LANG)
+API.getJsonFile("credits", type=JSON_TYPES.CREDITS)

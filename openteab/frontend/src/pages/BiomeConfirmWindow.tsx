@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import "../App.css";
-import { type ExtendedProperties/*, PageIcons*/ } from "../utils/ExtendedPageData";
+import { /*type ExtendedProperties, PageIcons,*/ Translate } from "../utils/ExtendedPageData";
 
-export default function BiomeConfirmWindow({langData}: ExtendedProperties) {
-    if (!langData) { console.log("Error Loading LangData!"); return <div>Error Loading LangData!</div>}
+export default function BiomeConfirmWindow() {
     const params = new URLSearchParams(window.location.search);
     const biome = (window as any).__INJECTED_BIOME__ || params.get("biome") || "UNKNOWN";
 
@@ -70,7 +69,7 @@ export default function BiomeConfirmWindow({langData}: ExtendedProperties) {
                 color: "#ff6b6b",
                 marginBottom: "8px",
             }}>
-                {langData.biome_confirm_window.rare_biome_after_rejoin}
+                {Translate("biome_confirm_window.rare_biome_after_rejoin")}
             </h2>
 
             <div style={{
@@ -88,7 +87,7 @@ export default function BiomeConfirmWindow({langData}: ExtendedProperties) {
                 color: "var(--text-secondary)",
                 marginBottom: "20px",
             }}>
-                {langData.biome_confirm_window.desc}
+                {Translate("biome_confirm_window.desc")}
             </p>
 
             {!responded ? (
@@ -106,7 +105,7 @@ export default function BiomeConfirmWindow({langData}: ExtendedProperties) {
                             color: "#fff",
                         }}
                     >
-                        {langData.biome_confirm_window.confirm}
+                        {Translate("biome_confirm_window.confirm")}
                     </button>
                     <button
                         onClick={handleCancel}
@@ -121,12 +120,12 @@ export default function BiomeConfirmWindow({langData}: ExtendedProperties) {
                             color: "#fff",
                         }}
                     >
-                        {langData.biome_confirm_window.cancel}
+                        {Translate("biome_confirm_window.cancel")}
                     </button>
                 </div>
             ) : (
                 <div style={{ fontSize: "14px", color: "var(--accent)" }}>
-                    {langData.biome_confirm_window.response}
+                    {Translate("biome_confirm_window.response")}
                 </div>
             )}
 
@@ -136,8 +135,7 @@ export default function BiomeConfirmWindow({langData}: ExtendedProperties) {
                 color: "var(--text-secondary)",
                 opacity: 0.6,
             }}>
-                {/* TODO: add this to translation using same thign from other page */}
-                {responded ? "" : countdown > 0 ? `Auto-continuing in ${countdown}s...` : "Auto-continuing..."}
+                {responded ? "" : countdown > 0 ? Translate("biome_confirm_window.auto_continue_in_x",[{from:"countdown",to:countdown}]): Translate("biome_confirm_window.auto_continue")}
             </div>
         </div>
     );

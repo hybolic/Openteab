@@ -1,11 +1,9 @@
 import { useConfig } from "../contexts/ConfigContext";
 import { useState, useEffect, useRef } from "react";
-import { type ExtendedProperties} from "../utils/ExtendedPageData";
+import { openteab, Translate} from "../utils/ExtendedPageData";
 
-export default function CustomizationPage({langData}:ExtendedProperties) {
-    const { config, saveConfig } = useConfig();
-    if (!langData)
-        return
+export default function CustomizationPage() {
+    const { config, saveConfig } = useConfig()
     const handleSave = (newConfig: any) => {
         saveConfig(newConfig as any);
     };
@@ -142,8 +140,8 @@ export default function CustomizationPage({langData}:ExtendedProperties) {
     return (
         <div className="page-container fade-in" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
             <div className="page-header">
-                <h2>{langData.webhook.customization}</h2>
-                <p>{langData.custimization.dynamic_configure_biome}</p>
+                <h2>{Translate("webhook.customization")}</h2>
+                <p>{Translate("custimization.dynamic_configure_biome")}</p>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "10px", minHeight: "0", maxWidth: "560px", margin: "0 auto", paddingBottom: "30px" }}>
@@ -167,14 +165,14 @@ export default function CustomizationPage({langData}:ExtendedProperties) {
                         <div style={{ 
                             width: "40px", height: "40px", borderRadius: "50%", 
                             backgroundColor: "#5865F2", flexShrink: 0,
-                            backgroundImage: "url('https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png')",
+                            backgroundImage: "url('" + openteab.icon_url + "')",
                             backgroundSize: "cover"
                         }}></div>
                         
                         {/* Message Content */}
                         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
                             <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "2px", flexWrap: "wrap" }}>
-                                <span style={{ color: "#F2F3F5", fontSize: "15px", fontWeight: "500", lineHeight: "1.2" }}>{langData.custimization.webhook_name_example}</span>
+                                <span style={{ color: "#F2F3F5", fontSize: "15px", fontWeight: "500", lineHeight: "1.2" }}>{Translate("custimization.webhook_name_example")}</span>
                                 <span style={{ 
                                     backgroundColor: "#5865F2", color: "#FFFFFF", fontSize: "9px", 
                                     padding: "0 4px", borderRadius: "3px", fontWeight: "600",
@@ -255,7 +253,7 @@ export default function CustomizationPage({langData}:ExtendedProperties) {
                                         gap: "6px", 
                                         marginTop: "4px" 
                                     }}>
-                                        <img src="https://i.postimg.cc/rsXpGncL/Noteab-Biome-Tracker.png" style={{ width: "16px", height: "16px", borderRadius: "50%" }} alt="footer" />
+                                        <img src={openteab.icon_url} style={{ width: "16px", height: "16px", borderRadius: "50%" }} alt="footer" />
                                         <span style={{ color: "#949BA4", fontSize: "11px", fontWeight: "500" }}>Coteab Macro v2.1.6-beta1 • Today at {now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                                     </div>
                                 </div>
@@ -284,8 +282,8 @@ export default function CustomizationPage({langData}:ExtendedProperties) {
                 {/* MIDDLE: Select Biome */}
                 <div className="card" title="Scroll with your mouse wheel here to quickly cycle through biomes!">
                     <label className="form-label" style={{ display: "flex", justifyContent: "space-between" }}>
-                        {langData.custimization.select_biome}
-                        <span style={{ fontSize: "0.8em", color: "#64748b", fontWeight: "normal" }}>{langData.custimization.scrollwheel}</span>
+                        {Translate("custimization.select_biome")}
+                        <span style={{ fontSize: "0.8em", color: "#64748b", fontWeight: "normal" }}>{Translate("custimization.scrollwheel")}</span>
                     </label>
                     <select 
                         ref={selectRef}
@@ -304,9 +302,9 @@ export default function CustomizationPage({langData}:ExtendedProperties) {
                 <div className="card" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                         <div>
                             <label className="form-label" style={{ display: "flex", justifyContent: "space-between" }}>
-                                {langData.custimization.hex_color}
+                                {Translate("custimization.hex_color")}
                                 <a href="#" style={{ color: "#0ea5e9", fontSize: "0.8em", textDecoration: "none" }} onClick={(e) => { e.preventDefault(); if ((window as any).pywebview) (window as any).pywebview.api.open_url("https://htmlcolorcodes.com/"); }}>
-                                    {langData.custimization.get_colors}
+                                    {Translate("custimization.get_colors")}
                                 </a>
                             </label>
                             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -328,7 +326,7 @@ export default function CustomizationPage({langData}:ExtendedProperties) {
                         </div>
 
                         <div>
-                            <label className="form-label">{langData.custimization.thumbnail_url}</label>
+                            <label className="form-label">{Translate("custimization.thumbnail_url")}</label>
                             <input 
                                 type="text" 
                                 className="form-input" 
@@ -342,7 +340,7 @@ export default function CustomizationPage({langData}:ExtendedProperties) {
 
                         
                         <button className="btn btn-primary" style={{ backgroundColor: "#d97706", marginTop: "10px" }} onClick={saveBiomes}>
-                            {langData.common.save_config}{" "}{langData.custimization.save_config}
+                            {Translate("common.save_config")}{" "}{Translate("custimization.save_config")}
                         </button>
                     </div>
                 </div>
