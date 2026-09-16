@@ -21,9 +21,9 @@ current list of translate friendly tsx files completed for frontend
  - - [X] DonationsPage
  - - [X] FishingPage
  - - [X] MerchantPage
- - - [ ] MiscPage
- - - [ ] MovementsPage
- - - [ ] NoticePage
+ - - [X] MiscPage
+ - - [X] MovementsPage
+ - - [X] NoticePage
  - - [ ] OtherFeaturesPage
  - - [ ] PathingPage
  - - [ ] PotionCraftPage
@@ -33,3 +33,15 @@ current list of translate friendly tsx files completed for frontend
  - - [ ] StatsPage
  - - [ ] StatusPage
  - - [ ] WebhookPage
+
+
+
+
+NOTE:
+regex help
+langData\.(\w+(?:(?!\.replace)\.\w+\?{0,1})+)(?!")
+Translate("$1")
+
+
+
+[LINK=openteab.macro_calibration_youtube_long]{openteab.macro_calibration_youtube_long}

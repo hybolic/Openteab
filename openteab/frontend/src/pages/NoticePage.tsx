@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import React from "react";
+import { Translate, openteab } from "../utils/ExtendedPageData";
 
 export default function NoticePage() {
     const [content, setContent] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch("https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/noticetabcontents.txt")
+        fetch(openteab.notice_tab_contents)
             .then(res => res.text())
             .then(text => {
                 setContent(text);
@@ -61,31 +62,28 @@ export default function NoticePage() {
     return (
         <>
             <div className="page-header">
-                <h2>Notice</h2>
-                <p>Latest updates and patch notes</p>
+                <h2>{Translate("nav.notice")}</h2>
+                <p>{Translate("notice.description")}</p>
             </div>
 
             <div className="info-banner">
-                📺 New to Coteab? Watch the tutorial:{" "}
-                <a href="https://www.youtube.com/watch?v=dZzQytUMlCE" target="_blank" rel="noreferrer">
-                    https://www.youtube.com/watch?v=dZzQytUMlCE
-                </a>
+                {Translate("notice.new_to_macro")}
             </div>
 
             {loading ? (
                 <div style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>
-                    Loading notices...
+                    {Translate("common.loading")}
                 </div>
             ) : content ? (
                 parseNotice(content)
             ) : (
                 <div style={{ padding: "20px", textAlign: "center", color: "var(--text-danger)" }}>
-                    Failed to load notices. Please check your connection.
+                    {Translate("common.alert.failed_to_load_notice")}
                 </div>
             )}
 
             <div className="info-banner" style={{ marginTop: "16px" }}>
-                🌐 <a href="https://discord.gg/coteab" target="_blank" rel="noreferrer">JOIN OUR DEVELOPMENT SERVER</a> to keep in touch with the latest Coteab Macro updates!
+                {Translate("notice.updates_link")}
             </div>
         </>
     );

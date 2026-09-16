@@ -38,8 +38,8 @@ export default function FishingPage() {
         return `[${Number(arr[0]) || 0}, ${Number(arr[1]) || 0}, ${Number(arr[2]) || 0}, ${Number(arr[3]) || 0}]`;
     }
 
-    if (error) return <div style={{ padding: "20px", color: "red" }}>Error: {error}</div>;
-    if (!config) return <div style={{ padding: "20px" }}>Loading...</div>;
+    if (error) return <div style={{ padding: "20px", color: "red" }}>{Translate("common.error",[{from:"error",to:error}])}</div>;
+    if (!config) return <div style={{ padding: "20px" }}>{Translate("common.loading")}</div>;
 
     const updateConfig = (key: string, value: any) => {
         saveConfig({ ...config, [key]: value });
@@ -54,7 +54,7 @@ export default function FishingPage() {
         const reconnectEnabled = Boolean(config.auto_reconnect);
         if (!reconnectEnabled) {
             updateConfig("fishing_failsafe_rejoin", false);
-            alert("you need to enable reconnect feature for fishing failsafe to work");
+            alert(Translate("common.alert.enable_reconnect"));
             if (typeof (window as any).onNavigateTab === "function") {
                 (window as any).onNavigateTab("misc");
             }
@@ -66,7 +66,7 @@ export default function FishingPage() {
 
     const handleFishingMerchantMTPToggle = (enabled: boolean) => {
         if (enabled && config.fishing_use_merchant_ocr_every_x_fish) {
-            alert("Please disable 'Check merchant on roblox chat (OCR) every x fishes' before enabling the Auto Merchant using Merchant Teleporter every x fishes.");
+            alert(Translate("common.alert.disable_check_merchant_ocr"));
             return;
         }
         updateConfig("fishing_use_merchant_every_x_fish", enabled);
@@ -74,7 +74,7 @@ export default function FishingPage() {
 
     const handleFishingMerchantOCRToggle = (enabled: boolean) => {
         if (enabled && config.fishing_use_merchant_every_x_fish) {
-            alert("Please disable 'Use merchant teleporter every x fishes' before enabling merchant OCR detection.");
+            alert(Translate("common.alert.disable_check_merchant_tele"));
             return;
         }
         updateConfig("fishing_use_merchant_ocr_every_x_fish", enabled);
@@ -94,7 +94,7 @@ export default function FishingPage() {
             }
         } catch (e) {
             console.error("Failed to display fishing calibrations on screen:", e);
-            alert("Failed to display fishing calibrations on screen: " + e);
+            alert(Translate("common.alert.failed_to_display_fishing_calibration",[{from:"error",to:String(e)}]));
         }
     };
 

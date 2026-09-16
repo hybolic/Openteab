@@ -1,26 +1,26 @@
-2026-09-15 09:29:33
+2026-09-16 07:57:23
 File:      credits.json
 Size:      4,885 B
 GZip:      1,066 B
 Base64:    1,424 B
 Reduction: 70.8% [-3,461 B]
 PASS:      True
-Time:      0s 2ms 529200ns
+Time:      0s 2ms 294200ns
 
 
 
 File:      en_us.json
-Size:      26,072 B
-GZip:      6,979 B
-Base64:    9,308 B
-Reduction: 64.3% [-16,764 B]
+Size:      32,750 B
+GZip:      8,608 B
+Base64:    11,480 B
+Reduction: 64.9% [-21,270 B]
 PASS:      True
-Time:      0s 1ms 729100ns
+Time:      0s 1ms 914500ns
 
 
-Python Object FileOut:      0s 2ms 46900ns
+Python Object FileOut:      0s 2ms 115800ns
 
 
 
-Process Time:      0s 4ms 258300ns
-Total Time:        0s 9ms 493000ns
+Process Time:      0s 4ms 208700ns
+Total Time:        0s 9ms 658300ns

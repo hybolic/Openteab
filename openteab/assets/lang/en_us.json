@@ -18,6 +18,74 @@
         "status": "Status",
         "webhook": "Webhook"
     },
+    "notice":{
+        "description":"Latest updates and patch notes",
+        "new_to_macro":"📺 New to Coteab? Watch the tutorial: [LINK=openteab.coteab_discord]{openteab.coteab_discord}",
+        "updates_link":"🌐 [LINK=openteab.coteab_discord]{JOIN OUR DEVELOPMENT SERVER} to keep in touch with the latest Coteab Macro updates!"
+    },
+    "movements":{
+        "description":"Automated movement and pathing configurations",
+        "general_pathing":"General Pathing Settings",
+        "vip_label":"Non-VIP Movement Path",
+        "vip_description":"Slow down to applied movement paths (basic obby, fishing, etc...) to compensate for non-VIP walkspeed",
+        "close_chat_label":"Close Roblox chat before pathing (DO MACRO CALIBRATION - IMPORTANT)",
+        "close_chat_description":"Automatically close the in-game chat using OCR detection before obby/fishing/events path sequences",
+        "basic_obby":"Basic Obby",
+        "obby":{
+            "label":"Auto complete Basic Obby",
+            "float_label":"Use aura that can float on water",
+            "aura_name":"Aura Name:",
+            "aura_placeholder":"e.g. Sailor"
+        }
+
+    },
+    "misc":{
+        "misc_description":"General automation, recovery, screenshot, and quest settings",
+        "win_ocr_status":"WinOCR Status:",
+        "win_ocr_failsafe":"— OCR failsafe will not work (if WinOCR isn't installed, ask macro helper to assist you with this!)",
+        "item_usage":"Item Usage",
+        "item_usage_description":"Configure BR, SC, reconnect, and OCR safeguards",
+        "ocr_failsafe_label":"OCR failsafe",
+        "ocr_failsafe_description":"Prevent wrong item usage by validating the first inventory slot before clicking Use",
+        "label_biome_randomizer":"Biome Randomizer (BR)",
+        "label_strange_controller":"Strange Controller (SC)",
+        "do_not_use_during":"Do NOT use BR/SC during these biomes:",
+        "note_blocked":"Note: GLITCHED, DREAMSPACE, CYBERSPACE are always blocked when using br/sc :aga:",
+        "auto_reconnect_label":"Auto reconnect to your PS (experimental)",
+        "auto_reconnect_description":"When Roblox disconnects, relaunch and rejoin using your private server link.",
+        "link_example":"Supports both private server code links and Roblox share links (for example: {link_example}).",
+        "join_button":"Join Button in Sol's RNG Calibration",
+        "limbo":{
+            "title":"Limbo Item Usage & Eden Detection",
+            "description":"Configure Eden detection and Limbo teleportation",
+            "tele_using_crack":"Teleport to Limbo using Portable Crack",
+            "mode_warning":"Only works if fishing, potion crafting, auto obby",
+            "eden_spawn":"Go to Eden's spawn (experimental)",
+            "auto_contract":"Auto Eden's contract",
+            "contract_interval":"Contract Interval (minutes):",
+            "eden_button_calibtation":"Eden Contract button (calibration)",
+            "eden_ping_found":"Ping if Eden found?",
+            "eden_ping":"This only detect eden and ping you if it found on roblox chat so u gotta get the eden aura by yourself",
+            "eden_ping_warning_1":"Only works if fishing, potion crafting, auto obby",
+            "eden_ping_warning_2":"Make sure you do the chat, chat OCR tab, chat close, and chat OCR box region calibration in Movements Calibration tab!",
+            "eden_ocr":"Eden detection using OCR (detect on roblox chat)"
+        },
+        "biome_recording":{
+            "title":"Biome Recording",
+            "description":"Auto clip and screenshot rare biome detections",
+            "clip_label":"Glitched/Dreamspace/Cyberspace Biome clip keybind",
+            "clip_description":"Require 1 of 2 recorders: Medal, Xbox Gaming Bar",
+            "record_keybind":"Record Keybind",
+            "screenshot_label":"Rare Biomes Screenshot",
+            "screenshot_description":"Automatically send a screenshot in your webhook when Glitched, Dreamspace, or Cyberspace is found"
+
+        },
+        "quests":{
+            "title":"Periodical Screenshots & Quests",
+            "description":"Automatically capture screenshots and claim quests on a schedule",
+            "screenshot_label":"Periodical Aura Screenshot"
+        }
+    },
     "pages": {
         "notice": {
             "description": "Latest updates and patch notes"
@@ -57,9 +125,6 @@
             "autoclip_when_rollled": "Auto-clip when a rare aura is rolled",
             "enable_recording": "Enable Aura Recording",
             "enable_recording_description": "Trigger a recording keybind on rare aura rolls",
-            "record_keybind": "Record Keybind",
-            "test_keybind": "Test Keybind",
-            "keyboard_delay": "(Fires after 2s delay)",
             "record_min_rarity": "Min Rarity to Record",
             "force_record": "Force Record Auras",
             "force_record_description": "Force aura record even if rarity is not met (otherwise don't put the auras in the box if you don't want the macro to force record)"
@@ -101,7 +166,7 @@
     },
     "biome_confirm_window":{
         "rare_biome_after_rejoin":"Rare Biome Detected After Rejoin!",
-        "desc" : "You just rejoined a server that has a <b style={{ color: '#ff6b6b' }}>rare biome</b> active.<br />Did you forget to close the macro before joining?<br /><br />If you forgot, the macro will <b style={{ color: '#ff6b6b' }}>stop immediately!!</b>",
+        "rejoin_warn" : "You just rejoined a server that has a [WARN]{rare biome} active.[BR]Did you forget to close the macro before joining?[BR][BR]If you forgot, the macro will [WARN]{stop immediately!!}",
         "confirm" : "✅ Nah. I'm good, keep this tuff macro running 🗣️🔥",
         "cancel" : "❌ I forgot to turn the macro off please spare me 😭🥀",
         "response" :"Response sent!",
@@ -241,7 +306,7 @@
         "select_position": "SELECT POS",
         "description":"View and manually edit calibration coordinates",
         "instruction_basic":"ℹ️ Use \"Select Pos\" or \"Select Region\" to launch the calibration overlay :)",
-        "instruction_tutorial":"If you have troubles understanding refer to this tutorial:",
+        "instruction_tutorial":"If you have troubles understanding refer to this tutorial: []",
         "calibration_preset_description":"Pre-made macro calibrations for common screen resolutions, display scales, and window modes (so u don't have to set it up manually :umamusume_mambo_dancing:)",
         "resolution":"RESOLUTION",
         "display_scale":"DISPLAY SCALE",
@@ -267,7 +332,8 @@
             "y": "Y",
             "width": "W",
             "height": "H"
-        }
+        },
+        "ocr":"OCR Calibration"
     },
     "potions": {
         "fortuneI": "Fortune Potion I",
@@ -296,7 +362,7 @@
         "fishing_mode_description":"When enabled, the macro runs fishing logic and pauses most other automations",
         "enable_fishing_mode":"Enable Fishing Mode",
         "enable_fishing_mode_description":"Auto Pop Buff still has priority and will interrupt fishing. Remote Control stays enabled.",
-        "fishing_delay":"Fishing actions delay (in miliseconds)",
+        "_fishing_delay":"Fishing actions delay (in miliseconds)",
         "fishing_path_playback" : "Fishing Path Playback Multiplier (FPS Compensation)",
         "fishing_path_description":"If you get stuck or fall short while walking during fishing or fish selling (due to low FPS), increase this (e.g. 1.1 or 1.25). Higher multiplier = character walks for longer (otherwise keep it at 1.0 if you got consistent fps around 60+)",
         "warning":"⚠️ If you set fish path multiplier below 1.0, the macro will automatically default it back to 1.0 :aga:",
@@ -355,7 +421,7 @@
         "merchant_ocr_description":"Periodically check the Roblox chat for merchant spawn messages",
         "merchant_ocr_reminder":"Reminder",
         "merchant_ocr_text":"This only detects the merchant and pings you if found on Roblox chat, so you have to interact with the merchant yourself.",
-        "merchant_ocr_interval":"Check interval (in secs)",
+        "_merchant_ocr_interval":"Check interval (in secs)",
         "auto_limbo":"Auto Merchant in Limbo",
         "auto_limbo_description":"Automatically interact with merchants in Limbo",
         "extra_slot":"Merchant item extra slot",
@@ -376,8 +442,8 @@
         "customization": "Discord Webhook Customization",
         "test": "Test Webhooks",
         "private_server": "Private Server Link",
-        "custom_ping":"Custom Ping UserID/RoleID",
-        "user_roleid": "UserID/RoleID",
+        "custom_ping":"Custom Ping UserID / RoleID",
+        "user_roleid": "UserID / RoleID",
         "userid": "User ID",
         "roleid": "Role ID"
     },
@@ -533,6 +599,53 @@
         "disable":"Disable",
         "min":"min",
         "max":"max",
-        "click_to_toggle":"Click to toggle"
+        "click_to_toggle":"Click to toggle",
+        "checking":"Checking...",
+        "installed":"Installed",
+        "not_installed":"Not Installed",
+        "reminder":"Reminder",
+        "inventory":"Inventory",
+        "claim":"Claim",
+        "repeats":{
+            "interval":"Interval ({common.time}):",
+            "check_interval":"Checking ({common.time}):",
+            "pathing_interval":"Pathing Interval ({common.time}):",
+            "item_usage_duration":"Usage Duration ({common.time}):",
+            "x_interval":"{usage} Interval ({common.time}):",
+            "mouse_click_delay":"Inventory Mouse Click Delay ({common.time})"
+        },
+        "time":{
+            "millisecond":"Millisecond",
+            "milliseconds":"Milliseconds",
+            "millisecond_short":"ms",
+            "second":"Second",
+            "seconds":"Seconds",
+            "second_short":"s",
+            "minute":"Minute",
+            "minutes":"Minutes",
+            "minute_short":"m",
+            "hour":"Hour",
+            "hours":"Hours",
+            "hour_short":"h"
+        },
+        "keybind":{
+            "record": "Record Keybind",
+            "test": "Test Keybind",
+            "fire_after_x":"(Fires after {time_duration}{common.time} delay)"
+        },
+        "error":"Error: {error}",
+        "loading":"Loading...",
+        "alert":{
+            "obby_path_not_found":"No obby path found!\n\nPlease record an obby path first using the obby recorder above.",
+            "failed_to_open_calibration_tool":"Failed to open calibration tool: {error}",
+            "failed_to_display_fishing_calibration":"Failed to display fishing calibrations on screen: {error}",
+            "valid_scale":"Please select a valid preset (Resolution, Scale, and Mode)",
+            "enable_reconnect":"you need to enable reconnect feature for fishing failsafe to work",
+            "disable_check_merchant_ocr":"Please disable 'Check merchant on roblox chat (OCR) every x fishes' before enabling the Auto Merchant using Merchant Teleporter every x fishes.",
+            "disable_check_merchant_ocr2":"Please disable 'Detect merchant on chat (using OCR)' before enabling the Auto Merchant using Merchant Teleporter",
+            "disable_check_merchant_tele":"Please disable 'Use merchant teleporter every x fishes' before enabling merchant OCR detection.",
+            "disable_check_merchant_tele2":"Please disable 'Enable Auto Merchant (requires merchant teleporter)' before enabling merchant OCR detection.",
+            "failed_to_load_notice":"Failed to load notices. Please check your connection."
+        }
     }
 }

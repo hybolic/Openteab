@@ -87,7 +87,7 @@ export default function BiomeConfirmWindow() {
                 color: "var(--text-secondary)",
                 marginBottom: "20px",
             }}>
-                {Translate("biome_confirm_window.desc")}
+                {Translate("biome_confirm_window.rejoin_warn")}
             </p>
 
             {!responded ? (

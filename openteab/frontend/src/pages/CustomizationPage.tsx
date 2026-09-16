@@ -94,7 +94,7 @@ export default function CustomizationPage() {
         });
     };
 
-    if (!config) return <div>Loading...</div>;
+    if (!config) return <div>{Translate("common.loading")}</div>;
 
     const biomeKeys = Object.keys(biomes).filter(b => b !== "NORMAL");
     

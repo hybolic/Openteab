@@ -1,6 +1,6 @@
 import { useConfig } from "../contexts/ConfigContext";
 import { useState, useEffect } from "react";
-import { PageIcons, replaceTranslateWithEmote, openteab, Translate } from "../utils/ExtendedPageData";
+import { PageIcons, Translate } from "../utils/ExtendedPageData";
 
 
 export default function CalibrationPage() {
@@ -321,7 +321,7 @@ export default function CalibrationPage() {
             }
         } catch (e) {
             console.error("Failed to open calibration window", e);
-            alert("Failed to open calibration tool: " + e);
+            alert(Translate("common.alert.failed_to_open_calibration_tool",[{from:"error",to:String(e)}]));
         }
     };
 
@@ -333,8 +333,8 @@ export default function CalibrationPage() {
         .coord-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     `;
 
-    if (error) return <div style={{ padding: "20px", color: "red" }}>Error: {error}</div>;
-    if (!config) return <div style={{ padding: "20px" }}>Loading...</div>;
+    if (error) return <div style={{ padding: "20px", color: "red" }}>{Translate("common.error",[{from:"error",to:error}])}</div>;
+    if (!config) return <div style={{ padding: "20px" }}>{Translate("common.loading")}</div>;
 
     const updateConfig = (key: string, value: any) => {
         saveConfig({ ...config, [key]: value });
@@ -370,7 +370,7 @@ export default function CalibrationPage() {
     const handleApplyClick = () => {
         const preset = presets.find(p => p.resolution === selectedRes && p.scale === selectedScale && p.mode === selectedMode);
         if (!preset || !preset.calibrations) {
-            alert("Please select a valid preset (Resolution, Scale, and Mode)");
+            alert(Translate("common.alert.valid_scale"));
             return;
         }
         setPendingPreset(preset);
@@ -427,10 +427,7 @@ export default function CalibrationPage() {
             <div className="info-banner" style={{ marginBottom: "16px" }}>
                 <div>{Translate("calibration.instruction_basic")}</div>
                 <div style={{ marginTop: "6px" }}>
-                    {Translate("calibration.instruction_tutorial")}{" "}
-                    <a href={openteab.macro_calibration_youtube_long} target="_blank" rel="noreferrer">
-                        {openteab.macro_calibration_youtube_long}
-                    </a>
+                    {Translate("calibration.instruction_tutorial")}
                 </div>
             </div>
 
@@ -491,7 +488,7 @@ export default function CalibrationPage() {
                     <div className="card-icon">⚡</div>
                     <div style={{ flex: 1 }}>
                         <h3>{Translate("settings.calibration_preset")}</h3>
-                        {replaceTranslateWithEmote("calibration.calibration_preset_description")}
+                        {Translate("calibration.calibration_preset_description")}
                     </div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: "10px", alignItems: "end", marginTop: "12px" }}>

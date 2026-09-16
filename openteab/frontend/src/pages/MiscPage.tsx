@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { useConfig } from "../contexts/ConfigContext";
+import { Translate, PageIcons } from "../utils/ExtendedPageData";
 
 export default function MiscPage() {
     const { config, saveConfig, error } = useConfig();
@@ -96,7 +97,7 @@ export default function MiscPage() {
             }
         } catch (errorValue) {
             console.error("Failed to open calibration window", errorValue);
-            alert("Failed to open calibration tool: " + errorValue);
+            alert(Translate("common.alert.failed_to_open_calibration_tool",[{from:"error",to:String(errorValue)}]));
             setCalibrationTarget(null);
         }
     };
@@ -109,7 +110,7 @@ export default function MiscPage() {
             }
         } catch (errorValue) {
             console.error("Failed to open calibration window", errorValue);
-            alert("Failed to open calibration tool: " + errorValue);
+            alert(Translate("common.alert.failed_to_open_calibration_tool",[{from:"error",to:String(errorValue)}]));
             setCalibrationTarget(null);
         }
     };
@@ -122,7 +123,7 @@ export default function MiscPage() {
             }
         } catch (errorValue) {
             console.error("Failed to open calibration window", errorValue);
-            alert("Failed to open calibration tool: " + errorValue);
+            alert(Translate("common.alert.failed_to_open_calibration_tool",[{from:"error",to:String(errorValue)}]));
             setCalibrationTarget(null);
         }
     };
@@ -130,8 +131,8 @@ export default function MiscPage() {
     return (
         <>
             <div className="page-header">
-                <h2>Automated Actions</h2>
-                <p>General automation, recovery, screenshot, and quest settings</p>
+                <h2>{Translate("nav.automated_actions")}</h2>
+                <p>{Translate("misc.misc_description")}</p>
             </div>
 
             <div style={{
@@ -153,10 +154,10 @@ export default function MiscPage() {
                     flexShrink: 0
                 }} />
                 <span style={{ color: "var(--text-secondary)", fontWeight: 500 }}>
-                    WinOCR Status:
+                    {Translate("misc.win_ocr_status")}
                 </span>
                 <span style={{ color: ocrStatus === null ? "var(--text-muted)" : ocrStatus.installed ? "#22c55e" : "#ef4444", fontWeight: 600 }}>
-                    {ocrStatus === null ? "Checking..." : ocrStatus.installed ? "Installed" : "Not Installed"}
+                    {ocrStatus === null ? Translate("common.checking") : ocrStatus.installed ? Translate("common.installed") : Translate("common.not_installed") }
                 </span>
                 {ocrStatus?.installed && ocrStatus.version && ocrStatus.version !== "unknown" && (
                     <span style={{ color: "var(--text-muted)", fontSize: "11px" }}>
@@ -165,23 +166,23 @@ export default function MiscPage() {
                 )}
                 {ocrStatus && !ocrStatus.installed && (
                     <span style={{ color: "var(--text-muted)", fontSize: "11px" }}>
-                        — OCR failsafe will not work (if WinOCR haven't installed, ask macro helper to assist you about this!)
+                        {Translate("misc.win_ocr_failsafe")}
                     </span>
                 )}
             </div>
 
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">📦</div>
+                    <div className="card-icon">{PageIcons.Misc_ItemUsage}</div>
                     <div>
-                        <h3>Item Usage</h3>
-                        <p>Configure BR, SC, reconnect, and OCR safeguards</p>
+                        <h3>{Translate("misc.item_usage")}</h3>
+                        <p>{Translate("misc.item_usage_description")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="OCR failsafe"
-                    description="Prevent wrong item usage by validating the first inventory slot before clicking Use"
+                    label={Translate("misc.ocr_failsafe_label")}
+                    description={Translate("misc.ocr_failsafe_description")}
                     checked={config.enable_ocr_failsafe || false}
                     onChange={(value) => updateConfig("enable_ocr_failsafe", value)}
                 />
@@ -192,20 +193,20 @@ export default function MiscPage() {
                             style={{ fontSize: "11px", padding: "6px 12px" }}
                             onClick={startOCRCalibration}
                         >
-                            OCR Calibration
+                            {Translate("calibration.ocr")}
                         </button>
                         <span className="form-hint">{JSON.stringify(config.first_item_slot_ocr_pos || [797, 410, 98, 97])}</span>
                     </div>
                 )}
 
                 <ToggleSwitch
-                    label="Biome Randomizer (BR)"
+                    label={Translate("misc.label_biome_randomizer")}
                     checked={config.biome_randomizer || false}
                     onChange={(value) => updateConfig("biome_randomizer", value)}
                 />
                 {config.biome_randomizer && (
                     <div className="duration-input" style={{ marginBottom: "6px" }}>
-                        <label className="form-label">Usage Duration (minutes):</label>
+                        <label className="form-label">{Translate("common.repeats.item_usage_duration",[{from:"common.time",to:Translate("common.time.minutes")}])}</label>
                         <input
                             className="form-input"
                             value={config.br_duration || "36"}
@@ -216,13 +217,13 @@ export default function MiscPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Strange Controller (SC)"
+                    label={Translate("misc.label_strange_controller")}
                     checked={config.strange_controller || false}
                     onChange={(value) => updateConfig("strange_controller", value)}
                 />
                 {config.strange_controller && (
                     <div className="duration-input" style={{ marginBottom: "6px" }}>
-                        <label className="form-label">Usage Duration (minutes):</label>
+                        <label className="form-label">{Translate("common.repeats.item_usage_duration",[{from:"common.time",to:Translate("common.time.minutes")}])}</label>
                         <input
                             className="form-input"
                             value={config.sc_duration || "21"}
@@ -235,7 +236,7 @@ export default function MiscPage() {
                 {(config.biome_randomizer || config.strange_controller) && (
                     <div style={{ marginTop: "12px", marginBottom: "16px", padding: "10px", background: "rgba(0,0,0,0.25)", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.03)" }}>
                         <label style={{ marginBottom: "8px", display: "block", fontFamily: '"Sarpanch", sans-serif', textTransform: "uppercase", fontSize: "11px", letterSpacing: "0.05em", color: "var(--text-secondary)" }}>
-                            Do NOT use BR/SC during these biomes:
+                            {Translate("misc.do_not_use_during")}
                         </label>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                             {["WINDY", "RAINY", "SNOWY", "SAND STORM", "HELL", "STARFALL", "CORRUPTION", "NULL", "AURORA", "HEAVEN", "EGGLAND", "SINGULARITY"].map(biome => {
@@ -286,20 +287,20 @@ export default function MiscPage() {
                             })}
                         </div>
                         <span style={{ color: "rgba(255,255,255,0.25)", fontSize: "10px", display: "block", marginTop: "8px", fontFamily: '"Sarpanch", sans-serif', letterSpacing: "0.02em" }}>
-                            Note: GLITCHED, DREAMSPACE, CYBERSPACE are always blocked when using br/sc :aga:
+                            {Translate("misc.note_blocked")}
                         </span>
                     </div>
                 )}
                 <ToggleSwitch
-                    label="Auto reconnect to your PS (experimental)"
-                    description="When Roblox disconnects, relaunch and rejoin using your private server link."
+                    label={Translate("misc.auto_reconnect_label")}
+                    description={Translate("misc.auto_reconnect_description")}
                     checked={config.auto_reconnect || false}
                     onChange={(value) => updateConfig("auto_reconnect", value)}
                 />
                 {config.auto_reconnect && (
                     <>
                         <div className="form-hint" style={{ marginTop: "6px", marginBottom: "8px" }}>
-                            Supports both private server code links and Roblox share links (for example: /share?code=...&type=Server).
+                            {Translate("misc.link_example",[{from:"link_example",to:"/share?code=...&type=Server"}])}
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
                             <button
@@ -307,7 +308,7 @@ export default function MiscPage() {
                                 style={{ fontSize: "11px", padding: "6px 12px" }}
                                 onClick={startReconnectCalibration}
                             >
-                                Join Button in Sol&apos;s RNG Calibration
+                                {Translate("misc.join_button")}
                             </button>
                             <span className="form-hint">{JSON.stringify(config.reconnect_start_button || [954, 876])}</span>
                         </div>
@@ -315,7 +316,7 @@ export default function MiscPage() {
                 )}
 
                 <div className="form-group" style={{ marginTop: "10px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "10px" }}>
-                    <label className="form-label">Inventory Mouse Click Delay (milliseconds)</label>
+                    <label className="form-label">{Translate("common.repeats.mouse_click_delay",[{from:"common.time",to:Translate("common.time.millisecond")}])}</label>
                     <div className="duration-input">
                         <input
                             className="form-input"
@@ -329,15 +330,15 @@ export default function MiscPage() {
 
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">⚡</div>
+                    <div className="card-icon">{PageIcons.Misc_Limbo}</div>
                     <div>
-                        <h3>Limbo Item Usage &amp; Eden Detection</h3>
-                        <p>Configure Eden detection and Limbo teleportation</p>
+                        <h3>{Translate("misc.limbo.title")}</h3>
+                        <p>{Translate("misc.limbo.description")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Teleport to Limbo using Portable Crack"
+                    label={Translate("misc.limbo.tele_using_crack")}
                     checked={config.teleport_portable_crack || false}
                     onChange={(value) => updateConfig("teleport_portable_crack", value)}
                 />
@@ -345,10 +346,10 @@ export default function MiscPage() {
                 {config.teleport_portable_crack && (
                     <div style={{ marginTop: "4px" }}>
                         <span style={{ color: "var(--text-muted)", fontSize: "11px", display: "inline-block" }}>
-                            Only works if fishing mode, potion crafting, auto obby, auto egg pathing is OFF!
+                            {Translate("misc.limbo.mode_warning")}
                         </span>
                         <div className="duration-input" style={{ marginTop: "10px" }}>
-                            <label className="form-label">Usage Interval (minutes):</label>
+                            <label className="form-label">{Translate("common.repeats.item_usage_duration",[{from:"common.time",to:Translate("common.time.minutes")}])}</label>
                             <input
                                 type="number"
                                 min="1"
@@ -369,7 +370,7 @@ export default function MiscPage() {
 
                 <div style={{ marginTop: "14px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "14px" }}>
                     <ToggleSwitch
-                        label="Go to Eden's spawn (experimental)"
+                        label={Translate("misc.limbo.eden_spawn")}
                         checked={config.go_to_eden_spawn || false}
                         onChange={(value) => updateConfig("go_to_eden_spawn", value)}
                     />
@@ -377,7 +378,7 @@ export default function MiscPage() {
                     {config.go_to_eden_spawn && (
                         <div style={{ marginTop: "4px", marginBottom: "16px", marginLeft: "14px", paddingLeft: "14px" }}>
                             <div className="duration-input" style={{ marginBottom: "12px" }}>
-                                <label className="form-label">Pathing Interval (minutes):</label>
+                                <label className="form-label">{Translate("common.repeats.pathing_interval",[{from:"common.time",to:Translate("common.time.minutes")}])}</label>
                                 <input
                                     type="number"
                                     min="1"
@@ -391,7 +392,7 @@ export default function MiscPage() {
                     )}
 
                     <ToggleSwitch
-                        label="Auto Eden's contract"
+                        label={Translate("misc.limbo.auto_contract")}
                         checked={config.auto_eden_contract || false}
                         onChange={(value) => updateConfig("auto_eden_contract", value)}
                     />
@@ -399,7 +400,7 @@ export default function MiscPage() {
                     {config.auto_eden_contract && (
                         <div style={{ marginTop: "4px", marginBottom: "16px", marginLeft: "14px", paddingLeft: "14px" }}>
                             <div className="duration-input" style={{ marginBottom: "12px" }}>
-                                <label className="form-label">Contract Interval (minutes):</label>
+                                <label className="form-label">{Translate("common.repeats.check_interval",[{from:"common.time",to:Translate("common.time.minutes")}])}</label>
                                 <input
                                     type="number"
                                     min="1"
@@ -415,7 +416,7 @@ export default function MiscPage() {
                                     style={{ fontSize: "11px", padding: "6px 12px" }}
                                     onClick={startEdenContractCalibration}
                                 >
-                                    Eden Contract button (calibration)
+                                    {Translate("misc.limbo.eden_button_calibtation")}
                                 </button>
                                 <span className="form-hint">{JSON.stringify(config.eden_contract_button || [0, 0])}</span>
                             </div>
@@ -425,7 +426,7 @@ export default function MiscPage() {
 
                 <div style={{ marginTop: "14px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "14px" }}>
                     <ToggleSwitch
-                        label="Eden detection using OCR (detect on roblox chat)"
+                        label={Translate("misc.limbo.eden_ocr")}
                         checked={config.eden_detection || false}
                         onChange={(value) => updateConfig("eden_detection", value)}
                     />
@@ -433,15 +434,15 @@ export default function MiscPage() {
                     {config.eden_detection && (
                         <div style={{ marginTop: "8px" }}>
                             <div className="info-banner" style={{ background: "rgba(124, 91, 245, 0.1)", border: "1px solid var(--accent)", marginBottom: "12px" }}>
-                                <strong>Reminder:</strong> This only detect eden and ping you if it found on roblox chat so u gotta get the eden aura by yourself
+                                <strong>{Translate("common.reminder")}:</strong>{" "}{Translate("misc.limbo.eden_ping")}
                                 <br />
-                                <span style={{ color: "var(--text-muted)", fontSize: "11px", display: "inline-block", marginTop: "4px" }}>Only works if fishing, potion crafting, auto obby, auto egg pathing is OFF!</span>
+                                <span style={{ color: "var(--text-muted)", fontSize: "11px", display: "inline-block", marginTop: "4px" }}>{Translate("misc.limbo.eden_ping_warning_1")}</span>
                                 <br />
-                                <span style={{ color: "var(--text-muted)", fontSize: "11px", display: "inline-block", marginTop: "4px" }}>Make sure you do the chat, chat OCR tab, chat close, and chat OCR box region calibration in Movements Calibration tab!</span>
+                                <span style={{ color: "var(--text-muted)", fontSize: "11px", display: "inline-block", marginTop: "4px" }}>{Translate("misc.limbo.eden_ping_warning_2")}</span>
                             </div>
 
                             <div className="duration-input" style={{ marginBottom: "16px" }}>
-                                <label className="form-label">Checking Interval (minutes):</label>
+                                <label className="form-label">{Translate("common.repeats.check_interval",[{from:"common.time",to:Translate("common.time.minutes")}])}</label>
                                 <input
                                     type="number"
                                     min="1"
@@ -460,14 +461,14 @@ export default function MiscPage() {
 
                             <div style={{ background: "rgba(0,0,0,0.2)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
                                 <ToggleSwitch
-                                    label="Ping if Eden found?"
-                                    description="Custom Ping UserID/RoleID"
+                                    label={Translate("misc.limbo.eden_ping_found")}
+                                    description={Translate("webhook.custom_ping")}
                                     checked={config.ping_eden || false}
                                     onChange={(val) => updateConfig("ping_eden", val)}
                                 />
                                 {config.ping_eden && (
                                     <div className="form-group" style={{ marginTop: "12px" }}>
-                                        <label className="form-label">UserID / RoleID</label>
+                                        <label className="form-label">{Translate("webhook.user_roleid")}</label>
                                         <input
                                             className="form-input"
                                             value={config.eden_user_id || ""}
@@ -485,16 +486,16 @@ export default function MiscPage() {
 
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">🎬</div>
+                    <div className="card-icon">{PageIcons.Misc_BiomeRecording}</div>
                     <div>
-                        <h3>Biome Recording</h3>
-                        <p>Auto clip and screenshot rare biome detections</p>
+                        <h3>{Translate("misc.biome_recording.title")}</h3>
+                        <p>{Translate("misc.biome_recording.description")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Glitched/Dreamspace/Cyberspace Biome clip keybind"
-                    description="Require 1 of 2 recorders: Medal, Xbox Gaming Bar"
+                    label={Translate("misc.biome_recording.clip_label")}
+                    description={Translate("misc.biome_recording.clip_description")}
                     checked={config.record_rare_biome || false}
                     onChange={(value) => updateConfig("record_rare_biome", value)}
                 />
@@ -502,7 +503,7 @@ export default function MiscPage() {
                 {config.record_rare_biome && (
                     <div className="form-row" style={{ marginTop: "10px" }}>
                         <div className="form-group">
-                            <label className="form-label">Record Keybind</label>
+                            <label className="form-label">{Translate("common.keybind.record")}</label>
                             <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                                 <input
                                     className="form-input"
@@ -519,10 +520,10 @@ export default function MiscPage() {
                                     }}
                                     style={{ padding: "8px 16px", whiteSpace: "nowrap" }}
                                 >
-                                    Test Keybind
+                                    {Translate("common.keybind.test")}
                                 </button>
                                 <small style={{ color: "var(--text-muted)", fontSize: "11px", whiteSpace: "nowrap" }}>
-                                    (Fires after 2s delay)
+                                    {Translate("common.keybind.fire_after_x",[{from:"time_duration",to:"2"},{from:"common.time",to:"common.time.second_short"}])}
                                 </small>
                             </div>
                         </div>
@@ -530,8 +531,8 @@ export default function MiscPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Rare Biomes Screenshot"
-                    description="Automatically send a screenshot in your webhook when Glitched, Dreamspace, or Cyberspace is found"
+                    label={Translate("misc.biome_recording.screenshot_label")}
+                    description={Translate("misc.biome_recording.screenshot_description")}
                     checked={config.rare_biome_screenshot !== false}
                     onChange={(value) => updateConfig("rare_biome_screenshot", value)}
                 />
@@ -539,21 +540,21 @@ export default function MiscPage() {
 
             <div className="card">
                 <div className="card-header">
-                    <div className="card-icon">📸</div>
+                    <div className="card-icon">{PageIcons.Misc_Quests}</div>
                     <div>
-                        <h3>Periodical Screenshots &amp; Quests</h3>
-                        <p>Automatically capture screenshots and claim quests on a schedule</p>
+                        <h3>{Translate("misc.quests.title")}</h3>
+                        <p>{Translate("misc.quests.description")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Periodical Aura Screenshot"
+                    label={Translate("misc.quests.screenshot_label")}
                     checked={config.periodical_aura_screenshot || false}
                     onChange={(value) => updateConfig("periodical_aura_screenshot", value)}
                 />
                 {config.periodical_aura_screenshot && (
                     <div className="duration-input" style={{ marginBottom: "6px" }}>
-                        <label className="form-label">Interval (minutes):</label>
+                        <label className="form-label">{Translate("common.repeats.interval",[{from:"common.time",to:Translate("common.time.minutes")}])}</label>
                         <input
                             className="form-input"
                             value={config.periodical_aura_interval || "25"}
@@ -564,13 +565,13 @@ export default function MiscPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Periodical Inventory Screenshot"
+                    label={Translate("calibration.mouse_action_req.misc.inventory_screenshot")}
                     checked={config.periodical_inventory_screenshot || false}
                     onChange={(value) => updateConfig("periodical_inventory_screenshot", value)}
                 />
                 {config.periodical_inventory_screenshot && (
                     <div className="duration-input" style={{ marginBottom: "6px" }}>
-                        <label className="form-label">Inventory Interval (minutes):</label>
+                        <label className="form-label">{Translate("common.repeats.x_interval",[{from:"usage",to:Translate("common.inventory")},{from:"common.time",to:Translate("common.time.minutes")}])}</label>
                         <input
                             className="form-input"
                             value={config.periodical_inventory_interval || "25"}
@@ -581,13 +582,13 @@ export default function MiscPage() {
                 )}
 
                 <ToggleSwitch
-                    label="Auto claim daily quests"
+                    label={Translate("calibration.mouse_action_req.misc.claim_daily")}
                     checked={config.auto_claim_daily_quests || false}
                     onChange={(value) => updateConfig("auto_claim_daily_quests", value)}
                 />
                 {config.auto_claim_daily_quests && (
                     <div className="duration-input">
-                        <label className="form-label">Claim Interval (minutes):</label>
+                        <label className="form-label">{Translate("common.repeats.x_interval",[{from:"usage",to:Translate("common.claim")},{from:"common.time",to:Translate("common.time.minutes")}])}</label>
                         <input
                             className="form-input"
                             value={config.auto_claim_interval || "30"}

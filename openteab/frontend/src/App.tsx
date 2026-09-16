@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import { useConfig } from "./contexts/ConfigContext";
 import { LOAD_ALL } from "./utils/ExtendedPageData";
+await LOAD_ALL()
 import Sidebar from "./components/Sidebar";
 import HeaderBar from "./components/HeaderBar";
 import NoticePage from "./pages/NoticePage";
@@ -90,11 +91,6 @@ function App() {
   const autoUpdateTriggerRef = useRef<string | null>(null);
   const startupUpdateCheckRequestedRef = useRef(false);
   const isAutoUpdateEnabled = config ? (config.auto_update_enabled !== false) : false;
-
-  // Credits Json Loader
-  useEffect(() => {
-    LOAD_ALL()
-  }, [])
 
   const startMacro = async () => {
     if (isMacroRunning) return;

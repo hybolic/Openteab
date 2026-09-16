@@ -7,8 +7,8 @@ export default function AurasPage() {
     console.log("LOADING")
     const { config, saveConfig, error } = useConfig();
 
-    if (error) return <div style={{ padding: "20px", color: "red" }}>Error: {error}</div>;
-    if (!config) return <div style={{ padding: "20px" }}>Loading...</div>;
+    if (error) return <div style={{ padding: "20px", color: "red" }}>{Translate("common.error",[{from:"error",to:error}])}</div>;
+    if (!config) return <div style={{ padding: "20px" }}>{Translate("common.loading")}</div>;
 
     const updateConfig = (key: string, value: any) => {
         saveConfig({ ...config, [key]: value });
@@ -105,7 +105,7 @@ export default function AurasPage() {
                     <>
                         <div className="form-row" style={{ marginTop: "10px" }}>
                             <div className="form-group">
-                                <label className="form-label">{Translate("auras.recording.record_keybind")}</label>
+                                <label className="form-label">{Translate("common.keybind.record")}</label>
                                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                                     <input
                                         className="form-input"
@@ -122,10 +122,10 @@ export default function AurasPage() {
                                         }}
                                         style={{ padding: "8px 16px", whiteSpace: "nowrap" }}
                                     >
-                                        {Translate("auras.recording.test_keybind")}
+                                        {Translate("common.keybind.test")}
                                     </button>
                                     <small style={{ color: "var(--text-muted)", fontSize: "11px", whiteSpace: "nowrap" }}>
-                                        {Translate("auras.recording.keyboard_delay")}
+                                        {Translate("common.keybind.fire_after_x")}
                                     </small>
                                 </div>
                             </div>

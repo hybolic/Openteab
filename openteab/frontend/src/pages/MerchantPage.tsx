@@ -152,8 +152,8 @@ export default function MerchantPage() {
         }
     }, [config]);
 
-    if (error) return <div style={{ padding: "20px", color: "red" }}>Error: {error}</div>;
-    if (!config) return <div style={{ padding: "20px" }}>Loading...</div>;
+    if (error) return <div style={{ padding: "20px", color: "red" }}>{Translate("common.error",[{from:"error",to:error}])}</div>;
+    if (!config) return <div style={{ padding: "20px" }}>{Translate("common.loading")}</div>;
 
     const updateConfig = (key: string, value: any) => {
         saveConfig({ ...config, [key]: value });
@@ -181,7 +181,7 @@ export default function MerchantPage() {
 
     const handleMerchantTeleporterToggle = (enabled: boolean) => {
         if (enabled && config.merchant_ocr) {
-            alert("Please disable 'Detect merchant on chat (using OCR)' before enabling the Auto Merchant using Merchant Teleporter.");
+            alert(Translate("common.alert.disable_check_merchant_ocr2"));
             return;
         }
         updateConfig("merchant_teleporter", enabled);
@@ -189,7 +189,7 @@ export default function MerchantPage() {
 
     const handleMerchantOcrToggle = (enabled: boolean) => {
         if (enabled && config.merchant_teleporter) {
-            alert("Please disable 'Enable Auto Merchant (requires merchant teleporter)' before enabling merchant OCR detection.");
+            alert(Translate("common.alert.disable_check_merchant_tele2"));
             return;
         }
         updateConfig("merchant_ocr", enabled);
