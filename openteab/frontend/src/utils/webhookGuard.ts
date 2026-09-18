@@ -1,3 +1,5 @@
+import { Translate } from "../utils/ExtendedPageData";
+
 const WEBHOOK_PATTERNS = [
     /discord\.com\/api\/webhooks/i,
     /discordapp\.com\/api\/webhooks/i,
@@ -11,5 +13,5 @@ export function looksLikeWebhookUrl(value: string): boolean {
 
 export function getWebhookWarning(value: string, fieldName: string): string | null {
     if (!looksLikeWebhookUrl(value)) return null;
-    return `This look like a Discord webhook URL! This field is for your ${fieldName}, not your webhook link (son im crine)`;
+    return Translate("webhook.webhook_warn", [{ from: "fieldName", to: fieldName }]);
 }

@@ -223,7 +223,10 @@ export class EmoteLoader extends LOAD_JSON {
     }
 
     static getEmote(emote:string):Emote|undefined{
-        return Object.values(this.EmoteList).find(x => x.emote === emote)
+        //strips excess ":" and other things before putting back the original ":", why do this? because it sometimes bugs out...
+        // just don't ask, it was a weird bug! >3>
+        emote = ":" + emote.replaceAll(/[^a-zA-Z0-9_-]/,"") + ":"
+        return Object.values(EmoteLoader.EmoteList).find(x => x.emote === emote)
     }
 }
 
@@ -373,16 +376,22 @@ export function replaceInlines(text: string): React.ReactNode {
             result.push(text.slice(last_index,match_index))
 
         const match_value = match[0]
+        console.log(match_value, EMOTE_REGEX.test(match_value))
         const inline = INLINES.find(x => x.regex.test(match_value))
 
         if(inline)
             result.push(inline.func(match_value.match(inline.regex)!))
         else if (EMOTE_REGEX.test(match_value))
         {
+            console.log('doing emote!')
             const emote = EmoteLoader.getEmote(match_value)
+            console.log(emote)
 
             if (emote)
+            {
+                console.log(emote.emote, emote.url)
                 result.push(<img src={emote.url} alt={emote.emote} style={{ width: "auto", height: "15px", position: "relative", top: "4px", }}/>)
+            }
             else
                 result.push(match_value)
         }

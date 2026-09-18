@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useConfig } from "../contexts/ConfigContext";
 import { looksLikeWebhookUrl, getWebhookWarning } from "../utils/webhookGuard";
+import { Translate } from "../utils/ExtendedPageData";
 
 const FALLBACK_BIOME_COLORS: Record<string, string> = {
     "WINDY": "#9ae5ff",
@@ -100,10 +101,7 @@ export default function WebhookPage() {
         if (field === "id") {
             const normalized = value.trim().toLowerCase();
             if ((normalized === "everyone" || normalized === "here") && !RARE_BIOMES.has(biome)) {
-                alert(
-                    `⚠️ Warning: @${normalized} pings are only allowed for rare biomes (GLITCHED, DREAMSPACE, CYBERSPACE).\n\n` +
-                    `This ping will be silently ignored for ${biome}. Use a User ID or Role ID instead.`
-                );
+                alert(Translate("webhook.warning_pings", [{ from: "normalized", to: normalized }, { from: "biome", to: biome }]));
                 return;
             }
         }
@@ -136,7 +134,7 @@ export default function WebhookPage() {
                 await window.pywebview.api.send_webhook_status("Webhook Sent Successfully!", 5814783);
             }
         } catch (e) {
-            alert("Failed to send test: " + e);
+            alert(Translate("common.failed_to_send_test",[{from:"error",to:String(e)}]));
         } finally {
             setTesting(false);
         }
@@ -193,14 +191,14 @@ export default function WebhookPage() {
                             value={biomes[biome] || "Message"}
                             onChange={(e) => updateBiomeSetting(biome, e.target.value)}
                         >
-                            <option value="Message">Message</option>
-                            <option value="None">None</option>
+                            <option value="Message">{Translate("common.message")}</option>
+                            <option value="None">{Translate("common.none")}</option>
                         </select>
                     )}
 
                     {isRare ? (
                         <div style={{ flex: 1, color: "var(--text-muted)", fontSize: "12px", fontStyle: "italic", paddingLeft: "4px" }}>
-                            Forced Webhook + <span style={{ color: "#ef4444", fontWeight: 600 }}>@everyone</span>
+                            {Translate("webhook.forced_webhook_at_everyone")}
                         </div>
                     ) : (
                         <>
@@ -212,7 +210,7 @@ export default function WebhookPage() {
                                     fontSize: "12px",
                                     padding: "4px 8px",
                                 }}
-                                placeholder="User/Role ID"
+                                placeholder={Translate("webhook.user_roleid")}
                                 value={pingEntry.id}
                                 onChange={(e) => updateBiomePing(biome, "id", e.target.value)}
                             />
@@ -223,8 +221,8 @@ export default function WebhookPage() {
                                 value={pingEntry.type}
                                 onChange={(e) => updateBiomePing(biome, "type", e.target.value as "userid" | "roleid")}
                             >
-                                <option value="userid">User ID</option>
-                                <option value="roleid">Role ID</option>
+                                <option value="userid">{Translate("webhook.userid")}</option>
+                                <option value="roleid">{Translate("webhook.roleid")}</option>
                             </select>
                         </>
                     )}

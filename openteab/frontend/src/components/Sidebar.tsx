@@ -6,49 +6,52 @@ interface SidebarProps {
 }
 import GlitchOverlay from "./GlitchOverlay";
 import { useGlitchText } from "../hooks/useGlitchText";
-
-const SidebarItem = ({ item, isActive, onClick, isGlitching, locked }: { item: any; isActive: boolean; onClick: () => void; isGlitching: boolean; locked?: boolean }) => {
-    const label = useGlitchText(item.label || "", isGlitching);
-    const isDisabled = item.disabled || locked;
-    return (
-        <div
-            className={`sidebar-item ${isActive ? "active" : ""}`}
-            onClick={() => !isDisabled && onClick()}
-            style={isDisabled ? { opacity: 0.3, cursor: "not-allowed", pointerEvents: "none" } : {}}
-            title={locked ? "🔒 Locked" : undefined}
-        >
-            <span className="icon">{locked ? "🔒" : item.icon}</span>
-            {label}
-            {item.disabled && <span style={{ fontSize: "10px", marginLeft: "auto", opacity: 0.7 }}>(WIP)</span>}
-        </div>
-    );
-};
-
-const navItems = [
-    { section: "General" },
-    { id: "notice", label: "Notice", icon: "📋" },
-    { id: "webhook", label: "Webhook", icon: "🔗" },
-    { id: "stats", label: "Stats", icon: "📊" },
-    { id: "status", label: "Status", icon: "⚙️" },
-    { section: "Macro Settings" },
-    { id: "misc", label: "Automated actions", icon: "🤖" },
-    { id: "calibrations", label: "Macro Calibrations", icon: "🎯" },
-    { id: "remoteaccess", label: "Remote Control", icon: "🔑" },
-    { section: "Main Features" },
-    { id: "fishing", label: "Fishing", icon: "🎣" },
-    { id: "merchant", label: "Merchant", icon: "🎭" },
-    { id: "autopopbuff", label: "Auto Pop Buff", icon: "🧪" },
-    { id: "auras", label: "Auras", icon: "✨" },
-    { id: "movements", label: "Movements", icon: "🗺️" },
-    { id: "potioncraft", label: "Potion Crafting", icon: "🧪" },
-    { id: "otherfeatures", label: "Other Features", icon: "🔧" },
-    { id: "customization", label: "Customizations", icon: "🔧" },
-    { section: "Others" },
-    { id: "credits", label: "Credits", icon: "💜" },
-    { id: "donations", label: "Donations <3", icon: "💎" },
-];
+import { Translate } from "../utils/ExtendedPageData";
 
 export default function Sidebar({ activeTab, onTabChange, isGlitching, macroVersion }: SidebarProps) {
+    
+
+    const SidebarItem = ({ item, isActive, onClick, isGlitching, locked }: { item: any; isActive: boolean; onClick: () => void; isGlitching: boolean; locked?: boolean }) => {
+        const label = useGlitchText(item.label || "", isGlitching);
+        const isDisabled = item.disabled || locked;
+        return (
+            <div
+                className={`sidebar-item ${isActive ? "active" : ""}`}
+                onClick={() => !isDisabled && onClick()}
+                style={isDisabled ? { opacity: 0.3, cursor: "not-allowed", pointerEvents: "none" } : {}}
+                title={locked ? "🔒 Locked" : undefined}
+            >
+                <span className="icon">{locked ? "🔒" : item.icon}</span>
+                {label}
+                {item.disabled && <span style={{ fontSize: "10px", marginLeft: "auto", opacity: 0.7 }}>(WIP)</span>}
+            </div>
+        );
+    };
+
+    const navItems = [
+        { section: Translate("nav.section.general") },
+        { id: "notice", label: Translate("nav.notice"), icon: "📋" },
+        { id: "webhook", label: Translate("nav.webhook"), icon: "🔗" },
+        { id: "stats", label: Translate("nav.stats"), icon: "📊" },
+        { id: "status", label: Translate("nav.status"), icon: "⚙️" },
+        { section: Translate("nav.section.macro_settings") },
+        { id: "misc", label: Translate("nav.automated_actions"), icon: "🤖" },
+        { id: "calibrations", label: Translate("nav.macro_calibrations"), icon: "🎯" },
+        { id: "remoteaccess", label: Translate("nav.remote_control"), icon: "🔑" },
+        { section: Translate("nav.section.main_features") },
+        { id: "fishing", label: Translate("nav.fishing"), icon: "🎣" },
+        { id: "merchant", label: Translate("nav.merchant"), icon: "🎭" },
+        { id: "autopopbuff", label: Translate("nav.auto_pop_buff"), icon: "🧪" },
+        { id: "auras", label: Translate("nav.auras"), icon: "✨" },
+        { id: "movements", label: Translate("nav.movements"), icon: "🗺️" },
+        { id: "potioncraft", label: Translate("nav.potion_crafting"), icon: "🧪" },
+        { id: "otherfeatures", label: Translate("nav.other_features"), icon: "🔧" },
+        { id: "customization", label: Translate("nav.customizations"), icon: "🔧" },
+        { section: Translate("nav.section.others") },
+        { id: "credits", label: Translate("nav.credits"), icon: "💜" },
+        { id: "donations", label: Translate("nav.donations"), icon: "💎" },
+    ];
+
     const title = useGlitchText("Openteab Macro", isGlitching);
     const version = useGlitchText(macroVersion || "v?.?.?", isGlitching);
 
@@ -84,7 +87,7 @@ export default function Sidebar({ activeTab, onTabChange, isGlitching, macroVers
             <div className="sidebar-footer">
                 <div className="by-line">
                     <div>Coteab Macro made by <br/><span>Coteab Development Team</span></div>
-                    <div>Openteab Maintained by <br/><span>The Community</span></div>
+                    <div>Openteab Maintained by <br/><span style={{color:"#ed27ff"}}>The Community</span>{" and "}<span style={{color:"#ffa227"}}>Nadir</span>{" "}{Translate("sidebar.nadirhype")}</div>
                 </div>
             </div>
         </div>

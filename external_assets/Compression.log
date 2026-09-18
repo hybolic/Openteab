@@ -1,26 +1,36 @@
-2026-09-16 07:57:23
+2026-09-18 12:36:58
 File:      credits.json
 Size:      4,885 B
 GZip:      1,066 B
 Base64:    1,424 B
 Reduction: 70.8% [-3,461 B]
 PASS:      True
-Time:      0s 2ms 294200ns
+Time:      0s 3ms 240800ns
+
+
+
+File:      emotes.json
+Size:      528 B
+GZip:      231 B
+Base64:    308 B
+Reduction: 41.7% [-220 B]
+PASS:      True
+Time:      0s 0ms 929000ns
 
 
 
 File:      en_us.json
-Size:      32,750 B
-GZip:      8,608 B
-Base64:    11,480 B
-Reduction: 64.9% [-21,270 B]
+Size:      42,056 B
+GZip:      11,012 B
+Base64:    14,684 B
+Reduction: 65.1% [-27,372 B]
 PASS:      True
-Time:      0s 1ms 914500ns
+Time:      0s 2ms 632000ns
 
 
-Python Object FileOut:      0s 2ms 115800ns
+Python Object FileOut:      0s 2ms 246900ns
 
 
 
-Process Time:      0s 4ms 208700ns
-Total Time:        0s 9ms 658300ns
+Process Time:      0s 6ms 801800ns
+Total Time:        0s 13ms 617700ns

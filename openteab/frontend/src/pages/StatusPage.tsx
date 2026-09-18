@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useConfig } from "../contexts/ConfigContext";
+import { Translate } from "../utils/ExtendedPageData";
 
 interface ModuleStatus {
     active: boolean;
@@ -88,7 +89,7 @@ export default function StatusPage() {
     return (
         <>
             <div className="page-header">
-                <h2>Macro Status</h2>
+                <h2>{Translate("macro.status")}</h2>
             </div>
 
             {statusData.incompatibilities.length > 0 && (
@@ -96,8 +97,8 @@ export default function StatusPage() {
                     <div className="card-header">
                         <div className="card-icon" style={{ color: "#ef4444" }}>⚠️</div>
                         <div>
-                            <h3 style={{ color: "#ef4444" }}>Potential Issues Found!</h3>
-                            <p>The following conflicts or settings might prevent some actions from running:</p>
+                            <h3 style={{ color: "#ef4444" }}>{Translate("status.potential_issues_found")}</h3>
+                            <p>{Translate("status.following_conflicts")}</p>
                         </div>
                     </div>
                     <ul style={{ margin: "10px 0 0 20px", color: "#f87171", lineHeight: "1.6" }}>
@@ -112,8 +113,8 @@ export default function StatusPage() {
                 <div className="card-header">
                     <div className="card-icon">⚙️</div>
                     <div style={{ flex: 1 }}>
-                        <h3>Macro Modules State</h3>
-                        <p>u can check currently running or enabled macro actions state here btw</p>
+                        <h3>{Translate("status.macro_modules_state")}</h3>
+                        <p>{Translate("status.you_can_check_currently")}</p>
                     </div>
                 </div>
 
@@ -170,7 +171,7 @@ export default function StatusPage() {
                         <>
                             {filtered.length === 0 ? (
                                 <div style={{ padding: "16px", textAlign: "center", color: "var(--text-muted)", fontSize: "0.82rem", opacity: 0.6 }}>
-                                    No modules match this filter.
+                                    {Translate("status.no_modules_match_this")}
                                 </div>
                             ) : (
                                 <div style={{
@@ -209,7 +210,7 @@ export default function StatusPage() {
                                                 letterSpacing: "0.4px",
                                                 color: status.active ? "#22c55e" : (status.enabled ? "#f59e0b" : "#6b7280"),
                                             }}>
-                                                {status.active ? "Active" : (status.enabled ? "Idle" : "Off")}
+                                                {status.active ? Translate("common.active") : (status.enabled ? Translate("common.idle") : Translate("common.off"))}
                                             </span>
                                         </div>
                                     ))}
@@ -238,7 +239,7 @@ export default function StatusPage() {
                                             cursor: safePage === 0 ? "not-allowed" : "pointer",
                                             opacity: safePage === 0 ? 0.4 : 1,
                                         }}
-                                    >◀ Prev</button>
+                                    >{"◀ "}{Translate("common.prev")}</button>
                                     <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
                                         {safePage + 1} / {totalPages}
                                     </span>
@@ -256,7 +257,7 @@ export default function StatusPage() {
                                             cursor: safePage >= totalPages - 1 ? "not-allowed" : "pointer",
                                             opacity: safePage >= totalPages - 1 ? 0.4 : 1,
                                         }}
-                                    >Next ▶</button>
+                                    >{Translate("common.next")}{" ▶"}</button>
                                 </div>
                             )}
                         </>
@@ -269,7 +270,7 @@ export default function StatusPage() {
                 <div className="card-header">
                     <div className="card-icon">📋</div>
                     <div>
-                        <h3>Macro Session Log</h3>
+                        <h3>{Translate("status.macro_session_log")}</h3>
                     </div>
                 </div>
 
@@ -293,7 +294,7 @@ export default function StatusPage() {
                 >
                     {logLines.length === 0 ? (
                         <div style={{ color: "var(--text-muted)", opacity: 0.5, fontStyle: "italic" }}>
-                            No log entries yet — start the macro to see output here.
+                            {Translate("status.no_log_entries_yet")}
                         </div>
                     ) : (
                         logLines.map((line, idx) => {
@@ -344,7 +345,7 @@ export default function StatusPage() {
                                 cursor: "pointer",
                             }}
                         >
-                            ↓ Scroll to bottom
+                            {"↓ "}{Translate("status.scroll_to_bottom")}
                         </button>
                     </div>
                 )}
@@ -352,7 +353,7 @@ export default function StatusPage() {
 
             {!isMacroRunning && (
                 <div className="info-banner" style={{ marginTop: "16px" }}>
-                    Macro is currently STOPPED. Most modules will appear as Idle or Disabled until you start the macro (F1).
+                    {Translate("status.macro_is_currently_stopped",[{from:"start_hotkey",to:"F1"}])}
                 </div>
             )}
         </>

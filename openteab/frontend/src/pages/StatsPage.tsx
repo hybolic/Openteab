@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useConfig } from "../contexts/ConfigContext";
+import { Translate } from "../utils/ExtendedPageData";
 
 const GLITCH_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()[]{}<>?/\\|~`";
 
@@ -121,31 +122,31 @@ export default function StatsPage() {
     return (
         <>
             <div className="page-header">
-                <h2>Stats</h2>
-                <p>Session statistics and biome encounter history</p>
+                <h2>{Translate("nav.stats")}</h2>
+                <p>{Translate("pages.stats.description")}</p>
             </div>
 
             <div className="card">
                 <div className="card-header">
                     <div className="card-icon">⏱️</div>
                     <div>
-                        <h3>Session Overview</h3>
-                        <p>Current macro session statistics</p>
+                        <h3>{Translate("stats.session_overview")}</h3>
+                        <p>{Translate("stats.current_macro_session_statistics")}</p>
                     </div>
                 </div>
 
                 <div className="stats-grid">
                     <div className="stat-card accent">
                         <div className="stat-value">{elapsedDisplay}</div>
-                        <div className="stat-label">Session Time</div>
+                        <div className="stat-label">{Translate("stats.session_time")}</div>
                     </div>
                     <div className="stat-card">
                         <div className="stat-value">{totalBiomes.toLocaleString()}</div>
-                        <div className="stat-label">Total Biomes Founds</div>
+                        <div className="stat-label">{Translate("stats.total_biomes_founds")}</div>
                     </div>
                     <div className="stat-card">
                         <div className="stat-value">{totalMerchants.toLocaleString()}</div>
-                        <div className="stat-label">Merchants Found</div>
+                        <div className="stat-label">{Translate("stats.merchants_found")}</div>
                     </div>
                 </div>
             </div>
@@ -154,7 +155,7 @@ export default function StatsPage() {
                 <div className="card-header">
                     <div className="card-icon">🌍</div>
                     <div>
-                        <h3>Biome Count Section</h3>
+                        <h3>{Translate("stats.biome_count_section")}</h3>
                     </div>
                 </div>
 

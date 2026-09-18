@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../App.css";
+import { Translate } from "../utils/ExtendedPageData";
 
 interface RecorderWindowProps {
     initialMode?: "obby" | "potion";
@@ -24,14 +25,14 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
     useEffect(() => {
         // Only check URL params when not rendered inline with props
         if (initialMode) {
-            if (initialMode === "potion") setStatusMsg("Potion Mode: Ready");
+            if (initialMode === "potion") setStatusMsg(Translate("recorder.potion_mode_ready"));
             return;
         }
         const params = new URLSearchParams(window.location.search);
         const modeParam = params.get("mode");
         if (modeParam === "potion") {
             setMode("potion");
-            setStatusMsg("Potion Mode: Ready");
+            setStatusMsg(Translate("recorder.potion_mode_ready"));
         }
     }, []);
 
@@ -78,7 +79,7 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
         if (replayCountdown !== null || isReplaying) return; // Disable if replaying
 
         if (mode === "potion" && !potionName.trim()) {
-            setStatusMsg("Error: Enter a name first!");
+            setStatusMsg(Translate("common.error",[{from:"error",to:Translate("recorder.enter_a_name_first")}]));
             return;
         }
 
@@ -87,12 +88,12 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
                 await window.pywebview.api.start_macro_recording();
                 setRecording(true);
                 setElapsed(0);
-                setStatusMsg("Recording...");
+                setStatusMsg(Translate("recorder.recording"));
             } else {
-                setStatusMsg("Error: pywebview API not available.");
+                setStatusMsg(Translate("common.error",[{from:"error",to:"pywebview API not available"}]));
             }
         } catch (e) {
-            setStatusMsg(`Error: ${e} `);
+            setStatusMsg(Translate("common.error",[{from:"error",to:String(e)}]));
         }
     };
 
@@ -103,17 +104,17 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
                 if (mode === "potion") {
                     await window.pywebview.api.stop_macro_recording_potion(potionName);
                     setRecording(false);
-                    setStatusMsg(`Saved to ${potionName}.json!`);
+                    setStatusMsg(Translate("recorder.saved_to_value_json", [{ from: "value", to: potionName }]));
                 } else {
                     await window.pywebview.api.stop_macro_recording();
                     setRecording(false);
-                    setStatusMsg(`Saved!`);
+                    setStatusMsg(Translate("recorder.saved"));
                 }
             } else {
-                setStatusMsg("Error: pywebview API not available.");
+                setStatusMsg(Translate("common.error",[{from:"error",to:"pywebview API not available"}]));
             }
         } catch (e) {
-            setStatusMsg(`Error: ${e} `);
+            setStatusMsg(Translate("common.error",[{from:"error",to:String(e)}]));
         }
     };
 
@@ -121,18 +122,18 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
         if (recording || isReplaying) return;
         setPendingAction("replay");
         setReplayCountdown(5);
-        setStatusMsg("Replaying in 5s...");
+        setStatusMsg(Translate("recorder.replaying_in_5s"));
     };
 
     const handleAlignClick = () => {
         if (recording || isReplaying) return;
         setPendingAction("align");
         setReplayCountdown(5);
-        setStatusMsg("Aligning in 5s...");
+        setStatusMsg(Translate("recorder.aligning_in_5s"));
     };
 
     const handleReplayAction = async () => {
-        setStatusMsg("Replaying...");
+        setStatusMsg(Translate("recorder.replaying"));
         setIsReplaying(true);
         try {
             if (window.pywebview && window.pywebview.api) {
@@ -145,26 +146,26 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
                 if (result && result.startsWith("Error:")) {
                     setStatusMsg(result);
                 } else {
-                    setStatusMsg(result === "Cancelled" ? "Replay Cancelled" : "Replay Finished");
+                    setStatusMsg(result === "Cancelled" ? Translate("recorder.replay_cancelled") : Translate("recorder.replay_finished"));
                 }
             }
         } catch (e) {
-            setStatusMsg(`Error: ${e} `);
+            setStatusMsg(Translate("common.error",[{from:"error",to:String(e)}]));
         } finally {
             setIsReplaying(false);
         }
     };
 
     const handleAlignAction = async () => {
-        setStatusMsg("Aligning...");
+        setStatusMsg(Translate("recorder.aligning"));
         setIsReplaying(true); // Lock UI
         try {
             if (window.pywebview && window.pywebview.api) {
                 await window.pywebview.api.align_camera();
             }
-            setStatusMsg("Aligned!");
+            setStatusMsg(Translate("recorder.aligned"));
         } catch (e) {
-            setStatusMsg(`Error: ${e} `);
+            setStatusMsg(Translate("common.error",[{from:"error",to:String(e)}]));
         } finally {
             setIsReplaying(false);
         }
@@ -198,7 +199,7 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
                         fontSize: "18px", cursor: "pointer", padding: "4px 8px",
                         lineHeight: 1
                     }}
-                    title="Close"
+                    title={Translate("common.close")}
                 >
                     ✕
                 </button>
@@ -209,7 +210,7 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
             </h3>
 
             <div style={{ fontSize: "24px", fontFamily: "monospace", marginBottom: "15px" }}>
-                {replayCountdown !== null ? `Starting in ${replayCountdown}...` : formatTime(elapsed)}
+                {replayCountdown !== null ? Translate("recorder.starting_in_x", [{ from: "value", to: replayCountdown }]) : formatTime(elapsed)}
             </div>
 
             <div style={{ marginBottom: "10px", fontSize: "12px", color: recording || isReplaying ? "var(--accent)" : "var(--text-secondary)" }}>
@@ -220,7 +221,7 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
                 <div style={{ marginBottom: "10px", width: "100%" }}>
                     <input
                         type="text"
-                        placeholder="Potion Name (e.g. Heavenly)"
+                        placeholder={Translate("recorder.placeholder_potion_name")}
                         value={potionName}
                         onChange={(e) => setPotionName(e.target.value)}
                         className="form-input"
@@ -238,7 +239,7 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
                             disabled={replayCountdown !== null || isReplaying}
                             style={{ padding: "8px 20px", opacity: (replayCountdown !== null || isReplaying) ? 0.5 : 1 }}
                         >
-                            Start
+                            {Translate("common.start")}
                         </button>
 
                         <button
@@ -247,7 +248,7 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
                             disabled={replayCountdown !== null || isReplaying || (mode === "potion" && !potionName)}
                             style={{ padding: "8px 20px", backgroundColor: "#2196F3", color: "white", opacity: (replayCountdown !== null || isReplaying || (mode === "potion" && !potionName)) ? 0.5 : 1 }}
                         >
-                            {mode === "potion" ? "Replay Save" : "Replay"}
+                            {mode === "potion" ? Translate("recorder.replay_save") : Translate("recorder.replay")}
                         </button>
 
                         {mode === "obby" && (
@@ -257,19 +258,19 @@ export default function RecorderWindow({ initialMode, onClose }: RecorderWindowP
                                 disabled={replayCountdown !== null || isReplaying}
                                 style={{ padding: "8px 20px", backgroundColor: "#9C27B0", color: "white", opacity: (replayCountdown !== null || isReplaying) ? 0.5 : 1 }}
                             >
-                                Align Camera
+                                {Translate("recorder.align_camera")}
                             </button>
                         )}
                     </>
                 ) : (
                     <button className="btn btn-stop" onClick={handleStop} style={{ padding: "8px 20px" }}>
-                        Stop & Save
+                        {Translate("common.stop")}{" & "}{Translate("common.save")}
                     </button>
                 )}
             </div>
 
             <div style={{ marginTop: "10px", fontSize: "10px", color: "gray" }}>
-                {mode === "potion" ? "Make sure to save the record file name as same as the ingame potion name so macro can find the potion and do auto craft for you!" : "Obby Recorder"}
+                {mode === "potion" ? Translate("recorder.make_sure_to_save") : Translate("recorder.obby_recorder")}
             </div>
         </div>
     );

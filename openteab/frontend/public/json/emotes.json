@@ -12,5 +12,9 @@
     "aga":{
         "emote":":aga:",
         "url":"/api/emote?file=aga"
+    },
+    "nadirhype":{
+        "emote":":nadirhype:",
+        "url":"/api/emote?file=nadirhype"
     }
 }

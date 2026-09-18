@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Translate } from "../utils/ExtendedPageData";
 // Remove tauri
 
 interface CalibrationOverlayProps {
@@ -173,7 +174,7 @@ const CalibrationOverlay: React.FC<CalibrationOverlayProps> = ({ mode }) => {
                     pointerEvents: "auto"
                 }}
             >
-                Cancel (ESC)
+                {Translate("common.cancel")}{" (ESC)"}
             </button>
             {/* Selection rectangle */}
             {mode === "region" && isDragging && startPos && currentPos && (
@@ -205,15 +206,15 @@ const CalibrationOverlay: React.FC<CalibrationOverlayProps> = ({ mode }) => {
                     zIndex: 10
                 }}>
                     {loading ? (
-                        <p style={{ fontWeight: "bold", fontSize: "20px" }}>Taking screenshot... (This shouldn't take long)</p>
+                        <p style={{ fontWeight: "bold", fontSize: "20px" }}>{Translate("calibration_overlay.taking_screenshot_this_shouldn")}</p>
                     ) : (
                         <>
                             <p style={{ fontWeight: "bold", fontSize: "20px" }}>
                                 {mode === "point" ? "Click to Select Position" : "Drag to Select Region"}
                             </p>
-                            <p style={{ fontSize: "14px" }}>Press ESC to cancel</p>
+                            <p style={{ fontSize: "14px" }}>{Translate("calibration_overlay.press_esc_to_cancel")}</p>
                             <p style={{ fontSize: "12px", opacity: 0.7 }}>
-                                Screenshot: {imgSize.w}×{imgSize.h}px
+                                {Translate("calibration_overlay.screenshot")}{" "}{imgSize.w}×{imgSize.h}{"px"}
                             </p>
                         </>
                     )}

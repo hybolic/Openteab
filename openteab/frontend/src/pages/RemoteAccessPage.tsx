@@ -1,6 +1,7 @@
 import { useConfig } from "../contexts/ConfigContext";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { looksLikeWebhookUrl, getWebhookWarning } from "../utils/webhookGuard";
+import { Translate } from "../utils/ExtendedPageData";
 
 export default function RemoteAccessPage() {
     const { config, saveConfig, error } = useConfig();
@@ -31,21 +32,21 @@ export default function RemoteAccessPage() {
     return (
         <>
             <div className="page-header">
-                <h2>Remote Access</h2>
-                <p>Control your macro remotely via a Discord bot</p>
+                <h2>{Translate("remote_access.title")}</h2>
+                <p>{Translate("remote_access.description")}</p>
             </div>
 
             <div className="card">
                 <div className="card-header">
                     <div className="card-icon">🔑</div>
                     <div>
-                        <h3>Remote Access Control</h3>
-                        <p>Enable and configure remote macro control</p>
+                        <h3>{Translate("remote.access_control")}</h3>
+                        <p>{Translate("remote_access.enable_and_configure_remote")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Enable Remote Access Control"
+                    label={Translate("remote_access.enable_remote_access_control_label")}
                     checked={config.remote_access_enabled || false}
                     onChange={(val) => updateConfig("remote_access_enabled", val)}
                 />
@@ -53,19 +54,19 @@ export default function RemoteAccessPage() {
                 {config.remote_access_enabled && (
                     <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
                         <div className="form-group">
-                            <label className="form-label">Discord Bot Token:</label>
+                            <label className="form-label">{Translate("remote_access.discord_bot_token")}</label>
                             <input
                                 className="form-input"
                                 type="password"
                                 value={config.remote_bot_token || ""}
                                 onChange={(e) => handleBotTokenChange(e.target.value)}
-                                placeholder="Enter your Discord bot token"
+                                placeholder={Translate("remote_access.enter_your_discord_bot")}
                                 style={{ width: "100%", maxWidth: "440px" }}
                             />
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Allowed User ID:</label>
+                            <label className="form-label">{Translate("remote_access.allowed_user_id")}</label>
                             <input
                                 className="form-input"
                                 value={config.remote_allowed_user_id || ""}
@@ -87,7 +88,7 @@ export default function RemoteAccessPage() {
                                     fontSize: "13px",
                                 }}
                             >
-                                Setup tutorial
+                                {Translate("settings.setup_tutorial")}
                             </a>
                         </div>
                     </div>

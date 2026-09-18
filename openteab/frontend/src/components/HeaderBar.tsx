@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { Translate } from "../utils/ExtendedPageData";
 
 interface HeaderBarProps {
     isRunning: boolean;
@@ -9,34 +10,35 @@ interface HeaderBarProps {
     setActiveTab?: (tab: string) => void;
 }
 
-const themes = [
-    { id: "midnight", label: "Midnight" },
-    { id: "solar", label: "Solar" },
-    { id: "arctic", label: "Arctic" },
-    { id: "neon", label: "Neon" },
-    { id: "sunset", label: "Sunset" },
-    { id: "ocean", label: "Ocean" },
-    { id: "forest", label: "Forest" },
-    { id: "cyberpunk", label: "Cyberpunk" },
-    { id: "lavender", label: "Lavender" },
-];
-
-const SEARCH_INDEX = [
-    { title: "Webhooks", tab: "webhook", keywords: ["discord", "webhook", "ping", "notification", "role", "server", "glitched", "dreamspace", "cyberspace", "url", "test", "high accuracy", "logs", "username"] },
-    { title: "Macro Calibrations", tab: "calibrations", keywords: ["calibrate", "positions", "window", "screen", "resolution", "align", "coordinates"] },
-    { title: "Automated actions", tab: "misc", keywords: ["inventory", "delay", "screenshot", "quest", "biome record", "clip", "medal", "rare biome", "ocr failsafe", "biome randomizer", "br", "strange controller", "sc", "reconnect", "private server", "daily", "eden"] },
-    { title: "Fishing", tab: "fishing", keywords: ["fish", "rod", "merchant teleporter", "fish failsafe", "sell all", "flarg", "minigame", "idle"] },
-    { title: "Merchant", tab: "merchant", keywords: ["merchant", "shop", "potions", "items", "buy", "teleport"] },
-    { title: "Auto Pop & Buff", tab: "autopopbuff", keywords: ["auto pop", "buff", "potion", "fortune", "haste", "lucky", "speed", "universe", "heavenly", "oblivion"] },
-    { title: "Auras", tab: "auras", keywords: ["aura", "record", "ping", "min rarity", "force", "clip", "user id", "keybind", "test", "global"] },
-    { title: "Movements", tab: "movements", keywords: ["move", "walk", "jump", "obby", "macro", "path", "record", "replay", "jump"] },
-    { title: "Potion Crafting", tab: "potioncraft", keywords: ["craft", "potion", "cauldron", "stella", "brew", "ingredients"] },
-    { title: "Other Features", tab: "otherfeatures", keywords: ["anti", "afk", "idle", "reset character", "glitch effect"] },
-    { title: "Remote Access", tab: "remoteaccess", keywords: ["remote", "access", "control", "api", "discord bot"] },
-    { title: "Customization", tab: "customization", keywords: ["custom", "background", "image", "theme"] }
-];
-
 export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, isGlitching, setActiveTab }: HeaderBarProps) {
+
+    const themes = [
+        { id: "midnight", label: "Midnight" },
+        { id: "solar", label: "Solar" },
+        { id: "arctic", label: "Arctic" },
+        { id: "neon", label: "Neon" },
+        { id: "sunset", label: "Sunset" },
+        { id: "ocean", label: "Ocean" },
+        { id: "forest", label: "Forest" },
+        { id: "cyberpunk", label: "Cyberpunk" },
+        { id: "lavender", label: "Lavender" },
+    ];
+
+    const SEARCH_INDEX = [
+        { title: Translate("nav.webhooks"), tab: "webhook", keywords: ["discord", "webhook", "ping", "notification", "role", "server", "glitched", "dreamspace", "cyberspace", "url", "test", "high accuracy", "logs", "username"] },
+        { title: Translate("nav.macro_calibrations"), tab: "calibrations", keywords: ["calibrate", "positions", "window", "screen", "resolution", "align", "coordinates"] },
+        { title: Translate("nav.automated_actions"), tab: "misc", keywords: ["inventory", "delay", "screenshot", "quest", "biome record", "clip", "medal", "rare biome", "ocr failsafe", "biome randomizer", "br", "strange controller", "sc", "reconnect", "private server", "daily", "eden"] },
+        { title: Translate("nav.fishing"), tab: "fishing", keywords: ["fish", "rod", "merchant teleporter", "fish failsafe", "sell all", "flarg", "minigame", "idle"] },
+        { title: Translate("nav.merchant"), tab: "merchant", keywords: ["merchant", "shop", "potions", "items", "buy", "teleport"] },
+        { title: Translate("header_bar.auto_pop_buff"), tab: "autopopbuff", keywords: ["auto pop", "buff", "potion", "fortune", "haste", "lucky", "speed", "universe", "heavenly", "oblivion"] },
+        { title: Translate("nav.auras"), tab: "auras", keywords: ["aura", "record", "ping", "min rarity", "force", "clip", "user id", "keybind", "test", "global"] },
+        { title: Translate("nav.movements"), tab: "movements", keywords: ["move", "walk", "jump", "obby", "macro", "path", "record", "replay", "jump"] },
+        { title: Translate("nav.potion_crafting"), tab: "potioncraft", keywords: ["craft", "potion", "cauldron", "stella", "brew", "ingredients"] },
+        { title: Translate("nav.other_features"), tab: "otherfeatures", keywords: ["anti", "afk", "idle", "reset character", "glitch effect"] },
+        { title: Translate("nav.remote_access"), tab: "remoteaccess", keywords: ["remote", "access", "control", "api", "discord bot"] },
+        { title: Translate("nav.customization"), tab: "customization", keywords: ["custom", "background", "image", "theme"] }
+    ];
+    
     const [alwaysOnTop, setAlwaysOnTop] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -65,7 +67,7 @@ export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, i
                     (window as any).onConfigUpdated();
                 }
             } else if (result && result.error && result.error !== "No file selected") {
-                alert("Import failed: " + result.error);
+                alert(Translate("header_bar.import_failed_error",[{from:"error",to:result.error}]));
             }
         } catch (e) {
             alert("Import failed: " + e);
@@ -140,13 +142,13 @@ export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, i
 
                 <div className={`status-badge ${isRunning ? "running" : "idle"}`}>
                     <span className="status-dot" />
-                    {isRunning ? "Running" : "Idle"}
+                    {isRunning ? Translate("header_bar.running") : Translate("common.idle")}
                 </div>
 
                 <button
                     className={`pin-btn ${alwaysOnTop ? "active" : ""}`}
                     onClick={toggleAlwaysOnTop}
-                    title={alwaysOnTop ? "Unpin from top" : "Always on top"}
+                    title={alwaysOnTop ? Translate("header_bar.unpin_from_top") : Translate("header_bar.always_on_top")}
                 >
                     📌
                 </button>
@@ -160,7 +162,7 @@ export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, i
                     <input
                         type="text"
                         className="form-input"
-                        placeholder="Filter index"
+                        placeholder={Translate("header_bar.filter_index")}
                         value={searchQuery}
                         onChange={handleSearchChange}
                         onFocus={() => setIsSearchFocused(true)}
@@ -201,7 +203,7 @@ export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, i
                                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                                 >
                                     <div style={{ color: "var(--text-primary)", fontWeight: 500, marginBottom: "2px" }}>{res.title}</div>
-                                    <div style={{ color: "var(--text-muted)", fontSize: "11px" }}>Switch to {res.tab} tab ➜</div>
+                                    <div style={{ color: "var(--text-muted)", fontSize: "11px" }}>{Translate("header_bar.switch_to_res_tab",[{from:"res.tab",to:res.tab}])}</div>
                                 </div>
                             ))}
                         </div>
@@ -212,12 +214,12 @@ export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, i
                     <button
                         className="btn btn-stop"
                         onClick={async () => {
-                            if (window.confirm("Are you sure you want to completely exit the macro?")) {
+                            if (window.confirm(Translate("header_bar.exit_comfirmation"))) {
                                 try {
                                     await window.pywebview?.api?.close_window();
                                     window.close();
                                     setTimeout(() => {
-                                        document.body.innerHTML = '<div style="background:#111;color:#fff;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;"><h1>Macro Terminated. You can close this tab.</h1></div>';
+                                        document.body.innerHTML = '<div style="background:#111;color:#fff;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;"><h1>' + Translate("header_bar.macro_terminated") + '</h1></div>';
                                     }, 500);
                                 } catch (e) {
                                     console.error("Exit failed", e);
@@ -234,7 +236,7 @@ export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, i
                             color: "white"
                         }}
                     >
-                        Exit Macro
+                        {Translate("header_bar.exit_macro")}
                     </button>
                 )}
 
@@ -242,7 +244,7 @@ export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, i
                     className="btn btn-import"
                     onClick={handleImportConfig}
                     disabled={isImporting}
-                    title="Import a config.json file"
+                    title={Translate("header_bar.import_a_config_json")}
                     style={{
                         fontSize: "11px",
                         padding: "4px 8px",
@@ -252,11 +254,11 @@ export default function HeaderBar({ isRunning, onToggle, theme, onThemeChange, i
                         flexShrink: 0
                     }}
                 >
-                    {isImporting ? "Importing..." : "Import Config"}
+                    {isImporting ? Translate("header_bar.importing") : Translate("header_bar.import_config")}
                 </button>
 
                 <span style={{ fontSize: "12px", color: "var(--text-secondary)", marginRight: "6px" }}>
-                    Macro Theme:
+                    {Translate("macro.theme")}
                 </span>
                 <select
                     className="form-input"

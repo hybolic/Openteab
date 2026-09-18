@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import ToggleSwitch from "../components/ToggleSwitch";
+import { Translate } from "../utils/ExtendedPageData";
 
 export default function PotionCraftPage() {
     // State
@@ -104,8 +105,8 @@ export default function PotionCraftPage() {
     return (
         <div className="animate-fade-in">
             <div className="page-header">
-                <h2>Potion Crafting</h2>
-                <p>Record and replay Stella's potion crafting sequences</p>
+                <h2>{Translate("nav.potion_crafting")}</h2>
+                <p>{Translate("potion_craft.description")}</p>
             </div>
 
             {/* Corner Borders container style similar to Obby */}
@@ -118,19 +119,19 @@ export default function PotionCraftPage() {
                 <div className="card-header">
                     <div className="card-icon">🧪</div>
                     <div>
-                        <h3>Auto Craft</h3>
-                        <p>Automatically craft potions using recorded recipes</p>
+                        <h3>{Translate("potion_crafting.autocraft.title")}</h3>
+                        <p>{Translate("potion_crafting.autocraft.description")}</p>
                     </div>
                 </div>
 
                 <div style={{ marginBottom: "15px" }}>
                     <ToggleSwitch
-                        label="Enable Auto Craft"
-                        description="Run selected recipe on a loop when macro is running (THIS WILL CANCEL ALL OTHERS MACRO ACTIONS FOR POTION CRAFTING)"
+                        label={Translate("potion_crafting.autocraft.enable_label")}
+                        description={Translate("potion_crafting.autocraft.enable_description")}
                         checked={enableCrafting}
                         onChange={(v) => {
                             if (v && !selectedPotion) {
-                                alert("No potion recipe selected!\n\nPlease select a potion recipe file before enabling Auto Craft.");
+                                alert(Translate("common.alert.no_potion_recipe"));
                                 return;
                             }
                             setEnableCrafting(v);
@@ -141,19 +142,19 @@ export default function PotionCraftPage() {
 
                 <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "12px" }}>
                     <button className="btn btn-accent" onClick={openRecorder} style={{ fontSize: "12px", padding: "6px 12px" }}>
-                        ⏺ Open Potion Recorder
+                        {Translate("potion_crafting.autocraft.open_recorder")}
                     </button>
                     <button className="btn" onClick={refreshFiles} style={{ fontSize: "12px", padding: "6px 12px", backgroundColor: "#374151", color: "white", border: "1px solid var(--border-color)" }}>
-                        🔄 Refresh Files
+                        {Translate("common.refresh_files")}
                     </button>
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Selected Recipe</label>
+                    <label className="form-label">{Translate("potion_crafting.autocraft.selected_recipe")}</label>
                     <PotionDropdown
                         value={selectedPotion}
                         onChange={(v: string) => { setSelectedPotion(v); saveConfig("selected_potion_file", v); }}
-                        placeholder="— Select a recipe file —"
+                        placeholder={Translate("potion_crafting.autocraft.placeholder")}
                     />
                 </div>
             </div>
@@ -168,20 +169,20 @@ export default function PotionCraftPage() {
                 <div className="card-header">
                     <div className="card-icon">🔄</div>
                     <div>
-                        <h3>Potion Switching</h3>
-                        <p>Automatically switch between different potion recipes</p>
+                        <h3>{Translate("potion_crafting.switching.title")}</h3>
+                        <p>{Translate("potion_crafting.switching.description")}</p>
                     </div>
                 </div>
 
                 <ToggleSwitch
-                    label="Enable potion switching"
-                    description="Switch to next potion after interval"
+                    label={Translate("potion_crafting.switching.enable_label")}
+                    description={Translate("potion_crafting.switching.enable_description")}
                     checked={enableSwitching}
                     onChange={(v) => { setEnableSwitching(v); saveConfig("enable_potion_switching", v); }}
                 />
 
                 <div className="form-group" style={{ marginTop: "15px" }}>
-                    <label className="form-label">Switch interval (seconds)</label>
+                    <label className="form-label">{Translate("common.repeats.switch_interval", [{ from: "common.time", to: Translate("common.time.seconds") }])}</label>
                     <input
                         type="number"
                         className="form-input"
@@ -191,29 +192,29 @@ export default function PotionCraftPage() {
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Select potion #1</label>
+                    <label className="form-label">{Translate("potion_crafting.switching.select_potion_x", [{from:"count",to:1}])}</label>
                     <PotionDropdown
                         value={potion1}
                         onChange={(v: string) => { setPotion1(v); saveConfig("potion_file_1", v); }}
-                        placeholder="— None —"
+                        placeholder={Translate("potion_crafting.switching.placeholder")}
                     />
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Select potion #2</label>
+                    <label className="form-label">{Translate("potion_crafting.switching.select_potion_x", [{from:"count",to:2}])}</label>
                     <PotionDropdown
                         value={potion2}
                         onChange={(v: string) => { setPotion2(v); saveConfig("potion_file_2", v); }}
-                        placeholder="— None —"
+                        placeholder={Translate("potion_crafting.switching.placeholder")}
                     />
                 </div>
 
                 <div className="form-group">
-                    <label className="form-label">Select potion #3</label>
+                    <label className="form-label">{Translate("potion_crafting.switching.select_potion_x", [{from:"count",to:3}])}</label>
                     <PotionDropdown
                         value={potion3}
                         onChange={(v: string) => { setPotion3(v); saveConfig("potion_file_3", v); }}
-                        placeholder="— None —"
+                        placeholder={Translate("potion_crafting.switching.placeholder")}
                     />
                 </div>
 

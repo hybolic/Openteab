@@ -22,3 +22,6 @@
 **/temp.txt
 **/*.temp
 /openteab/assets/images/emotes
+
+#internal tools for stuff
+/tools/*
