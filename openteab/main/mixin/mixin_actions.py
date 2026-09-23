@@ -440,7 +440,7 @@ class ActionsMixin:
                 return
             if self.config.get("enable_idle_mode", False):
                 return
-            if not roblox.check_roblox_procs():
+            if not roblox._check_roblox_procs():
                 return
             if (getattr(self, "_egg_collecting", False) or getattr(self, "_eden_running", False) or getattr(self, "_potion_thread_active", False)):
                 return
@@ -601,7 +601,7 @@ class ActionsMixin:
             if (getattr(self, "_egg_collecting", False) or getattr(self, "_eden_running", False) or getattr(self, "_potion_thread_active", False)):
                 return
             if getattr(self, "enable_potion_crafting_var", None) and self.enable_potion_crafting_var.get(): return
-            if not roblox.check_roblox_procs():
+            if not roblox._check_roblox_procs():
                 return
             roblox.activate_roblox_window(other=self)
             quest_menu = self.config.get("quest_menu", [0, 0])
@@ -768,7 +768,7 @@ class ActionsMixin:
                 return
             if not getattr(self, "enable_obby_var", None) or not self.enable_obby_var.get():
                 return
-            if not roblox.check_roblox_procs():
+            if not roblox._check_roblox_procs():
                 return
 
             self._obby_running = True
@@ -1223,7 +1223,7 @@ class ActionsMixin:
         try:
             if not self.config.get("collect_easter_egg", False):
                 return
-            if not roblox.check_roblox_procs():
+            if not roblox._check_roblox_procs():
                 return
 
             print("[EggCollect] Starting egg collection sequence...",type="WinOCR")
@@ -1344,7 +1344,7 @@ class ActionsMixin:
                     time.sleep(2)
                     continue
 
-                if not roblox.check_roblox_procs():
+                if not roblox._check_roblox_procs():
                     time.sleep(2)
                     continue
 
@@ -1549,7 +1549,7 @@ class ActionsMixin:
                     time.sleep(2)
                     continue
 
-                if not roblox.check_roblox_procs():
+                if not roblox._check_roblox_procs():
                     time.sleep(2)
                     continue
 
@@ -1751,7 +1751,7 @@ class ActionsMixin:
                     time.sleep(2)
                     continue
 
-                if not roblox.check_roblox_procs():
+                if not roblox._check_roblox_procs():
                     time.sleep(2)
                     continue
 
@@ -1915,7 +1915,7 @@ class ActionsMixin:
         try:
             if not getattr(self, "auto_claim_quests_var", None):
                 pass
-            if not roblox.check_roblox_procs():
+            if not roblox._check_roblox_procs():
                 return
             for _ in range(4):
                 if not self.detection_running:
@@ -2031,7 +2031,7 @@ class ActionsMixin:
         try:
             # 1. Activate Roblox
             print("[Eden Pathing] Activating Roblox...",type="ActionMixin")
-            if not roblox.check_roblox_procs():
+            if not roblox._check_roblox_procs():
                 print("[Eden Pathing] No Roblox process found, aborting",type="ActionMixin")
                 return
             for _ in range(4):
@@ -2763,7 +2763,7 @@ class ActionsMixin:
 
         while self.detection_running:
             try:
-                is_process_dead = not roblox.check_roblox_procs()
+                is_process_dead = not roblox._check_roblox_procs()
                 log_disconnect = False
                 if not is_process_dead:
                     log_disconnect = self._check_disconnect_in_logs()
@@ -2808,7 +2808,7 @@ class ActionsMixin:
                                 roblox_opened = False
                                 while time.time() - wait_start < wait_timeout:
                                     if not self.detection_running: break
-                                    if roblox.check_roblox_procs():
+                                    if roblox._check_roblox_procs():
                                         roblox_opened = True
                                         break
                                     time.sleep(2)
@@ -2827,16 +2827,16 @@ class ActionsMixin:
                                 time.sleep(1)
 
                             if attempt == max_retries:
-                                if not roblox.check_roblox_procs() or getattr(self, "_disconnect_handled", True):
+                                if not roblox._check_roblox_procs() or getattr(self, "_disconnect_handled", True):
                                     roblox.terminate_roblox_processes()
                                     self.send_webhook_status("Max retries reached but failed to rejoin the game. Macro stopped", color=0xff0000)
                                     time.sleep(2)
                                     self.stop_detection()
                                     return
                     else:
-                        while self.detection_running and not roblox.check_roblox_procs():
+                        while self.detection_running and not roblox._check_roblox_procs():
                             time.sleep(1)
-                        if roblox.check_roblox_procs():
+                        if roblox._check_roblox_procs():
                             self._resume_timer_after_reconnect()
                             self._disconnect_handled = False
                 else:
@@ -2972,7 +2972,7 @@ class ActionsMixin:
                 interval_min = 5.0
             if (datetime.now() - getattr(self, "last_inventory_screenshot_time", datetime.min)) < timedelta(minutes=interval_min):
                 return
-            if not roblox.check_roblox_procs(): return
+            if not roblox._check_roblox_procs(): return
             for _ in range(4):
                 if not self.detection_running or self._is_fishing_blocked() or self.auto_pop_state or (getattr(self, "_egg_collecting", False) or getattr(self, "_eden_running", False) or getattr(self, "_potion_thread_active", False)):
                     return
@@ -3667,7 +3667,7 @@ class ActionsMixin:
                 if not getattr(self, "anti_afk_var", None) or not self.anti_afk_var.get():
                     return
 
-                if not roblox.check_roblox_procs():
+                if not roblox._check_roblox_procs():
                     time.sleep(1.0)
                     continue
 

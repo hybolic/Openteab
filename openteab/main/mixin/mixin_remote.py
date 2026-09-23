@@ -540,7 +540,7 @@ class RemoteMixin:
 
                 if item_name == "__close_roblox__":
                     try:
-                        if roblox.check_roblox_procs():
+                        if roblox._check_roblox_procs():
                             roblox.terminate_roblox_processes()
                     except Exception:
                         pass
@@ -571,7 +571,7 @@ class RemoteMixin:
                             except Exception:
                                 pass
                             try:
-                                if roblox.check_roblox_procs():
+                                if roblox._check_roblox_procs():
                                     try:
                                         roblox.terminate_roblox_processes()
                                     except Exception:

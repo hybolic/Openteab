@@ -1,19 +1,56 @@
 from os import getcwd, makedirs, getenv, getpid
 from os.path import join as join_path, exists as path_exists
-from win32gui import GetForegroundWindow, GetWindowText, GetWindowLong, IsWindowVisible, IsWindowEnabled, EnumWindows, SetForegroundWindow, IsIconic, ShowWindow
-from win32process import GetWindowThreadProcessId,GetWindowThreadProcessId
-from psutil import Process, process_iter, TimeoutExpired, NoSuchProcess, AccessDenied, ZombieProcess
-from ctypes import windll, byref, c_ulong
-from win32con import GWL_STYLE, WS_CAPTION, SW_RESTORE
-from pygetwindow import getWindowsWithTitle, getAllTitles
-from keyboard import press_and_release
 from PIL import Image
-from pyautogui import screenshot
-import pyautogui
 from typing import Callable
 from time import sleep
-from autoit import win_activate
 from pathlib import Path
+
+def do_global_import():
+    if 'GetForegroundWindow' not in globals(): _do_global_import()
+    elif 'GetWindowText' not in globals(): _do_global_import()
+    elif 'GetWindowLong' not in globals(): _do_global_import()
+    elif 'IsWindowVisible' not in globals(): _do_global_import()
+    elif 'IsWindowEnabled' not in globals(): _do_global_import()
+    elif 'EnumWindows' not in globals(): _do_global_import()
+    elif 'SetForegroundWindow' not in globals(): _do_global_import()
+    elif 'IsIconic' not in globals(): _do_global_import()
+    elif 'ShowWindow' not in globals(): _do_global_import()
+    elif 'GWL_STYLE' not in globals(): _do_global_import()
+    elif 'WS_CAPTION' not in globals(): _do_global_import()
+    elif 'SW_RESTORE' not in globals(): _do_global_import()
+    elif 'GetWindowThreadProcessId' not in globals():_do_global_import()
+    elif 'windll' not in globals(): _do_global_import()
+    elif 'byref' not in globals(): _do_global_import()
+    elif 'c_ulong' not in globals(): _do_global_import()
+    elif 'Process' not in globals(): _do_global_import()
+    elif 'process_iter' not in globals(): _do_global_import()
+    elif 'TimeoutExpired' not in globals(): _do_global_import()
+    elif 'NoSuchProcess' not in globals(): _do_global_import()
+    elif 'AccessDenied' not in globals(): _do_global_import()
+    elif 'ZombieProcess' not in globals(): _do_global_import()
+    elif 'getWindowsWithTitle' not in globals(): _do_global_import()
+    elif 'getAllTitles' not in globals(): _do_global_import()
+    elif 'press_and_release' not in globals(): _do_global_import()
+    elif 'screenshot' not in globals(): _do_global_import()
+    elif 'pyautogui' not in globals(): _do_global_import()
+    elif 'win_activate' not in globals(): _do_global_import()
+    
+def _do_global_import():
+    global GetForegroundWindow, GetWindowText, GetWindowLong, IsWindowVisible, IsWindowEnabled, EnumWindows, SetForegroundWindow, IsIconic, ShowWindow, GWL_STYLE, WS_CAPTION, SW_RESTORE, GetWindowThreadProcessId,GetWindowThreadProcessId, windll, byref, c_ulong, Process, process_iter, TimeoutExpired, NoSuchProcess, AccessDenied, ZombieProcess, getWindowsWithTitle, getAllTitles, press_and_release, screenshot, pyautogui, win_activate
+    try:
+        from win32gui import GetForegroundWindow, GetWindowText, GetWindowLong, IsWindowVisible, IsWindowEnabled, EnumWindows, SetForegroundWindow, IsIconic, ShowWindow
+        from win32con import GWL_STYLE, WS_CAPTION, SW_RESTORE
+        from win32process import GetWindowThreadProcessId,GetWindowThreadProcessId
+        from ctypes import windll, byref, c_ulong
+        from psutil import Process, process_iter, TimeoutExpired, NoSuchProcess, AccessDenied, ZombieProcess
+        from pygetwindow import getWindowsWithTitle, getAllTitles
+        from keyboard import press_and_release
+        from pyautogui import screenshot
+        import pyautogui
+        from autoit import win_activate
+        return True
+    except:
+        return False
 
 class Roblox:
     def __init__(self):
@@ -23,6 +60,7 @@ class Roblox:
     _roblox_fullscreened = False
 
     def _focus_window_hwnd(self, hwnd, max_attempts=20, sleep_between=0.25, other=None):
+        if not do_global_import(): return
         attempt = 0
         while other.detection_running and attempt < max_attempts:
             attempt += 1
@@ -88,6 +126,7 @@ class Roblox:
         return GetForegroundWindow() == hwnd
 
     def activate_roblox_window(self, other):
+        if not do_global_import(): return
         hwnd = None
         try:
             hwnds = self._find_roblox_hwnds()
@@ -139,6 +178,7 @@ class Roblox:
                 print(f"[activate_roblox_window] fullscreen failed: {e}")
 
     def _find_roblox_hwnds(self):
+        if not do_global_import(): return
         pids = set()
         try:
             current_user = Process().username()
@@ -184,6 +224,7 @@ class Roblox:
         return hwnds
 
     def is_roblox_focused(self):
+        if not do_global_import(): return
         kernel32 = windll.kernel32
         try:
             hwnd = GetForegroundWindow()
@@ -209,7 +250,8 @@ class Roblox:
             return False
         except Exception: return False
 
-    def check_roblox_procs(self):
+    def _check_roblox_procs(self):
+        if not do_global_import(): return
         try:
             current_user = Process().username()
             current_user_norm = str(current_user or "").strip().lower()
@@ -235,11 +277,12 @@ class Roblox:
                 return True
 
         except Exception as e:
-            print(e, "Error in check_roblox_procs function.")
+            print(e, "Error in _check_roblox_procs function.")
 
         return False  # no Roblox processes are found
 
     def terminate_roblox_processes(self):
+        if not do_global_import(): return
         try:
             current_user = Process().username()
             current_user_norm = str(current_user or "").strip().lower()
@@ -264,8 +307,14 @@ class Roblox:
         except Exception as e:
             self.error_logging(e, "Error in terminate_roblox_processes function.")
 del join_path
-def join_path(top:Path, next:Path|str) -> Path:
-    return top / next
+try: #if python version used is below recommended fallback to compat temporarily
+    def join_path(top:Path, next:Path|str) -> Path:
+        return top / next
+except:
+    def join_path(top:Path, next:any) -> Path:
+        if isinstance(next,(Path,str)): return top / next
+        else: return top / str(next)
+    
 roblox = Roblox()
 class Openteab:
     cwd = Path(getcwd())
@@ -326,36 +375,36 @@ class Openteab:
             print(f"Created paths folder: {path}")
 
         return path
-    
-    def save_screenshot(File:str, Webhook:Callable|None=None, Area:tuple[int, int, int, int]|None=None, *args, **kwargs):
-        path = join_path(openteab.screenshots, File)
-        if not roblox.is_roblox_focused():
-            print("Roblox not focused, skipping screenshot", type="Screenshot")
-            return None
-        else:
-            img = screenshot(Area)
-            img.save(path)
-            print(f"Saved to: {path}, exists: {path_exists(path)}")
-        if Webhook is not None:
-            try:
-                Webhook(*args, **kwargs, screenshot_path=path)
-            except Exception as e:
-                from inspect import currentframe
-                def namestr(obj, namespace):
-                    return [name for name in namespace if namespace[name] is obj]
-                def names_in_caller(obj, depth=2) -> list[str]:
-                    frame = currentframe()
-                    for _ in range(depth):
+    try:
+        def save_screenshot(File:str, Webhook:Callable|None=None, Area:tuple[int, int, int, int]|None=None, *args, **kwargs):
+            path = join_path(openteab.screenshots, File)
+            if not roblox.is_roblox_focused():
+                print("Roblox not focused, skipping screenshot", type="Screenshot")
+                return None
+            else:
+                img = screenshot(Area)
+                img.save(path)
+                print(f"Saved to: {path}, exists: {path_exists(path)}")
+            if Webhook is not None:
+                try:
+                    Webhook(*args, **kwargs, screenshot_path=path)
+                except Exception as e:
+                    from inspect import currentframe
+                    def namestr(obj, namespace):
+                        return [name for name in namespace if namespace[name] is obj]
+                    def names_in_caller(obj, depth=2) -> list[str]:
+                        frame = currentframe()
+                        for _ in range(depth):
+                            if frame is None:
+                                return []
+                            frame = frame.f_back
                         if frame is None:
                             return []
-                        frame = frame.f_back
-                    if frame is None:
-                        return []
-                    return namestr(obj, frame.f_locals)
-                hook_name = names_in_caller(Webhook)
-                print(f"Failed to send {hook_name}: {e}", (args, kwargs), type="webhook")
-        return path
-
+                        return namestr(obj, frame.f_locals)
+                    hook_name = names_in_caller(Webhook)
+                    print(f"Failed to send {hook_name}: {e}", (args, kwargs), type="webhook")
+            return path
+    except:pass
     # ------------------------------------------------------------------
     # Requirements
     # ------------------------------------------------------------------

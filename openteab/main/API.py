@@ -92,6 +92,50 @@
 #       if its completely readable! But also it loads faster if we don't have to
 #       decode and decompress at runtime each load
 
+
+''' EMOTE LOADER
+when we grab the file locally we default to webp first if we don't find
+it we just search the filename without the extension to see if its there
+and then check its extension against valid image types
+LOCAL EMOTE LOOKUP
+│
+├── Try exact filename
+│   └── [name].webp
+│       └── FOUND → use it
+│
+└── NOT FOUND
+    │
+    └── Search filename without extension
+        │
+        ├── [name].gif
+        ├── [name].jpg
+        ├── [name].jpeg
+        ├── [name].png
+        └── ...
+             │
+       check extension
+             │
+             ├── valid image → use it
+             └── invalid     → ignore
+'''
+'''Resolve Emote from Json
+│
+├── cached .webp?
+│   └── YES → return
+│
+├── Openteab asset?
+│   └── YES → cache as .webp → return
+│
+├── Fallback Providers
+│   ├── Klipy?
+│   │   └── YES → download → convert to .webp → cache → return
+│   │
+│   └── provider 2?
+│       └── ...
+│
+└── missing
+'''
+
 from pathlib import Path
 try: from openteab.globals import openteab
 except:

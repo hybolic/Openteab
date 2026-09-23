@@ -101,7 +101,7 @@ class DetectionMixin:
                     return
                 if self.config.get("enable_idle_mode", False):
                     return
-            if not roblox.check_roblox_procs():
+            if not roblox._check_roblox_procs():
                 return
             if (getattr(self, "_egg_collecting", False) or getattr(self, "_eden_running", False) or getattr(self, "_potion_thread_active", False)):
                 return
@@ -1276,7 +1276,7 @@ class DetectionMixin:
                 interval_min = 5.0
             if (datetime.now() - getattr(self, "last_aura_screenshot_time", datetime.min)) < timedelta(minutes=interval_min):
                 return
-            if not roblox.check_roblox_procs(): return
+            if not roblox._check_roblox_procs(): return
             
             for _ in range(4):
                 if not self.detection_running or (hasattr(self, "_is_fishing_blocked") and self._is_fishing_blocked()):
