@@ -25,3 +25,4 @@
 
 #internal tools for stuff
 /tools/*
+/.vscode

@@ -146,10 +146,10 @@ export class LangLoader extends LOAD_JSON {
         return result
     }
 }
-
 export class EmoteLoader extends LOAD_JSON {
     static instance = new EmoteLoader()
     static EmoteList = EmoteList_json
+
     async LOAD() : Promise<boolean>
     {
         if (this.isLoaded())
@@ -221,11 +221,10 @@ export class EmoteLoader extends LOAD_JSON {
         }
         return fallback
     }
-
     static getEmote(emote:string):Emote|undefined{
         //strips excess ":" and other things before putting back the original ":", why do this? because it sometimes bugs out...
         // just don't ask, it was a weird bug! >3>
-        emote = ":" + emote.replaceAll(/[^a-zA-Z0-9_-]/,"") + ":"
+        emote = ":" + emote.replaceAll(/[^a-zA-Z0-9_-]/g,"") + ":"
         return Object.values(EmoteLoader.EmoteList).find(x => x.emote === emote)
     }
 }
@@ -385,11 +384,11 @@ export function replaceInlines(text: string): React.ReactNode {
         {
             console.log('doing emote!')
             const emote = EmoteLoader.getEmote(match_value)
-            console.log(emote)
+            // console.log(emote)
 
             if (emote)
             {
-                console.log(emote.emote, emote.url)
+                // console.log(emote.emote, emote.url)
                 result.push(<img src={emote.url} alt={emote.emote} style={{ width: "auto", height: "15px", position: "relative", top: "4px", }}/>)
             }
             else

@@ -40,8 +40,12 @@ print("Log Opened!", type="INIT")
 def PreLaunch():
     import sys
     from importlib.metadata     import version, PackageNotFoundError
-    from packaging.version      import Version
-    from packaging.requirements import Requirement
+    try:
+        from packaging.version      import Version
+        from packaging.requirements import Requirement
+    except:
+        print("THIS REQUIRES PYTHON 3.11 OR HIGHER!")
+        exit()
     from subprocess             import run, PIPE
     from venv   import EnvBuilder
     from gzip   import decompress
@@ -335,5 +339,5 @@ from http.server import SimpleHTTPRequestHandler, HTTPServer
 
 #fix stupid module error
 mimetypes.add_type("application/javascript", ".js")
-# mimetypes.add_type("application/javascript", ".ts")
-# mimetypes.add_type("application/javascript", ".tsx")
+mimetypes.add_type("application/javascript", ".ts")
+mimetypes.add_type("application/javascript", ".tsx")

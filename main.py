@@ -63,6 +63,7 @@ try:
             except Exception: pass
 except Exception:
     pass
+##################################
 
 _wv2_user_data = os.path.join(_wv2_user_data_base, f"Session_{int(time.time())}")
 os.makedirs(_wv2_user_data, exist_ok=True)
