@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any, get_args, Literal, Final
 
-DIRECTION = Literal['UP','DOWN']
+DIRECTION = Literal["UP","DOWN"]
 
 from abc import ABC, abstractmethod
 
@@ -186,7 +186,43 @@ KeyMapDict = {"AUTOIT":STANDARD_AUTOIT,"AHK":STANDARD_AHK}
 """dictionary of keymaps"""
 
 class KeyboardBase(ABC):
-    CURRENT_INSTANCE:KeyboardBase=...
+    @property
+    def CURRENT_INSTANCE() -> KeyboardBase|None:
+        return list(KeyboardBase.__INSTANCES)[0] if len(KeyboardBase.__INSTANCES) > 0 else None
+    __INSTANCES:dict[KeyboardBase]=dict()
+    
+    @classmethod
+    def SetClipboard(cls, text):
+        return KeyboardBase.CURRENT_INSTANCE._setClipboard(text) if KeyboardBase.CURRENT_INSTANCE else None
+
+    @classmethod
+    def GetClipboard(cls):
+        return KeyboardBase.CURRENT_INSTANCE._getClipboard() if KeyboardBase.CURRENT_INSTANCE else None
+
+    @classmethod
+    def Press(cls, key):
+        return KeyboardBase.CURRENT_INSTANCE._press(key) if KeyboardBase.CURRENT_INSTANCE else None
+
+    @classmethod
+    def Release(cls, key):
+        return KeyboardBase.CURRENT_INSTANCE._release(key) if KeyboardBase.CURRENT_INSTANCE else None
+
+    @classmethod
+    def Is_Pressed(cls, key):
+        return KeyboardBase.CURRENT_INSTANCE._is_pressed(key) if KeyboardBase.CURRENT_INSTANCE else None
+
+    @classmethod
+    def Key_To_Scan_Codes(cls, key, error_if_missing=True):
+        return KeyboardBase.CURRENT_INSTANCE._key_to_scan_codes(key,error_if_missing) if KeyboardBase.CURRENT_INSTANCE else None
+
+    @classmethod
+    def Is_Modifier(cls, key):
+        return KeyboardBase.CURRENT_INSTANCE.Is_Modifier(key) if KeyboardBase.CURRENT_INSTANCE else None
+
+    @classmethod
+    def Send(cls, send_text:str, mode:int|bool=0):
+        return KeyboardBase.CURRENT_INSTANCE._send(send_text,mode) if KeyboardBase.CURRENT_INSTANCE else None
+
     __CURRENT_MODE:KeyMapMode="AUTOIT"
 
     @staticmethod
@@ -209,42 +245,42 @@ class KeyboardBase(ABC):
 
     @staticmethod
     @abstractmethod
-    def setClipboard(text):
+    def _setClipboard(text):
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
-    def getClipboard():
+    def _getClipboard():
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
-    def press(key):
+    def _press(key):
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
-    def release(key):
+    def _release(key):
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
-    def is_pressed(key):
+    def _is_pressed(key):
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
-    def key_to_scan_codes(key, error_if_missing=True):
+    def _key_to_scan_codes(key, error_if_missing=True):
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
-    def is_modifier(key):
+    def _is_modifier(key):
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
-    def send(send_text:str, mode:int|bool=0):
+    def _send(send_text:str, mode:int|bool=0):
         """
         Sends simulated keystrokes to the active window.
 
@@ -268,10 +304,28 @@ class KeyboardBase(ABC):
 
     @staticmethod
     def quickPasteText(text):
-        old_clipboard = KeyboardBase.CURRENT_INSTANCE.getClipboard()
-        KeyboardBase.CURRENT_INSTANCE.setClipboard(text)
-        KeyboardBase.CURRENT_INSTANCE.send("{CTRL}v",0)
-        KeyboardBase.CURRENT_INSTANCE.setClipboard(old_clipboard)
+        inst = KeyboardBase.CURRENT_INSTANCE
+        old_clipboard = KeyboardBase.GetClipboard()
+        KeyboardBase.SetClipboard(text)
+        KeyboardBase.Send("{CTRL}v")
+        KeyboardBase.SetClipboard(old_clipboard)
+
+
+    @classmethod
+    def Tap(cls, key:str):
+        token = key.upper()
+        if len(token) == 1 and token.isalnum():
+            KeyboardBase.Send(token.lower())
+        else:
+            KeyboardBase.Send(f"{{{token}}}")
+
+    @classmethod
+    def Safe_Type(cls, text: str, azerty:bool=False) -> None:
+        text = str(text)
+        if azerty:
+            KeyboardBase.quickPasteText(text)
+        else:
+            autoit.send(text)
 
 class Mouse:
     """storage for mouse buttons"""
@@ -284,342 +338,421 @@ class Mouse:
 
 class MouseBase(ABC):
 
-    @staticmethod
-    @abstractmethod
-    def mouse_click(button:Mouse.Button|str=Mouse.LEFT, x:int=INTDEFAULT, y:int=INTDEFAULT, clicks:int=CLICK_DEFAULT, speed:int=SPEED_DEFAULT) -> Any|None:
-        raise NotImplementedError
+    @property
+    def CURRENT_INSTANCE() -> MouseBase|None:
+        return list(MouseBase.__INSTANCES)[0] if len(MouseBase.__INSTANCES) > 0 else None
+    __INSTANCES:dict[MouseBase]=dict()
 
-    @staticmethod
-    @abstractmethod
-    def mouse_click_drag(x1:int, y1:int, x2:int, y2:int, button:Mouse.Button|str=Mouse.LEFT, speed:int=SPEED_DEFAULT) -> Any|None:
-        raise NotImplementedError
+    @classmethod
+    def Mouse_Click(button:Mouse.Button|str=Mouse.LEFT, x:int=INTDEFAULT, y:int=INTDEFAULT, clicks:int=CLICK_DEFAULT, speed:int=SPEED_DEFAULT) -> Any|None:
+        return MouseBase.CURRENT_INSTANCE._mouse_click(button,x,y,clicks,speed) if MouseBase.CURRENT_INSTANCE else None
     
     @staticmethod
     @abstractmethod
-    def mouse_down(button:Mouse.Button|str=Mouse.LEFT) -> Any|None:
+    def _mouse_click(button:Mouse.Button|str=Mouse.LEFT, x:int=INTDEFAULT, y:int=INTDEFAULT, clicks:int=CLICK_DEFAULT, speed:int=SPEED_DEFAULT) -> Any|None:
         raise NotImplementedError
+
+    @classmethod
+    def Mouse_Click_Drag(x1:int, y1:int, x2:int, y2:int, button:Mouse.Button|str=Mouse.LEFT, speed:int=SPEED_DEFAULT) -> Any|None:
+        return MouseBase.CURRENT_INSTANCE._mouse_click_drag(x1,y1,x2,y2,button,speed) if MouseBase.CURRENT_INSTANCE else None
+
+    @staticmethod
+    @abstractmethod
+    def _mouse_click_drag(x1:int, y1:int, x2:int, y2:int, button:Mouse.Button|str=Mouse.LEFT, speed:int=SPEED_DEFAULT) -> Any|None:
+        raise NotImplementedError
+    
+    @classmethod
+    def Mouse_Down(button:Mouse.Button|str=Mouse.LEFT) -> Any|None:
+        return MouseBase.CURRENT_INSTANCE._mouse_down(button) if MouseBase.CURRENT_INSTANCE else None
     
     @staticmethod
     @abstractmethod
-    def mouse_up(button:Mouse.Button|str=Mouse.LEFT) -> Any|None:
+    def _mouse_down(button:Mouse.Button|str=Mouse.LEFT) -> Any|None:
         raise NotImplementedError
+    
+    @classmethod
+    def Mouse_Up(button:Mouse.Button|str=Mouse.LEFT) -> Any|None:
+        return MouseBase.CURRENT_INSTANCE._mouse_up(button) if MouseBase.CURRENT_INSTANCE else None
+    
+    @staticmethod
+    @abstractmethod
+    def _mouse_up(button:Mouse.Button|str=Mouse.LEFT) -> Any|None:
+        raise NotImplementedError
+
+
+    @classmethod
+    def Mouse_Get_Pos(cls) -> tuple[int, int]:
+        return MouseBase.CURRENT_INSTANCE._mouse_get_pos() if MouseBase.CURRENT_INSTANCE else None
+    
+    @staticmethod
+    @abstractmethod
+    def _mouse_get_pos() -> tuple[int, int]:
+        raise NotImplementedError
+
+    @classmethod
+    def Mouse_Move(cls, x:int, y:int, speed:int=SPEED_DEFAULT) -> Any|None:
+        return MouseBase.CURRENT_INSTANCE._mouse_move(x,y,speed) if MouseBase.CURRENT_INSTANCE else None
 
     @staticmethod
     @abstractmethod
-    def mouse_get_pos() -> tuple[int, int]:
-        raise NotImplementedError
-
-    @staticmethod
-    @abstractmethod
-    def mouse_move(x:int, y:int, speed:int=SPEED_DEFAULT) -> Any|None:
+    def _mouse_move(x:int, y:int, speed:int=SPEED_DEFAULT) -> Any|None:
         raise NotImplementedError
 
 
     """MOUSE WHEEL IMPLMENTATION"""
+    @classmethod
+    def Mouse_Wheel(cls, direction:DIRECTION|str, clicks:int=CLICK_DEFAULT) -> Any|None:
+        return MouseBase.CURRENT_INSTANCE._mouse_wheel(direction, clicks) if MouseBase.CURRENT_INSTANCE else None
+    
     @staticmethod
     @abstractmethod
-    def mouse_wheel(direction:DIRECTION|str, clicks:int=CLICK_DEFAULT) -> Any|None:
+    def _mouse_wheel(direction:DIRECTION|str, clicks:int=CLICK_DEFAULT) -> Any|None:
         raise NotImplementedError
 
     @classmethod
-    def mouse_wheel_up(cls,clicks:int=CLICK_DEFAULT) -> Any|None:
-        return cls.mouse_wheel("UP",clicks)
+    def Mouse_Wheel_Up(cls,clicks:int=CLICK_DEFAULT) -> Any|None:
+        return cls._mouse_wheel("UP",clicks)
 
     @classmethod
-    def mouse_wheel_down(cls,clicks:int=CLICK_DEFAULT) -> Any|None:
-        return cls.mouse_wheel("DOWN",clicks)
+    def Mouse_Wheel_Down(cls,clicks:int=CLICK_DEFAULT) -> Any|None:
+        return cls._mouse_wheel("DOWN",clicks)
 
+import platform as _platform
+KeyboardBase.__INSTANCES = {}
+MouseBase.__INSTANCES = {}
 
-try:
+import keyboard
+class StandaloneKeyboard(KeyboardBase):
+    """
+    @MANIFEST
+    {
+
+        "Name": "Keyboard",
+        "Class": "StandaloneKeyboard",
+        "BaseClass": "KeyboardBase",
+        "Requirements": [["keyboard","0.13.5"]],
+        "FILE": "kbm_base.py",
+        "Hash": "BACKSLSH:",
+        "Author": ["NadirRift"],
+        "Description": [
+            "Standard Keyboard Abstraction layer for Macroing",
+            "Its pretty awefully implemented... oops :P"
+        ],
+        "DateGenearted": ""
+    }
+    """
+    __CLIPBOARD_FAKE:str
+    CACHE:dict[str,list[function]]=[]
+
+    @staticmethod
+    def _setClipboard(text):
+        import subprocess
+        from os import environ
+
+        if _platform.system() == "Windows":
+                subprocess.run(["clip.exe"], input=text.encode("utf-8"), check=True)
+        elif _platform.system() == "Linux":
+            SESSION = environ.get("XDG_SESSION_TYPE", "").lower()
+            WAYLAND_DISPLAY = environ.get("WAYLAND_DISPLAY")
+            X11_DISPLAY     = environ.get("DISPLAY")
+            if SESSION == "wayland" or WAYLAND_DISPLAY:
+                proc = subprocess.Popen(["wl-copy", "-selection", "clipboard"], stdin=subprocess.PIPE)
+            elif SESSION == "x11" or X11_DISPLAY:
+                proc = subprocess.Popen(["xclip", "-selection", "clipboard"], stdin=subprocess.PIPE)
+            else:
+                raise Exception("I DO NOT KNOW WHAT COMMAND TO RUN IN THIS INSTANCE!")
+            if proc:
+                proc.communicate(input=text.encode("utf-8"))
+        elif _platform.system() == "Darwin": #MacOS
+            subprocess.run("pbcopy", text=True, input=text)
+        else:
+            StandaloneKeyboard.__CLIPBOARD_FAKE = text
+
+        return text
+
+    @staticmethod
+    def _getClipboard():
+        import subprocess
+        from os import environ
+
+        if _platform.system() == "Windows":
+            result = subprocess.run(["powershell.exe", "-Command", "Get-Clipboard"], capture_output=True, text=True, check=True)
+            text = result.stdout
+        elif _platform.system() == "Linux":
+            SESSION = environ.get("XDG_SESSION_TYPE", "").lower()
+            WAYLAND_DISPLAY = environ.get("WAYLAND_DISPLAY")
+            X11_DISPLAY     = environ.get("DISPLAY")
+            if SESSION == "wayland" or WAYLAND_DISPLAY:
+                text = subprocess.run(["wl-paste"], capture_output=True, text=True, check=True)
+            elif SESSION == "x11" or X11_DISPLAY:
+                proc = subprocess.run(["xclip", "-selection", "clipboard", "-o"], capture_output=True, text=True, check=True)
+            else:
+                raise Exception("I DO NOT KNOW WHAT COMMAND TO RUN IN THIS INSTANCE!")
+        elif _platform.system() == "Darwin": #MacOS
+            text = subprocess.run(["pbpaste"], capture_output=True, text=True, check=True)
+        else:
+            text = StandaloneKeyboard.__CLIPBOARD_FAKE
+            
+        return text
+
+    @staticmethod
+    def _press(key):
+        return keyboard.press(key)
+
+    @staticmethod
+    def _release(key):
+        return keyboard.release(key)
+
+    @staticmethod
+    def _is_pressed(key):
+        return keyboard.is_pressed(key)
+
+    @staticmethod
+    def _key_to_scan_codes(key, error_if_missing=True):
+        return keyboard.key_to_scan_codes(key,error_if_missing)
+
+    @staticmethod
+    def _is_modifier(key):
+        return keyboard.is_modifier(key)
+    
+    @staticmethod
+    def _send(send_text:str, mode:int|bool=0):
+        #if mode 1 we just send the stuff over unchanged
+        if int(mode) == 1:
+            #easy in, easy out
+            keyboard.write(send_text,exact=True)
+        else:
+            #retrieve current mode by default it"s using the autoit syntax
+            MODE = KeyboardBase.CURRENT_MODE
+            cache_key_str = StandaloneKeyboard.fnv_hash_64a(send_text)
+            message_hash  = f"{MODE}:{cache_key_str}"
+
+            #quick hash the text so that if we have already run this string
+            #before we don"t need to recompute the output
+            if message_hash in StandaloneKeyboard.CACHE:
+                cached_result = StandaloneKeyboard.CACHE[message_hash]
+            else:
+                #oh fun, we have no cache for this text
+                #time to build one
+                MAPPING = KeyboardBase.CURRENT
+                #sort mapping keys from biggest to smallest, making it easier to retrieve keys
+                sort = sorted(MAPPING.keys(),key=len,reverse=True)
+                #initialise variables so we don"t throw errors
+                #may have forgotten to do this once or twice
+                cached_result:list[function] = []
+                char_index = 0
+                message=""
+                send_text_length = len(send_text)
+                #loop over mess|age using an index
+                #essantially a ^ cursor
+                #           like that
+                while char_index < send_text_length:
+                    matched = False
+                    #loop of keys in our big_lil sorted list
+                    for key in sort:
+                        #if our text STARTS WITH the key we do some evil magic
+                        if send_text.startswith(key, char_index):
+                            val = MAPPING[key]
+                            #if our mapping is greater then 1 then we have
+                            #a specific output needed for this mode
+                            if len(val) > 1:
+                                #we grab the key
+                                special_key = val[1]
+                                #only if its message is greater then 0
+                                #cause we don"t want to send an empty
+                                if len(message) > 0:
+                                    #and shove it and our precache
+                                    cached_result.append(lambda text=message, key=special_key:(keyboard.write(text,exact=True),keyboard.send(key)))
+                                else:
+                                    cached_result.append(lambda key=special_key:(keyboard.send(key)))
+                                #ALWAYS RESET THE MESSAGE, even if its already blank
+                                #its just good practice
+                                message = ""
+                            else:
+                                #dump the last key to the precache
+                                cached_result.append(lambda k=special_key: keyboard.send(k))
+                            #increment by size of the key we just index
+                            char_index += len(key)
+                            #send a match
+                            matched = True
+                            #break the for loop
+                            break
+                    #if no match we just add the last character to the message block
+                    if not matched:
+                        message += send_text[char_index]
+                        #incrementing the index
+                        char_index += 1
+                #flush out the message if anything is left!
+                if message:
+                    cached_result.append(lambda s=message: keyboard.write(s, exact=True))
+                #SAVE THAT CACHE UNDER OUR HASH!
+                StandaloneKeyboard.CACHE[message_hash] = cached_result
+            #finally after the IF/ELSE
+            #we loop over the cached lambda calls
+            #doing a listed keyboard outputs :D
+            for func in cached_result:
+                func()
+        #return None because thats what "keyboard" does
+        return None
+
+    def fnv_hash_64a(string:str) :
+        """
+        please go see: https://github.com/lcn2/fnv/blob/master/hash_64a.c \n
+        just a yoink so we can have a storage method that doesn"t use sha256
+        for hashing
+        """
+        hash_num = 0xCBF29CE484222325
+        fnv1_prime = 0x100000001B3
+        mask = 0xFFFFFFFFFFFFFFFF
+        for byte in string.encode("utf-8"):
+            hash_num = ((hash_num ^ byte) * fnv1_prime) & mask
+        return hash_num
+
+if _platform.system() == "Windows":
+    try:
+        import autoit
+
+        class AutoITMouse(MouseBase):
+            """
+            @MANIFEST
+            {
+                "Name": "Mouse_AutoIt",
+                "Class": "AutoITMouse",
+                "BaseClass": "MouseBase",
+                "Requirements": [["autoit","0.2.6"]],
+                "FILE": "kbm_base.py",
+                "Hash": "BACKSLSH:",
+                "Author": ["NadirRift"],
+                "Description": ["Mouse AutoIt Abstraction layer for Macroing"],
+                "DateGenearted": ""
+            }        ^BLANK ON PURPOSE BUT WOULD LOOK LIKE
+                "DateGenearted":"28/12/2030 12:00 GMT+0000"
+            """
+            @staticmethod
+            def _mouse_click(button = Mouse.LEFT, x = INTDEFAULT, y = INTDEFAULT, clicks = CLICK_DEFAULT, speed = SPEED_DEFAULT):
+                return autoit.mouse_click(button,x,y,clicks,speed)
+
+            @staticmethod
+            def _mouse_click_drag(x1, y1, x2, y2, button = Mouse.LEFT, speed = SPEED_DEFAULT):
+                return autoit.mouse_click_drag(x1,y1,x2,y2,button,speed)
+
+            @staticmethod
+            def _mouse_down(button = Mouse.LEFT):
+                return autoit.mouse_down(button)
+
+            @staticmethod
+            def _mouse_up(button = Mouse.LEFT):
+                return autoit.mouse_up(button)
+            
+            @staticmethod
+            def _mouse_get_pos():
+                return autoit.mouse_get_pos() # TEST
+
+            @staticmethod
+            def _mouse_move(x, y, speed = SPEED_DEFAULT):
+                return autoit.mouse_move(x,y,speed)
+            
+            @staticmethod
+            def _mouse_wheel(direction, clicks = CLICK_DEFAULT):
+                return autoit.mouse_wheel(direction,clicks)
+
+        class AutoITKeyboard(KeyboardBase):
+            """
+            @MANIFEST
+            {
+                "Name": "Keyboard_and_AutoIt",
+                "Class": "AutoITKeyboard",
+                "BaseClass": "KeyboardBase",
+                "Requirements": [
+                    ["keyboard","0.13.5"],
+                    ["autoit","0.2.6"]
+                ],
+                "FILE": "kbm_base.py",
+                "Hash": "BACKSLSH:",
+                "Author": ["NadirRift"],
+                "Description": ["Keyboard and AutoIt Abstraction layer for Macroing"],
+                "DateGenearted": ""
+            }
+            """
+            @staticmethod
+            def _setClipboard(text):
+                return autoit.clip_put(text)
+
+            @staticmethod
+            def _getClipboard():
+                return autoit.clip_get()
+
+            @staticmethod
+            def _press(key):
+                return keyboard.press(key)
+
+            @staticmethod
+            def _release(key):
+                return keyboard.release(key)
+
+            @staticmethod
+            def _is_pressed(key):
+                return keyboard.is_pressed(key)
+
+            @staticmethod
+            def _key_to_scan_codes(key, error_if_missing=True):
+                return keyboard.key_to_scan_codes(key,error_if_missing)
+
+            @staticmethod
+            def _is_modifier(key):
+                return keyboard.is_modifier(key)
+
+            @staticmethod
+            def _send(send_text, mode=0):
+                return autoit.send(send_text,mode)
+    finally:
+        MouseBase.__INSTANCES["Mouse_AutoIt"] = AutoITMouse()
+        KeyboardBase.__INSTANCES.update({"Keyboard_and_AutoIt":AutoITKeyboard()})
+elif _platform.system() == "Linux":
+    KeyboardBase.__INSTANCES.update({"Keyboard":StandaloneKeyboard()})
+elif _platform.system() == "Darwin": #MacOS
+    KeyboardBase.__INSTANCES.update({"Keyboard":StandaloneKeyboard()})
+else:
+    KeyboardBase.__INSTANCES.update({"Keyboard":StandaloneKeyboard()})
+    raise OSError(f"Unsupported platform {_platform.system()}")
+
+if False:
+    
+
     from typing import List
-
     def DoManifest(NAME:str, CLASS:type, REQUIRES:list[str|tuple[str,str]], Description:str|List[str]="") -> str:
         """generates manifests quickly for use here"""
-        from manifest import ManifestGenerator
+        from manifest import ManifestRegistry
         import json
-        manifest = ManifestGenerator(NAME,CLASS,REQUIRES,__file__,["NadirRift"],Description)
+        manifest = ManifestRegistry(NAME,CLASS,REQUIRES,__file__,["NadirRift"],Description)
         manifest.DateGenearted = ""
         manifest.Hash = "BACKSLSH:"
         output = "@MANIFEST\n"+json.dumps({k: v for k, v in manifest.__dict__.items() if not k.startswith("_")},indent=2)
         print(output)
         return output
+    #TODO: Handle with @Manifest File Handler
+    MouseBase.__INSTANCES = {}
+    MouseBase.__INSTANCES["Mouse_AutoIt"] = AutoITMouse()
 
-    import autoit
-
-    class AutoITMouse(MouseBase):
-        """
-        @MANIFEST
-        {
-            "Name": "Mouse_AutoIt",
-            "Class": "AutoITMouse",
-            "BaseClass": "MouseBase",
-            "Requirements": [["autoit","0.2.6"]],
-            "FILE": "kbm_base.py",
-            "Hash": "BACKSLSH:",
-            "Author": ["NadirRift"],
-            "Description": ["Mouse AutoIt Abstraction layer for Macroing"],
-            "DateGenearted": ""
-        }        ^BLANK ON PURPOSE BUT WOULD LOOK LIKE
-            "DateGenearted":"28/12/2030 12:00 GMT+0000"
-        """
-        @staticmethod
-        def mouse_click(button = Mouse.LEFT, x = INTDEFAULT, y = INTDEFAULT, clicks = CLICK_DEFAULT, speed = SPEED_DEFAULT):
-            return autoit.mouse_click(button,x,y,clicks,speed)
-
-        @staticmethod
-        def mouse_click_drag(x1, y1, x2, y2, button = Mouse.LEFT, speed = SPEED_DEFAULT):
-            return autoit.mouse_click_drag(x1,y1,x2,y2,button,speed)
-
-        @staticmethod
-        def mouse_down(button = Mouse.LEFT):
-            return autoit.mouse_down(button)
-
-        @staticmethod
-        def mouse_up(button = Mouse.LEFT):
-            return autoit.mouse_up(button)
+    KeyboardBase.__INSTANCES = {}
+    KeyboardBase.__INSTANCES["Keyboard_and_AutoIt"]   = AutoITKeyboard()
+    KeyboardBase.__INSTANCES["keyboard"] = StandaloneKeyboard()
         
-        @staticmethod
-        def mouse_get_pos():
-            return autoit.mouse_get_pos() # TEST
+    DoManifest(
+        "Mouse_AutoIt",
+        AutoITMouse,
+        [("autoit","0.2.6")],
+        Description=["Mouse AutoIt Abstraction layer for Macroing"])
+    
+    DoManifest(
+        "Keyboard_and_AutoIt",
+        AutoITKeyboard,
+        [("keyboard","0.13.5"),("autoit","0.2.6")],
+        Description=["Keyboard and AutoIt Abstraction layer for Macroing"])
 
-        @staticmethod
-        def mouse_move(x, y, speed = SPEED_DEFAULT):
-            return autoit.mouse_move(x,y,speed)
-        
-        @staticmethod
-        def mouse_wheel(direction, clicks = CLICK_DEFAULT):
-            return autoit.mouse_wheel(direction,clicks)
-
-    import keyboard
-
-    class AutoITKeyboard(KeyboardBase):
-        """
-        @MANIFEST
-        {
-            "Name": "Keyboard_and_AutoIt",
-            "Class": "AutoITKeyboard",
-            "BaseClass": "KeyboardBase",
-            "Requirements": [
-                ["keyboard","0.13.5"],
-                ["autoit","0.2.6"]
-            ],
-            "FILE": "kbm_base.py",
-            "Hash": "BACKSLSH:",
-            "Author": ["NadirRift"],
-            "Description": ["Keyboard and AutoIt Abstraction layer for Macroing"],
-            "DateGenearted": ""
-        }
-        """
-        @staticmethod
-        def setClipboard(text):
-            return autoit.clip_put(text)
-
-        @staticmethod
-        def getClipboard():
-            return autoit.clip_get()
-
-        @staticmethod
-        def press(key):
-            return keyboard.press(key)
-
-        @staticmethod
-        def release(key):
-            return keyboard.release(key)
-
-        @staticmethod
-        def is_pressed(key):
-            return keyboard.is_pressed(key)
-
-        @staticmethod
-        def key_to_scan_codes(key, error_if_missing=True):
-            return keyboard.key_to_scan_codes(key,error_if_missing)
-
-        @staticmethod
-        def is_modifier(key):
-            return keyboard.is_modifier(key)
-
-        @staticmethod
-        def send(send_text, mode=0):
-            return autoit.send(send_text,mode)
-        
-    class StandaloneKeyboard(KeyboardBase):
-        """
-        @MANIFEST
-        {
-
-            "Name": "Keyboard",
-            "Class": "StandaloneKeyboard",
-            "BaseClass": "KeyboardBase",
-            "Requirements": [["keyboard","0.13.5"]],
-            "FILE": "kbm_base.py",
-            "Hash": "BACKSLSH:",
-            "Author": ["NadirRift"],
-            "Description": [
-                "Standard Keyboard Abstraction layer for Macroing",
-                "Its pretty awefully implemented... oops :P"
-            ],
-            "DateGenearted": ""
-        }
-        """
-        __CLIPBOARD_FAKE:str
-        CACHE:dict[str,list[function]]=[]
-
-        @staticmethod
-        def setClipboard(text):
-            """
-            no standard way to set clipboard with keyboard module
-            that i know of so we emulate it here
-            """
-            StandaloneKeyboard.__CLIPBOARD_FAKE = text
-            return text
-
-        @staticmethod
-        def getClipboard():
-            return StandaloneKeyboard.__CLIPBOARD_FAKE
-
-        @staticmethod
-        def press(key):
-            return keyboard.press(key)
-
-        @staticmethod
-        def release(key):
-            return keyboard.release(key)
-
-        @staticmethod
-        def is_pressed(key):
-            return keyboard.is_pressed(key)
-
-        @staticmethod
-        def key_to_scan_codes(key, error_if_missing=True):
-            return keyboard.key_to_scan_codes(key,error_if_missing)
-
-        @staticmethod
-        def is_modifier(key):
-            return keyboard.is_modifier(key)
-        
-        @staticmethod
-        def send(send_text:str, mode:int|bool=0):
-            #if mode 1 we just send the stuff over unchanged
-            if int(mode) == 1:
-                #easy in, easy out
-                keyboard.write(send_text,exact=True)
-            else:
-                #retrieve current mode by default it's using the autoit syntax
-                MODE = KeyboardBase.CURRENT_MODE
-                cache_key_str = StandaloneKeyboard.fnv_hash_64a(send_text)
-                message_hash  = f"{MODE}:{cache_key_str}"
-
-                #quick hash the text so that if we have already run this string
-                #before we don't need to recompute the output
-                if message_hash in StandaloneKeyboard.CACHE:
-                    cached_result = StandaloneKeyboard.CACHE[message_hash]
-                else:
-                    #oh fun, we have no cache for this text
-                    #time to build one
-                    MAPPING = KeyboardBase.CURRENT
-                    #sort mapping keys from biggest to smallest, making it easier to retrieve keys
-                    sort = sorted(MAPPING.keys(),key=len,reverse=True)
-                    #initialise variables so we don't throw errors
-                    #may have forgotten to do this once or twice
-                    cached_result:list[function] = []
-                    char_index = 0
-                    message=""
-                    send_text_length = len(send_text)
-                    #loop over mess|age using an index
-                    #essantially a ^ cursor
-                    #           like that
-                    while char_index < send_text_length:
-                        matched = False
-                        #loop of keys in our big_lil sorted list
-                        for key in sort:
-                            #if our text STARTS WITH the key we do some evil magic
-                            if send_text.startswith(key, char_index):
-                                val = MAPPING[key]
-                                #if our mapping is greater then 1 then we have
-                                #a specific output needed for this mode
-                                if len(val) > 1:
-                                    #we grab the key
-                                    special_key = val[1]
-                                    #only if its message is greater then 0
-                                    #cause we don't want to send an empty
-                                    if len(message) > 0:
-                                        #and shove it and our precache
-                                        cached_result.append(lambda text=message, key=special_key:(keyboard.write(text,exact=True),keyboard.send(key)))
-                                    else:
-                                        cached_result.append(lambda key=special_key:(keyboard.send(key)))
-                                    #ALWAYS RESET THE MESSAGE, even if its already blank
-                                    #its just good practice
-                                    message = ""
-                                else:
-                                    #dump the last key to the precache
-                                    cached_result.append(lambda k=special_key: keyboard.send(k))
-                                #increment by size of the key we just index
-                                char_index += len(key)
-                                #send a match
-                                matched = True
-                                #break the for loop
-                                break
-                        #if no match we just add the last character to the message block
-                        if not matched:
-                            message += send_text[char_index]
-                            #incrementing the index
-                            char_index += 1
-                    #flush out the message if anything is left!
-                    if message:
-                        cached_result.append(lambda s=message: keyboard.write(s, exact=True))
-                    #SAVE THAT CACHE UNDER OUR HASH!
-                    StandaloneKeyboard.CACHE[message_hash] = cached_result
-                #finally after the IF/ELSE
-                #we loop over the cached lambda calls
-                #doing a listed keyboard outputs :D
-                for func in cached_result:
-                    func()
-            #return None because thats what "keyboard" does
-            return None
-
-        def fnv_hash_64a(string:str) :
-            """
-            please go see: https://github.com/lcn2/fnv/blob/master/hash_64a.c \n
-            just a yoink so we can have a storage method that doesn't use sha256
-            for hashing
-            """
-            hash_num = 0xCBF29CE484222325
-            fnv1_prime = 0x100000001B3
-            mask = 0xFFFFFFFFFFFFFFFF
-            for byte in string.encode("utf-8"):
-                hash_num = ((hash_num ^ byte) * fnv1_prime) & mask
-            return hash_num
-
-
-
-
-
-    if False:
-        
-        #TODO: Handle with @Manifest File Handler
-        MouseBase.__INSTANCES = {}
-        MouseBase.__INSTANCES["Mouse_AutoIt"] = AutoITMouse()
-
-        KeyboardBase.__INSTANCES = {}
-        KeyboardBase.__INSTANCES["Keyboard_and_AutoIt"]   = AutoITKeyboard()
-        KeyboardBase.__INSTANCES["keyboard"] = StandaloneKeyboard()
-            
-        DoManifest(
-            "Mouse_AutoIt",
-            AutoITMouse,
-            [("autoit","0.2.6")],
-            Description=["Mouse AutoIt Abstraction layer for Macroing"])
-        
-        DoManifest(
-            "Keyboard_and_AutoIt",
-            AutoITKeyboard,
-            [("keyboard","0.13.5"),("autoit","0.2.6")],
-            Description=["Keyboard and AutoIt Abstraction layer for Macroing"])
-
-        #standalone keyboard module
-        DoManifest(
-            "Keyboard",
-            StandaloneKeyboard,
-            [("keyboard","0.13.5")],
-            Description=["Standard Keyboard Abstraction layer for Macroing","Its pretty awefully implemented... oops :P"])
-finally:pass
+    #standalone keyboard module
+    DoManifest(
+        "Keyboard",
+        StandaloneKeyboard,
+        [("keyboard","0.13.5")],
+        Description=["Standard Keyboard Abstraction layer for Macroing","Its pretty awefully implemented... oops :P"])

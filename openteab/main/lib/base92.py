@@ -24,6 +24,7 @@ PREREGISTER_AMOUNT = 0
 class DuplicateRegistryError(ValueError):
     """Raised when trying to register a duplicate name."""
     pass
+
 class RegistryMissingError(ValueError):
     """Raised when trying to retrieve a registry but its missing."""
     pass
@@ -157,7 +158,7 @@ class Base92(metaclass=DenyExtend):
 
     @classmethod
     def Register(cls, base:Base92Alpha):
-        print("registering",base.NAME, base)
+        if _Built:print("registering",base.NAME, base)
         cls.__Register(base.NAME, base)
 
     @classmethod
@@ -167,8 +168,13 @@ class Base92(metaclass=DenyExtend):
     @staticmethod
     def EncodeString(python_object,alphabet:Base92Alpha=BACKSLASH,byteorder:BYTEORDER='big') -> str:
 
-        serialized_object_bytes = pickle.dumps(python_object,protocol=pickle.HIGHEST_PROTOCOL)
-        
+        if not isinstance(python_object,(str,bytes,bytearray)):
+            serialized_object_bytes = pickle.dumps(python_object,protocol=pickle.HIGHEST_PROTOCOL)
+        elif isinstance(python_object,str):
+            serialized_object_bytes = python_object.encode(alphabet.GetEncoding())
+        elif isinstance(python_object,(bytes,bytearray)):
+            serialized_object_bytes = python_object
+            
         serialized_integer = int.from_bytes(serialized_object_bytes,byteorder=byteorder)
 
         encoded_characters  = []
