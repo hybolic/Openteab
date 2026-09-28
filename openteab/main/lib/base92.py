@@ -4,6 +4,8 @@ import pickle
 import codecs
 from types import MappingProxyType
 from typing import Callable, Final, Literal, final, get_args
+try: from openteab.main.lib.Exceptions import DuplicateRegistryError, GetTypeName
+except ImportError: from Exceptions import DuplicateRegistryError, GetTypeName
 
 from re import compile
 
@@ -21,14 +23,6 @@ REGISTRY_CHARACTER_LENGTH_MAX:Final[int] = 8
 REGISTRY_VERIFICATION:Final[Callable] = compile(r'[^\w-]').search
 PREREGISTER_AMOUNT = 0
 
-class DuplicateRegistryError(ValueError):
-    """Raised when trying to register a duplicate name."""
-    pass
-
-class RegistryMissingError(ValueError):
-    """Raised when trying to retrieve a registry but its missing."""
-    pass
-
 
 class DenyExtend(type):
     def __new__(self,class_name,parents,attrs,*args, **kwargs):
@@ -37,7 +31,7 @@ class DenyExtend(type):
         return super().__new__(self, class_name,parents,attrs,*args, **kwargs)
     
     def __call__(self, *args, **kwds):
-        raise TypeError(f"Class {self.__name__} is a Static Utility Class and cannot be instantiated!")
+        raise TypeError(f"Class {GetTypeName(self)} is a Static Utility Class and cannot be instantiated!")
 
 @final
 class Base92Alpha:
@@ -45,18 +39,18 @@ class Base92Alpha:
         global _Built
         if _Built:
             if not isinstance(NAME,str):
-                raise TypeError(f"{Base92Alpha.__name__} 'NAME' must be a string!")
+                raise TypeError(f"{GetTypeName(Base92Alpha)} 'NAME' must be a string!")
             if not NAME.strip():
-                raise TypeError(f"{Base92Alpha.__name__} 'NAME' cannot be an empty string!")
+                raise TypeError(f"{GetTypeName(Base92Alpha)} 'NAME' cannot be an empty string!")
             if REGISTRY_VERIFICATION(NAME):
-                raise TypeError(f"{Base92Alpha.__name__} 'NAME' contains illegal Characters! (a-z A-Z 0-9 _ and -)")
+                raise TypeError(f"{GetTypeName(Base92Alpha)} 'NAME' contains illegal Characters! (a-z A-Z 0-9 _ and -)")
             temp_len = len(NAME)
             if temp_len > REGISTRY_CHARACTER_LENGTH_MAX:
-                raise TypeError(f"{Base92Alpha.__name__} 'NAME' exceeds {REGISTRY_CHARACTER_LENGTH_MAX} character limit!")
+                raise TypeError(f"{GetTypeName(Base92Alpha)} 'NAME' exceeds {REGISTRY_CHARACTER_LENGTH_MAX} character limit!")
             elif temp_len < REGISTRY_CHARACTER_LENGTH_MIN:
-                raise TypeError(f"{Base92Alpha.__name__} 'NAME' falls below {REGISTRY_CHARACTER_LENGTH_MIN} character limit!")
+                raise TypeError(f"{GetTypeName(Base92Alpha)} 'NAME' falls below {REGISTRY_CHARACTER_LENGTH_MIN} character limit!")
             if NAME in Base92.getRegistry():
-                raise DuplicateRegistryError(f"The {Base92Alpha.__name__} '{NAME}' is already registered.")
+                raise DuplicateRegistryError(f"The {GetTypeName(Base92Alpha)} '{NAME}' is already registered.")
         if ALPHA is None or ALPHA == "" or not isinstance(ALPHA,(str,bytes,bytearray)):
             ALPHA = "\\"
 

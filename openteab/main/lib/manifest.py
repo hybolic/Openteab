@@ -7,6 +7,9 @@ import inspect
         
 import hashlib
 
+try: from openteab.main.lib.Exceptions import GetTypeName
+except ImportError: from Exceptions import GetTypeName
+
 from base92 import Base92Alpha, Base92
 
 USER_PATH = ""
@@ -40,8 +43,8 @@ class REGEX:
 class ManifestData:
     def __init__(self, NAME:str, CLASS:type, REQUIRES:list[str|tuple[str,str]], file:str|Path, Author:str|List[str]=NO_TEXT, Description:str|List[str]=NO_TEXT):
         self.Name:str               = NAME
-        self.Class:str              = CLASS.__name__
-        self.BaseClass              = CLASS.__base__.__name__ if CLASS.__base__ else "None"
+        self.Class:str              = GetTypeName(CLASS)
+        self.BaseClass              = GetTypeName(CLASS.__base__) if CLASS.__base__ else "None"
         self.Requirements:list[str|tuple[str,str]] = REQUIRES
         if(isinstance(file,str)):
             self.__FILE             = file
@@ -244,7 +247,7 @@ def Manifest(Name:str=NO_TEXT,Author:str|List[str]=NO_TEXT, Description:str|List
         finally:
             if not file_name:
                 file_name = "NoFileFound"
-        RegisterdName = Name if isinstance(Name,str) and len(Name) > 3 else cls.__name__
+        RegisterdName = Name if isinstance(Name,str) and len(Name) > 3 else GetTypeName(cls)
         data = ManifestData(RegisterdName, cls,
                             [[NO_TEXT]], #done during GetHash()
                             file_name, Author, Description)
@@ -258,10 +261,6 @@ def Manifest(Name:str=NO_TEXT,Author:str|List[str]=NO_TEXT, Description:str|List
 
 class ManifestRegistry:
     __ManifestRegistry = dict()
-
-    class DuplicateRegistryError(ValueError):
-        """Raised when trying to register a duplicate name."""
-        pass
 
     @classmethod
     def Register(cls, manifest:ManifestData, Name:str):

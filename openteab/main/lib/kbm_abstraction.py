@@ -1,9 +1,16 @@
 from __future__ import annotations
+from enum import Enum
 from typing import Any, get_args, Literal, Final
-
-DIRECTION = Literal["UP","DOWN"]
-
 from abc import ABC, abstractmethod
+import platform as _platform
+try: from openteab.main.lib.Exceptions import classproperty
+except ImportError: from Exceptions import classproperty
+
+class DIRECTION(Enum):
+    UP=1
+    DOWN=-1
+# switching from Literal to enum
+# DIRECTION = Literal["UP","DOWN"]
 
 KeyMapType = dict[str, tuple[list[str], list[str]]]
 KeyMapMode = Literal["AUTOIT","AHK"] 
@@ -186,9 +193,9 @@ KeyMapDict = {"AUTOIT":STANDARD_AUTOIT,"AHK":STANDARD_AHK}
 """dictionary of keymaps"""
 
 class KeyboardBase(ABC):
-    @property
+    @classproperty
     def CURRENT_INSTANCE() -> KeyboardBase|None:
-        return list(KeyboardBase.__INSTANCES)[0] if len(KeyboardBase.__INSTANCES) > 0 else None
+        return next(iter(KeyboardBase.__INSTANCES.values()), None)
     __INSTANCES:dict[KeyboardBase]=dict()
     
     @classmethod
@@ -225,14 +232,13 @@ class KeyboardBase(ABC):
 
     __CURRENT_MODE:KeyMapMode="AUTOIT"
 
-    @staticmethod
-    @property
+    @classproperty
     def CURRENT_MODE() -> KeyMapMode:
         """current mapping name for send"""
         return KeyboardBase.__CURRENT_MODE
     
-    @staticmethod
-    @property
+
+    @classproperty
     def CURRENT() -> KeyMapType:
         """current mapping for send"""
         return KeyMapDict[KeyboardBase.__CURRENT_MODE]
@@ -338,9 +344,9 @@ class Mouse:
 
 class MouseBase(ABC):
 
-    @property
+    @classproperty
     def CURRENT_INSTANCE() -> MouseBase|None:
-        return list(MouseBase.__INSTANCES)[0] if len(MouseBase.__INSTANCES) > 0 else None
+        return next(iter(MouseBase.__INSTANCES.values()), None)
     __INSTANCES:dict[MouseBase]=dict()
 
     @classmethod
@@ -401,12 +407,12 @@ class MouseBase(ABC):
 
     """MOUSE WHEEL IMPLMENTATION"""
     @classmethod
-    def Mouse_Wheel(cls, direction:DIRECTION|str, clicks:int=CLICK_DEFAULT) -> Any|None:
+    def Mouse_Wheel(cls, direction:DIRECTION, clicks:int=CLICK_DEFAULT) -> Any|None:
         return MouseBase.CURRENT_INSTANCE._mouse_wheel(direction, clicks) if MouseBase.CURRENT_INSTANCE else None
     
     @staticmethod
     @abstractmethod
-    def _mouse_wheel(direction:DIRECTION|str, clicks:int=CLICK_DEFAULT) -> Any|None:
+    def _mouse_wheel(direction:DIRECTION, clicks:int=CLICK_DEFAULT) -> Any|None:
         raise NotImplementedError
 
     @classmethod
@@ -417,7 +423,6 @@ class MouseBase(ABC):
     def Mouse_Wheel_Down(cls,clicks:int=CLICK_DEFAULT) -> Any|None:
         return cls._mouse_wheel("DOWN",clicks)
 
-import platform as _platform
 KeyboardBase.__INSTANCES = {}
 MouseBase.__INSTANCES = {}
 
@@ -706,7 +711,7 @@ if _platform.system() == "Windows":
             def _send(send_text, mode=0):
                 return autoit.send(send_text,mode)
     finally:
-        MouseBase.__INSTANCES["Mouse_AutoIt"] = AutoITMouse()
+        MouseBase.__INSTANCES.update({"Mouse_AutoIt":AutoITMouse()})
         KeyboardBase.__INSTANCES.update({"Keyboard_and_AutoIt":AutoITKeyboard()})
 elif _platform.system() == "Linux":
     KeyboardBase.__INSTANCES.update({"Keyboard":StandaloneKeyboard()})

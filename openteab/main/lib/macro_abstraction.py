@@ -10,6 +10,10 @@ from abc import ABC, abstractmethod
 
 from typing import Any, Callable
 
+try: from openteab.main.lib.Exceptions import GetTypeName
+except ImportError: from Exceptions import GetTypeName
+
+
 try:
     from openteab.main.mixin.mixin_actions import ActionsMixin
 except:
@@ -47,7 +51,7 @@ class MACRO_BASE(ABC):
         self._tracker:ActionsMixin = tracker
 
         #used in print to get the name of the class being used
-        self.__classname__ = self.__class__.__name__
+        self.__classname__ = GetTypeName(self)
         self.__RESTRICT_CALLBACK_DUPLICATES = False
         self.__configProvider:Callable[[], dict[str, Any]] | None = None
 
@@ -94,7 +98,7 @@ class MACRO_BASE(ABC):
         try:
             return self.__classname__
         except AttributeError:
-            self.__classname__ = type(self).__name__
+            self.__classname__ = GetTypeName(self)
             return self.__classname__
         
     #NOTE
@@ -260,22 +264,22 @@ class MACRO_BASE(ABC):
         className = self.getClassName()
         for func,args,kwargs in tuple(self._hotkey_start_callbacks):
             try:
-                if(verbose):print(f'[{className}.{func.__name__}] Callback Started')
+                if(verbose):print(f'[{className}.{GetTypeName(func)}] Callback Started')
                 func(*args,**kwargs)
-                if(verbose):print(f'[{className}.{func.__name__}] Callback Ended')
+                if(verbose):print(f'[{className}.{GetTypeName(func)}] Callback Ended')
             except Exception as e:
-                print(f'[{className}.{func.__name__}] Macro Start callback failed: {e}')
+                print(f'[{className}.{GetTypeName(func)}] Macro Start callback failed: {e}')
         if(verbose):print(f'[{className}] Macro Start callbacks DONE')
 
     def _run_callbacks_stop_hotkey(self, verbose:bool=False):
         className = self.getClassName()
         for func,args,kwargs in tuple(self._hotkey_stop_callbacks):
             try:
-                if(verbose):print(f'[{className}.{func.__name__}] Callback Started')
+                if(verbose):print(f'[{className}.{GetTypeName(func)}] Callback Started')
                 func(*args,**kwargs)
-                if(verbose):print(f'[{className}.{func.__name__}] Callback Ended')
+                if(verbose):print(f'[{className}.{GetTypeName(func)}] Callback Ended')
             except Exception as e:
-                print(f'[{className}.{func.__name__}] Macro Stop callback failed: {e}')
+                print(f'[{className}.{GetTypeName(func)}] Macro Stop callback failed: {e}')
         if(verbose):print(f'[{className}] Macro Stop callbacks DONE')
 
     @staticmethod
