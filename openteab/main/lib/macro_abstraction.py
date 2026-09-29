@@ -10,22 +10,13 @@ from abc import ABC, abstractmethod
 
 from typing import Any, Callable
 
-try: from openteab.main.lib.Exceptions import GetTypeName
-except ImportError: from Exceptions import GetTypeName
+from openteab.main.lib.Exceptions import GetTypeName
+from openteab.main.lib.kbm_abstraction import KeyboardBase, MouseBase
+from openteab.main.mixin.mixin_actions import ActionsMixin
+from openteab.globals import roblox
 
-
-try:
-    from openteab.main.mixin.mixin_actions import ActionsMixin
-except:
-    class ActionsMixin():pass
-
-try:
-    from openteab.globals import roblox
-except:
-    roblox = []
 
 class MACRO_BASE(ABC):
-
     def __init__(self, owner:Api, tracker:ActionsMixin, PRE_LOOP_REQUIRED:bool=False, POST_LOOP_REQUIRED:bool=False, PRE_LOOP_ENABLED:bool=False, POST_LOOP_ENABLED:bool=False):
 
         self.PRE_LOOP_ENABLED  = PRE_LOOP_ENABLED or PRE_LOOP_REQUIRED
@@ -61,13 +52,154 @@ class MACRO_BASE(ABC):
     @RESTRICT_CALLBACK_DUPLICATES.setter
     def RESTRICT_CALLBACK_DUPLICATES(self,RESTRICT_CALLBACK_DUPLICATES:bool):self.__RESTRICT_CALLBACK_DUPLICATES = bool(RESTRICT_CALLBACK_DUPLICATES)
 
+    def _use_br_sc_impl(self, item_name, override:bool):
+        self._br_sc_running = True
+        _inventory_opened = False
+        try:
+            def _cancelled():
+                if override:
+                    return (
+                        not self.detection_running
+                        or self.reconnecting_state
+                        or self.current_biome in ("GLITCHED", "DREAMSPACE", "CYBERSPACE")
+                        or self.current_biome in self.config.get("disabled_biomes_br_sc", [])
+                    )
+                return (
+                    not self._tracker.detection_running
+                    or self._tracker.reconnecting_state
+                    or self._tracker.auto_pop_state
+                    or self._tracker.on_auto_merchant_state
+                    or self._tracker._is_fishing_blocked()
+                    or self._tracker.config.get("enable_potion_crafting")
+                    or self._tracker.current_biome in ("GLITCHED", "DREAMSPACE", "CYBERSPACE")
+                    or self._tracker.current_biome in self._tracker.config.get("disabled_biomes_br_sc", [])
+                    or getattr(self._tracker, "_mt_running", False)
+                    or (getattr(self._tracker, "_egg_collecting", False) or getattr(self._tracker, "_eden_running", False) or getattr(self._tracker, "_potion_thread_active", False))
+                    or (getattr(self._tracker, "enable_potion_crafting_var", None) and self._tracker.enable_potion_crafting_var.get())
+                )
 
+            # When called from fishing loop
+            def _do_sleep(seconds):
+                if override:
+                    time.sleep(max(0.0, seconds))
+                    return not _cancelled()
+                return self._tracker._sleep_with_cancel(seconds)
+
+            if _cancelled():
+                return
+            if not _do_sleep(1.3):
+                return
+
+            inventory_click_delay = int(self._tracker.config.get("inventory_click_delay", "0")) / 1000.0
+            inventory_menu = self._tracker.config.get("inventory_menu", [36, 535])
+            items_tab = self._tracker.config.get("items_tab", [1272, 329])
+            search_bar = self._tracker.config.get("search_bar", [855, 358])
+            first_item_slot = self._tracker.config.get("first_item_inventory_slot_pos", [845, 460])
+            amount_box = self._tracker.config.get("amount_box", [594, 570])
+            use_button = self._tracker.config.get("use_button", [710, 573])
+            inventory_close_button = self._tracker.config.get("inventory_close_button", [1418, 298])
+
+            for _ in range(5):
+                if _cancelled():
+                    return
+                roblox.activate_roblox_window(other=self)
+                if not _do_sleep(0.15):
+                    return
+
+            print(f"Using {item_name.capitalize()}")
+
+            self.Sleep_MouseClick(inventory_menu[0], inventory_menu[1])
+            _inventory_opened = True
+            if not _do_sleep(0.2 + inventory_click_delay):
+                return
+            self.Sleep_MouseClick(items_tab[0], items_tab[1])
+            if not _do_sleep(0.23):
+                return
+            self.Sleep_MouseClick(items_tab[0], items_tab[1])
+            if not _do_sleep(0.23):
+                return
+            self.Sleep_MouseClick(search_bar[0], search_bar[1])
+            if not _do_sleep(0.2 + inventory_click_delay):
+                return
+            if _cancelled():
+                return
+
+            self.Sleep_MouseClick(search_bar[0], search_bar[1])
+            if not _do_sleep(0.23):
+                return
+            self.Sleep_MouseClick(search_bar[0], search_bar[1])
+            if not _do_sleep(0.23):
+                return
+            self.Sleep_MouseClick(search_bar[0], search_bar[1])
+            if not _do_sleep(0.2 + inventory_click_delay):
+                return
+            if _cancelled():
+                return
+            self._safe_type_text(item_name)
+            if not _do_sleep(0.4 + inventory_click_delay):
+                return
+            self.Sleep_MouseClick(first_item_slot[0], first_item_slot[1])
+            if not _do_sleep(0.4 + inventory_click_delay):
+                return
+            try:
+                if not self._tracker._ocr_first_slot_matches(item_name):
+                    inventory_close_button = self._tracker.config.get("inventory_close_button", [1418, 298])
+                    self.Sleep_MouseClick(inventory_close_button[0], inventory_close_button[1])
+                    _do_sleep(0.15 + inventory_click_delay)
+                    return
+            except Exception:
+                pass
+            self.Sleep_MouseClick(first_item_slot[0], first_item_slot[1])
+            if not _do_sleep(0.4 + inventory_click_delay):
+                return
+            self.Sleep_MouseClick(first_item_slot[0], first_item_slot[1])
+            if not _do_sleep(0.3 + inventory_click_delay):
+                return
+            if _cancelled():
+                return
+            self.Sleep_MouseClick(amount_box[0], amount_box[1])
+            if not _do_sleep(0.16 + inventory_click_delay):
+                return
+            KeyboardBase.Send("^{a}")
+            if not _do_sleep(0.13 + inventory_click_delay):
+                return
+            KeyboardBase.Send("{BACKSPACE}")
+            if not _do_sleep(0.13 + inventory_click_delay):
+                return
+            self._safe_type_text('1')
+            if not _do_sleep(0.13 + inventory_click_delay):
+                return
+
+            if _cancelled():
+                return
+            self.Sleep_MouseClick(use_button[0], use_button[1])
+            if not _do_sleep(0.22 + inventory_click_delay):
+                return
+
+            if _cancelled():
+                return
+            self.Sleep_MouseClick(inventory_close_button[0], inventory_close_button[1])
+            _do_sleep(0.22 + inventory_click_delay)
+            _inventory_opened = False
+
+        except Exception as e:
+            self.error_logging(e, "Error in use_br_sc function.")
+        finally:
+            if _inventory_opened:
+                try:
+                    _inv_close = self.config.get("inventory_close_button", [1418, 298])
+                    self.Sleep_MouseClick(_inv_close[0], _inv_close[1])
+                    time.sleep(0.35)
+                except Exception:
+                    pass
+            self._br_sc_running = False
 
     '''busy property'''
     @property
     def busy(self) -> bool: return self.__busy
+
     @busy.setter
-    def busy(self,BUSY:bool):self.__busy = bool(BUSY)
+    def busy(self, BUSY:bool): self.__busy = bool(BUSY)
 
     '''non-property functions'''
     def isBusy(self)->bool: return self.busy
@@ -81,8 +213,9 @@ class MACRO_BASE(ABC):
     '''running property'''
     @property
     def running(self) -> bool: return self.__running
+
     @running.setter
-    def running(self,RUNNING:bool):self.__running = bool(RUNNING)
+    def running(self,RUNNING): self.__running = RUNNING if isinstance(RUNNING,bool) else bool(RUNNING); return self.running
 
     '''non-property functions'''
     def isRunning(self)->bool: return self.running
@@ -296,49 +429,42 @@ class MACRO_BASE(ABC):
 
     @staticmethod
     def coerce_point(raw: list[int], fallback: list[int]) -> tuple[int, int]:
-        if not isinstance(raw, (list, tuple)) or len(raw) < 2:
-            return fallback[0], fallback[1]
-        try:
-            return int(raw[0]), int(raw[1])
-        except Exception:
-            return fallback[0], fallback[1]
+        if isinstance(raw, (list, tuple)) or len(raw) < 2:
+            try:
+                x,y = map(int,raw[:2])
+                return x, y
+            except (ValueError, TypeError): pass
+        return fallback[0], fallback[1]
 
     @staticmethod
     def coerce_region(raw: Any, fallback: list[int]) -> tuple[int, int, int, int]:
-        if not isinstance(raw, (list, tuple)) or len(raw) < 4:
-            return fallback[0], fallback[1], fallback[2], fallback[3]
-        try:
-            x = int(raw[0])
-            y = int(raw[1])
-            w = max(1, int(raw[2]))
-            h = max(1, int(raw[3]))
-            return x, y, w, h
-        except Exception:
-            return fallback[0], fallback[1], fallback[2], fallback[3]
+        if isinstance(raw, (list, tuple)) or len(raw) < 4:
+            try:
+                x,y,w,h = map(int,raw[:4])
+                return x, y, max(1, w), max(1, h)
+            except (ValueError, TypeError): pass
+        return fallback[0], fallback[1], fallback[2], fallback[3]
 
     @staticmethod
     def coerce_int(raw: Any, fallback: int, min_value: int, max_value: int) -> int:
         try:
-            value = int(raw)
-            if value < min_value:
-                return min_value
-            if value > max_value:
-                return max_value
-            return value
-        except Exception:
+            return max(min_value, min(max_value, int(raw)))
+        except (ValueError, TypeError):
             return fallback
 
     @staticmethod
     def coerce_float(raw: Any, fallback: float, min_value: float, max_value: float) -> float:
         try:
-            value = float(raw)
-            if value < min_value:
-                return min_value
-            if value > max_value:
-                return max_value
-            return value
-        except Exception:
+            return max(min_value, min(max_value, float(raw)))
+        except (ValueError, TypeError):
             return fallback
+
+    def _safe_type_text(self, text: str) -> None:
+        KeyboardBase.Safe_Type(text, getattr(self.cfg, "azerty_mode", False))
+
+    def Sleep_MouseClick(self, x, y, click=1, speed=3, sleep:float=0.335):
+        time.sleep(float(sleep))
+        MouseBase.Click("left", x, y, click, speed)
 
 
 
