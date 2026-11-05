@@ -60,6 +60,10 @@ if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
         ctypes.windll.user32.MessageBoxW(0, "Coteab Macro is already running!\n\nPlease close the existing instance before opening a new one.", "Coteab Macro", 0x30)
         sys.exit(0)
 
+from random import randint
+INTERNAL_PORT = randint(18000, 19000)
+del randint
+
 try:
     import numpy
     import pyautogui
@@ -141,40 +145,20 @@ def _get_frontend_dist_dirs() -> list[str]:
 
     return [d for d in dirs if os.path.exists(d)]
 
+def get_frontend_entry_data():
+    return {"url": get_frontend_entry_url()}
+ 
+def get_frontend_entry_url() -> str:
 
-def get_frontend_entry():
     for dist_dir in _get_frontend_dist_dirs():
         index_file = os.path.join(dist_dir, "index.html")
         if os.path.exists(index_file):
             try:
-                abs_path = os.path.abspath(index_file).replace("\\", "/")
-                with open(index_file, "r", encoding="utf-8") as f:
-                    html_content = f.read()
-                print(f"Loading frontend from local: {abs_path}")
-                return {"html": html_content, "url": f"file:///{abs_path}"}
-            except Exception as e:
-                print(f"Error reading local index.html: {e}")
-
-    frontend_url = "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/assets/index.html"
-    try:
-        from biome_tracker.config import APPDATA_BASE
-        appdata_dist = os.path.join(str(APPDATA_BASE), "dist")
-        os.makedirs(appdata_dist, exist_ok=True)
-
-        req = urllib.request.Request(frontend_url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=8) as response:
-            html_content = response.read().decode('utf-8')
-            if html_content and len(html_content) > 1000:
-                saved_path = os.path.join(appdata_dist, "index.html")
-                with open(saved_path, "w", encoding="utf-8") as f: f.write(html_content)
-                abs_path = os.path.abspath(saved_path).replace("\\", "/")
-                print(f"Fetched frontend from GitHub -> saved to: {abs_path}")
-                return {"html": html_content, "url": f"file:///{abs_path}"}
-    except Exception as e:
-        print(f"Failed to fetch frontend from GitHub: {e}")
-
-    return {"url": "http://localhost:5173"}
-
+                cache_bust = int(os.path.getmtime(index_file))
+                return f"{index_file}?v={cache_bust}"
+            except (PermissionError, OSError, FileNotFoundError) as e: return f"{index_file}"
+    else:
+        return f"http://localhost:{INTERNAL_PORT}"
 
 def _read_cli_value(flag, default=""):
     try:
@@ -428,11 +412,14 @@ class Api:
         return current_version
 
     def _setup_emergency_server(self):
+        from http.server import BaseHTTPRequestHandler
+        from urllib.parse import urlparse, parse_qs
         class SafeModeHandler(BaseHTTPRequestHandler):
             api = self
 
             def do_GET(self):
-                if self.path == "/health":
+                parsed_url = urlparse(self.path)
+                if parsed_url.path == "/health":
                     self.send_response(200)
                     self.end_headers()
                     self.wfile.write(b"OK")
@@ -462,6 +449,7 @@ class Api:
                         self.end_headers()
 
             def do_POST(self):
+                parsed_url = urlparse(self.path)
                 if self.path.startswith("/api/"):
                     method_name = self.path.replace("/api/", "")
                     content_length = int(self.headers['Content-Length'])
@@ -497,9 +485,11 @@ class Api:
 
             def log_message(self, format, *args): pass
 
-        self.emergency_port = random.randint(18000, 19000)
+        self.emergency_port = INTERNAL_PORT
+        
         def _run():
             try:
+                from http.server import ThreadingHTTPServer
                 server = ThreadingHTTPServer(('127.0.0.1', self.emergency_port), SafeModeHandler)
                 print(f"Browser mode running on http://127.0.0.1:{self.emergency_port}")
                 server.serve_forever()
@@ -856,7 +846,7 @@ class Api:
         popup_window = None
         try:
             print(f"[BiomeConfirm] Spawning independent popup for biome: {biome}")
-            fe = get_frontend_entry()
+            fe = get_frontend_entry_data()
             popup_w, popup_h = 480, 400
             try:
                 screen_w = win32api.GetSystemMetrics(0)
@@ -891,7 +881,7 @@ class Api:
                 html = fe["html"].replace("<head>", f"<head>{injected_script}", 1)
                 win_kwargs["html"] = html
             else:
-                base = fe["url"] if fe else "http://localhost:5173"
+                base = fe["url"] if fe else f"http://localhost:{INTERNAL_PORT}"
                 sep = "&" if "?" in base else "?"
                 win_kwargs["url"] = f"{base}{sep}window=biome_confirm&biome={biome}"
 
@@ -932,6 +922,7 @@ class Api:
         self._biome_confirm_evt.set()
 
     def apply_update(self, download_url: str, version: str = ""):
+        return False
         if self._tracker:
             def _do_update():
                 try:
@@ -944,6 +935,7 @@ class Api:
         return False
 
     def check_for_updates(self):
+        return False
         if not self._tracker:
             return False
 
@@ -957,6 +949,7 @@ class Api:
         return True
 
     def get_update_available(self):
+        return None
         if not self._tracker:
             return None
         try:
@@ -1010,11 +1003,10 @@ class Api:
          return "No tracker"
 
     def _get_frontend_url(self):
-         res = get_frontend_entry()
-         return res["url"] if res else "http://localhost:5173"
+         return get_frontend_entry_url()
 
     def _open_recorder(self, mode: str = "obby"):
-         fe = get_frontend_entry()
+         fe = get_frontend_entry_data()
          query = "window=recorder"
          if mode == "potion":
              query += "&mode=potion"
@@ -1174,17 +1166,19 @@ def launch_app(api_class, tracker=None):
     tracker.on_biome_confirm_request = api._request_biome_confirm
     tracker.on_status_change = lambda status: api._emit_macro_status()
 
-    fe = get_frontend_entry()
+    fe = get_frontend_entry_data()
+    api._setup_emergency_server()
     win_args = {
         "title": f"Coteab Macro {current_version}",
         "js_api": api,
         "width": 985, "height": 550,
         "min_size": (550, 500),
-        "resizable": True, "frameless": False
+        "resizable": True, "frameless": False,
+        "url": f"http://127.0.0.1:{api.emergency_port}/index.html"
     }
-    if fe and "html" in fe: win_args["html"] = fe["html"]
-    else: win_args["url"] = fe["url"] if fe else "http://localhost:5173"
-
+    # if fe and "html" in fe: win_args["html"] = fe["html"]
+    # else: win_args["url"] = fe["url"] if fe else "http://localhost:{INTERNAL_PORT}"
+    
     window = webview.create_window(**win_args)
     api.set_window(window)
 
@@ -1262,38 +1256,62 @@ def main():
     api._setup_emergency_server()
     api._setup_emergency_hotkey()
     try:
-        fe = get_frontend_entry()
+        fe = get_frontend_entry_data()
+        api._setup_emergency_hotkey()
         win_args = {
             "title": f"Coteab Macro {current_version}",
             "js_api": api,
             "width": 985, "height": 550,
             "min_size": (550, 500),
             "resizable": True, "frameless": False,
+            "url": f"http://127.0.0.1:{api.emergency_port}/index.html"
         }
-        if "html" in fe: win_args["html"] = fe["html"]
-        else: win_args["url"] = fe["url"]
+        # if "html" in fe: win_args["html"] = fe["html"]
+        # else: win_args["url"] = fe["url"]
 
         window = webview.create_window(**win_args)
         api._window = window
+
+        def setIcon(window:webview.Window , icon):
+            try:
+                hwnd = win32gui.FindWindow(None, window.title)
+
+                if not hwnd:
+                    print(f"Could not find window: {window.title}")
+                    return
+                
+                icon_path  = os.path.join(os.path.dirname(__file__), icon)
+                if os.path.exists(icon_path):
+                    print(icon_path)
+                    icon_big   = win32gui.LoadImage(0,icon_path,win32con.IMAGE_ICON,32,32,win32con.LR_LOADFROMFILE)
+                    if icon_big:
+                        win32api.SendMessage(hwnd,win32con.WM_SETICON,win32con.ICON_BIG,icon_big)
+                    icon_small = win32gui.LoadImage(0,icon_path,win32con.IMAGE_ICON,16,16,win32con.LR_LOADFROMFILE)
+                    if icon_small:
+                        win32api.SendMessage(hwnd,win32con.WM_SETICON,win32con.ICON_SMALL,icon_small)
+            except:
+                print("problem setting Openteab icon, using defaults!", type="Exception")
 
         def _background_init():
             nonlocal tracker
             try:
                 from biome_tracker.core import BiomeTracker
                 tracker = BiomeTracker()
-                canonical = _read_cli_value("--coteab-target", "CoteabMacro.exe")
-                old_pid_raw = _read_cli_value("--coteab-old-pid", "")
-                try: old_pid = int(old_pid_raw) if old_pid_raw else None
-                except Exception: old_pid = None
+                setIcon(window,"lib/official_release.ico")
+                # canonical = _read_cli_value("--coteab-target", "CoteabMacro.exe")
+                # old_pid_raw = _read_cli_value("--coteab-old-pid", "")
+                # try: old_pid = int(old_pid_raw) if old_pid_raw else None
+                # except Exception: old_pid = None
 
-                if tracker.maybe_self_rename_to_canonical_exe(canonical, old_pid=old_pid):
-                    window.destroy()
-                    return
+                # if tracker.maybe_self_rename_to_canonical_exe(canonical, old_pid=old_pid):
+                #     window.destroy()
+                #     return
+                
+                # if _cfg_bool(getattr(tracker, "config", {}), "auto_update_enabled", True):
+                #     if tracker.apply_startup_auto_update():
+                #         window.destroy()
+                #         return
 
-                if _cfg_bool(getattr(tracker, "config", {}), "auto_update_enabled", True):
-                    if tracker.apply_startup_auto_update():
-                        window.destroy()
-                        return
 
                 api._tracker = tracker
                 tracker.on_stats_update = api._emit_config_update
