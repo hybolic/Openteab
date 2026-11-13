@@ -3,8 +3,8 @@ from enum import Enum
 from typing import Any, get_args, Literal, Final
 from abc import ABC, abstractmethod
 import platform as _platform
-try: from openteab.main.lib.Exceptions import classproperty
-except ImportError: from Exceptions import classproperty
+try: from openteab.main.lib.decorators import classproperty
+except ImportError: from decorators import classproperty
 
 class DIRECTION(Enum):
     UP=1

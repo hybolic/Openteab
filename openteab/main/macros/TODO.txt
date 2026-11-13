@@ -1,0 +1,10 @@
+Extract Config to standalone
+
+
+Extract BR/SC     to helper class
+Extract Merchants to helper class
+
+standalone eden pathing/handling [MacroBase]
+    
+AutoPop Override [MacroBase]
+    runs only in rare biome and force cancels other Macro before running

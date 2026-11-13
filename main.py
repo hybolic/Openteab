@@ -1211,13 +1211,14 @@ def main():
                     return
                 
                 icon_path  = os.path.abspath(icon)
-                print(icon_path)
-                icon_big   = win32gui.LoadImage(0,icon_path,win32con.IMAGE_ICON,32,32,win32con.LR_LOADFROMFILE)
-                if icon_big:
-                    win32api.SendMessage(hwnd,win32con.WM_SETICON,win32con.ICON_BIG,icon_big)
-                icon_small = win32gui.LoadImage(0,icon_path,win32con.IMAGE_ICON,16,16,win32con.LR_LOADFROMFILE)
-                if icon_small:
-                    win32api.SendMessage(hwnd,win32con.WM_SETICON,win32con.ICON_SMALL,icon_small)
+                if os.path.exists(icon_path):
+                    print(icon_path)
+                    icon_big   = win32gui.LoadImage(0,icon_path,win32con.IMAGE_ICON,32,32,win32con.LR_LOADFROMFILE)
+                    if icon_big:
+                        win32api.SendMessage(hwnd,win32con.WM_SETICON,win32con.ICON_BIG,icon_big)
+                    icon_small = win32gui.LoadImage(0,icon_path,win32con.IMAGE_ICON,16,16,win32con.LR_LOADFROMFILE)
+                    if icon_small:
+                        win32api.SendMessage(hwnd,win32con.WM_SETICON,win32con.ICON_SMALL,icon_small)
             except:
                 print("problem setting Openteab icon, using defaults!", type="Exception")
 

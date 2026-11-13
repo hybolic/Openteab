@@ -1,0 +1,1938 @@
+{
+    "Jester_Items": {
+        "Heavenly Potion": [
+            false,
+            1,
+            false
+        ],
+        "Lucky Potion": [
+            false,
+            1,
+            false
+        ],
+        "Merchant Tracker": [
+            false,
+            1,
+            false
+        ],
+        "Oblivion Potion": [
+            false,
+            1,
+            false
+        ],
+        "Potion of bound": [
+            false,
+            1,
+            false
+        ],
+        "Random Potion Sack": [
+            false,
+            1,
+            false
+        ],
+        "Rune Of Corruption": [
+            false,
+            1,
+            false
+        ],
+        "Rune Of Hell": [
+            false,
+            1,
+            false
+        ],
+        "Rune of Dust": [
+            false,
+            1,
+            false
+        ],
+        "Rune of Everything": [
+            false,
+            1,
+            false
+        ],
+        "Rune of Frost": [
+            false,
+            1,
+            false
+        ],
+        "Rune of Galaxy": [
+            false,
+            1,
+            false
+        ],
+        "Rune of Nothing": [
+            false,
+            1,
+            false
+        ],
+        "Rune of Rainstorm": [
+            false,
+            1,
+            false
+        ],
+        "Rune of Wind": [
+            false,
+            1,
+            false
+        ],
+        "Speed Potion": [
+            false,
+            1,
+            false
+        ],
+        "Stella's Candle": [
+            false,
+            1,
+            false
+        ],
+        "Strange Potion": [
+            false,
+            1,
+            false
+        ]
+    },
+    "Mari_Items": {
+        "Gear A": [
+            false,
+            1,
+            false
+        ],
+        "Gear B": [
+            false,
+            1,
+            false
+        ],
+        "Lucky Penny": [
+            false,
+            1,
+            false
+        ],
+        "Lucky Potion": [
+            false,
+            1,
+            false
+        ],
+        "Lucky Potion L": [
+            false,
+            1,
+            false
+        ],
+        "Lucky Potion XL": [
+            false,
+            1,
+            false
+        ],
+        "Mixed Potion": [
+            false,
+            1,
+            false
+        ],
+        "Speed Potion": [
+            false,
+            1,
+            false
+        ],
+        "Speed Potion L": [
+            false,
+            1,
+            false
+        ],
+        "Speed Potion XL": [
+            false,
+            1,
+            false
+        ],
+        "Void Coin": [
+            false,
+            1,
+            false
+        ]
+    },
+    "Rin_Items": {
+        "Day and Night Talisman": [
+            false,
+            1,
+            false
+        ],
+        "Moonstone Talisman": [
+            false,
+            1,
+            false
+        ],
+        "Overtime Talisman": [
+            false,
+            1,
+            false
+        ],
+        "Soul Collector's Talisman": [
+            false,
+            1,
+            false
+        ],
+        "Soul Master's Talisman": [
+            false,
+            1,
+            false
+        ],
+        "Sunstone Talisman": [
+            false,
+            1,
+            false
+        ]
+    },
+    "amount_box": [
+        560,
+        578
+    ],
+    "anti_afk": false,
+    "aura_detection_screenshot": false,
+    "aura_menu": [
+        37,
+        405
+    ],
+    "aura_search_bar": [
+        834,
+        364
+    ],
+    "aura_record_keybind": "F8",
+    "aura_record_minimum": "200000",
+    "aura_user_id": "",
+    "auto_buff_glitched": {
+        "Fortune Potion I": [
+            false,
+            1
+        ],
+        "Fortune Potion II": [
+            false,
+            1
+        ],
+        "Fortune Potion III": [
+            false,
+            1
+        ],
+        "Godlike Potion": [
+            false,
+            1
+        ],
+        "Haste Potion I": [
+            false,
+            1
+        ],
+        "Haste Potion II": [
+            false,
+            1
+        ],
+        "Haste Potion III": [
+            false,
+            1
+        ],
+        "Heavenly Potion": [
+            false,
+            1
+        ],
+        "Lucky Potion": [
+            false,
+            1
+        ],
+        "Oblivion Potion": [
+            false,
+            1
+        ],
+        "Potion of bound": [
+            false,
+            1
+        ],
+        "Speed Potion": [
+            false,
+            1
+        ],
+        "Stella's Candle": [
+            false,
+            1
+        ],
+        "Strange Potion I": [
+            false,
+            1
+        ],
+        "Strange Potion II": [
+            false,
+            1
+        ],
+        "Transcendent Potion": [
+            false,
+            1
+        ],
+        "Warp Potion": [
+            false,
+            1
+        ],
+        "Xyz Potion": [
+            false,
+            1
+        ]
+    },
+    "auto_claim_daily_quests": true,
+    "auto_claim_interval": "30",
+    "auto_merchant_in_limbo": false,
+    "auto_obby_interval": "25",
+    "auto_pop_cyberspace": false,
+    "auto_pop_dreamspace": false,
+    "auto_pop_glitched": false,
+    "auto_pop_biomes": {
+        "AURORA": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "CORRUPTION": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "CYBERSPACE": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "DREAMSPACE": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "GLITCHED": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "HEAVEN": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "HELL": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "NULL": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "RAINY": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "SAND STORM": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "SNOWY": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "STARFALL": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "WINDY": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    true,
+                    1
+                ],
+                "Fortune Potion II": [
+                    true,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "EGGLAND": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        },
+        "SINGULARITY": {
+            "enabled": false,
+            "buffs": {
+                "Fortune Potion I": [
+                    false,
+                    1
+                ],
+                "Fortune Potion II": [
+                    false,
+                    1
+                ],
+                "Fortune Potion III": [
+                    false,
+                    1
+                ],
+                "Godlike Potion": [
+                    false,
+                    1
+                ],
+                "Haste Potion I": [
+                    false,
+                    1
+                ],
+                "Haste Potion II": [
+                    false,
+                    1
+                ],
+                "Haste Potion III": [
+                    false,
+                    1
+                ],
+                "Heavenly Potion": [
+                    false,
+                    1
+                ],
+                "Lucky Potion": [
+                    false,
+                    1
+                ],
+                "Oblivion Potion": [
+                    false,
+                    1
+                ],
+                "Potion of bound": [
+                    false,
+                    1
+                ],
+                "Rune of Everything": [
+                    false,
+                    1
+                ],
+                "Speed Potion": [
+                    false,
+                    1
+                ],
+                "Stella's Candle": [
+                    false,
+                    1
+                ],
+                "Strange Potion I": [
+                    false,
+                    1
+                ],
+                "Strange Potion II": [
+                    false,
+                    1
+                ],
+                "Transcendent Potion": [
+                    false,
+                    1
+                ],
+                "Warp Potion": [
+                    false,
+                    1
+                ],
+                "Xyz Potion": [
+                    false,
+                    1
+                ]
+            }
+        }
+    },
+    "auto_reconnect": true,
+    "biome_counts": {
+        "AURORA": 0,
+        "CORRUPTION": 0,
+        "CYBERSPACE": 0,
+        "DREAMSPACE": 0,
+        "GLITCHED": 0,
+        "HEAVEN": 0,
+        "HELL": 0,
+        "NORMAL": 0,
+        "NULL": 0,
+        "RAINY": 3,
+        "SAND STORM": 0,
+        "SNOWY": 0,
+        "STARFALL": 0,
+        "WINDY": 0,
+        "EGGLAND": 0,
+        "SINGULARITY": 0
+    },
+    "biome_notifier": {
+        "CORRUPTION": "Message",
+        "CYBERSPACE": "Message",
+        "DREAMSPACE": "Message",
+        "GLITCHED": "Message",
+        "HELL": "Message",
+        "NORMAL": "Message",
+        "NULL": "Message",
+        "RAINY": "Message",
+        "SAND STORM": "Message",
+        "SNOWY": "Message",
+        "STARFALL": "Message",
+        "WINDY": "Message",
+        "HEAVEN": "Message",
+        "EGGLAND": "Message",
+        "AURORA": "Message",
+        "SINGULARITY": "Message"
+    },
+    "biome_randomizer": true,
+    "br_duration": "36",
+    "claim_quest_button": [
+        616,
+        770
+    ],
+    "collections_button": [
+        41,
+        457
+    ],
+    "custom_biome_overrides": {
+        "AURORA": {
+            "color": "0x0047ab",
+            "thumbnail_url": "https://raw.githubusercontent.com/vexthecoder/OysterDetector/main/assets/aurora.png"
+        },
+        "CORRUPTION": {
+            "color": "0x6d32a8",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/CORRUPTION.png"
+        },
+        "CYBERSPACE": {
+            "color": "0x0A1A3D",
+            "thumbnail_url": "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/images/CYBERSPACE.png"
+        },
+        "DREAMSPACE": {
+            "color": "0xea9dda",
+            "thumbnail_url": "http://github.com/xVapure/Noteab-Macro/blob/main/images/Screenshot_2026-01-03_021107.png?raw=true"
+        },
+        "EGGLAND": {
+            "color": "0xd4fc8d",
+            "thumbnail_url": "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/images/EGGLAND.png"
+        },
+        "GLITCHED": {
+            "color": "0xbfff00",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/GLITCHED.png"
+        },
+        "HEAVEN": {
+            "color": "0xFFE8A0",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/HEAVEN.png"
+        },
+        "HELL": {
+            "color": "0xff4719",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/HELL.png"
+        },
+        "NORMAL": {
+            "color": "0xffffff",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/NORMAL.png"
+        },
+        "NULL": {
+            "color": "0x838383",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/NULL.png"
+        },
+        "RAINY": {
+            "color": "0x027cbd",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/RAINY.png"
+        },
+        "SAND STORM": {
+            "color": "0x8F7057",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/SAND%20STORM.png"
+        },
+        "SINGULARITY": {
+            "color": "0xcf4023",
+            "thumbnail_url": "https://raw.githubusercontent.com/xVapure/Noteab-Macro/refs/heads/main/images/SINGULARITY.png"
+        },
+        "SNOWY": {
+            "color": "0xDceff9",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/SNOWY.png"
+        },
+        "STARFALL": {
+            "color": "0x011ab7",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/STARFALL.png"
+        },
+        "WINDY": {
+            "color": "0xF2F6FF",
+            "thumbnail_url": "https://maxstellar.github.io/biome_thumb/WINDY.png"
+        }
+    },
+    "cyberspace_only_warp": false,
+    "dont_ask_for_update": false,
+    "auto_update_enabled": false,
+    "enable_aura_detection": true,
+    "enable_aura_record": false,
+    "enable_auto_obby": false,
+    "enable_buff_glitched": false,
+    "enable_glitch_effect": false,
+    "enable_ocr_failsafe": false,
+    "enable_potion_crafting": false,
+    "enable_potion_switching": false,
+    "fishing_mode": false,
+    "equip_aura_button": [
+        602,
+        639
+    ],
+    "exit_collections_button": [
+        380,
+        128
+    ],
+    "first_aura_slot_pos": [
+        819,
+        434
+    ],
+    "first_item_inventory_slot_pos": [
+        858,
+        470
+    ],
+    "first_item_merchant_slot_pos": [
+        907,
+        716
+    ],
+    "first_item_slot_ocr_pos": [
+        802,
+        431,
+        93,
+        92
+    ],
+    "fishing_bar_region": [
+        750,
+        753,
+        416,
+        38
+    ],
+    "fishing_detect_pixel": [
+        1175,
+        836
+    ],
+    "fishing_click_position": [
+        846,
+        835
+    ],
+    "fishing_midbar_sample_pos": [
+        942,
+        765
+    ],
+    "fishing_close_button_pos": [
+        1111,
+        342
+    ],
+    "fishing_flarg_dialogue_box": [
+        1046,
+        782
+    ],
+    "fishing_shop_open_button": [
+        616,
+        938
+    ],
+    "fishing_shop_sell_tab": [
+        1285,
+        312
+    ],
+    "fishing_shop_close_button": [
+        1458,
+        269
+    ],
+    "fishing_shop_first_fish": [
+        827,
+        404
+    ],
+    "fishing_shop_sell_all_button": [
+        662,
+        799
+    ],
+    "fishing_confirm_sell_all_button": [
+        801,
+        626
+    ],
+    "fishing_failsafe_rejoin": false,
+    "fishing_enable_selling": false,
+    "fishing_sell_after_x_fish": "30",
+    "fishing_sell_how_many_fish": "1",
+    "fishing_equip_aura_before_movement": false,
+    "fishing_movement_aura_name": "",
+    "fishing_use_merchant_every_x_fish": false,
+    "fishing_merchant_every_x_fish": "30",
+    "fishing_use_br_sc_every_x_fish": false,
+    "fishing_br_sc_every_x_fish": "30",
+    "fishing_actions_delay_ms": "100",
+    "float_aura_name": "",
+    "glitched_buff_enable_button": [
+        929,
+        653
+    ],
+    "glitched_menu_button": [
+        37,
+        674
+    ],
+    "glitched_settings_button": [
+        964,
+        590
+    ],
+    "inventory_click_delay": "650",
+    "inventory_close_button": [
+        1412,
+        299
+    ],
+    "inventory_menu": [
+        38,
+        515
+    ],
+    "item_name_ocr_pos": [
+        1106,
+        372,
+        708,
+        35
+    ],
+    "items_tab": [
+        1231,
+        338
+    ],
+    "jester_user_id": "",
+    "macro_last_start": "2026-09-11T18:24:28.526262",
+    "mari_user_id": "",
+    "merchant_close_button_pos": [
+        1811,
+        325
+    ],
+    "merchant_counts": {
+        "Jester": 0,
+        "Mari": 0,
+        "Rin": 0
+    },
+    "merchant_dialogue_box": [
+        975,
+        810
+    ],
+    "merchant_extra_slot": "0",
+    "merchant_name_ocr_pos": [
+        731,
+        682,
+        278,
+        52
+    ],
+    "merchant_open_button": [
+        595,
+        942
+    ],
+    "merchant_teleporter": false,
+    "mt_duration": "1",
+    "periodical_aura_interval": "25",
+    "periodical_aura_screenshot": true,
+    "periodical_inventory_interval": "25",
+    "periodical_inventory_screenshot": true,
+    "ping_jester": false,
+    "ping_mari": false,
+    "ping_minimum": "200000000",
+    "ping_rin": false,
+    "potion_auto_button": [
+        424,
+        821
+    ],
+    "potion_auto_add_button": [
+        424,
+        821
+    ],
+    "potion_file_1": "",
+    "potion_file_2": "",
+    "potion_file_3": "",
+    "potion_items_tab": [
+        1521,
+        222
+    ],
+    "potion_recipe_button": [
+        216,
+        820
+    ],
+    "potion_search_bar": [
+        1533,
+        267
+    ],
+    "potion_switch_interval": "180",
+    "private_server_link": "",
+    "roblox_username": "",
+    "purchase_amount_button": [
+        1055,
+        609
+    ],
+    "purchase_button": [
+        1180,
+        655
+    ],
+    "quest1_button": [
+        955,
+        540
+    ],
+    "quest2_button": [
+        894,
+        612
+    ],
+    "quest3_button": [
+        871,
+        668
+    ],
+    "quest_menu": [
+        30,
+        614
+    ],
+    "quest_reroll_button": [
+        622,
+        566
+    ],
+    "rare_biome_record_keybind": "F8",
+    "rare_biome_screenshot": true,
+    "reconnect_start_button": [
+        260,
+        1002
+    ],
+    "record_rare_biome": false,
+    "remote_access_enabled": false,
+    "remote_allowed_user_id": "",
+    "remote_bot_token": "",
+    "reset_on_rare": false,
+    "rin_user_id": "",
+    "sc_duration": "21",
+    "search_bar": [
+        845,
+        368
+    ],
+    "selected_potion_file": "",
+    "selected_theme": "ocean",
+    "session_time": "00:00:00",
+    "session_window_start": "2026-09-11T18:24:28.526262",
+    "strange_controller": false,
+    "teleport_back_to_limbo": false,
+    "use_button": [
+        678,
+        581
+    ],
+    "use_float_aura": false,
+    "enable_idle_mode": false,
+    "auto_roblox_fullscreen": false,
+    "auto_chat_close": false,
+    "enable_obby_path": false,
+    "obby_claim_interval": "15",
+    "merchant_close_button": [
+        1811,
+        325
+    ],
+    "player_logger": true,
+    "webhook_url": [],
+    "potion_first_potion_slot_pos": [
+        1527,
+        354
+    ],
+    "fastflags_applied_versions": [
+        "version-1849ecbff0824113",
+        "version-1a951716f19e4638",
+        "version-3da9d00a092c4d59",
+        "version-db4634f0e27d4d36",
+        "version-eaebe135b3ec446b",
+        "version-ed2b47b81f08484a"
+    ],
+    "fastflags_last_applied": "2026-08-29T15:44:52.817519",
+    "force_ping_auras": "",
+    "force_record_auras": "",
+    "fishing_playback_multiplier": 1,
+    "collect_easter_egg": false,
+    "egg_collect_interval_min": "30",
+    "egg_playback_multiplier": 1,
+    "egg_ocr_detect_special": false,
+    "egg_ocr_discord_userid": "",
+    "egg_collect_interval_sec": "60",
+    "non_vip_movement_path": false,
+    "azerty_mode": false,
+    "eden_detection": true,
+    "fishing_use_merchant_ocr_every_x_fish": false,
+    "fishing_merchant_ocr_every_x_fish_amt": "30",
+    "merchant_ocr": false,
+    "merchant_ocr_interval": "60",
+    "chat_hover_pos": [
+        272,
+        252
+    ],
+    "chat_tab_ocr_pos": [
+        341,
+        83,
+        210,
+        40
+    ],
+    "chat_close_button": [
+        174,
+        40
+    ],
+    "chat_box_ocr_pos": [
+        14,
+        161,
+        587,
+        244
+    ],
+    "potion_last_file": "",
+    "biome_pings": {},
+    "ping_eden": false,
+    "eden_user_id": "",
+    "eden_check_interval": "2",
+    "eden_path_interval": "35",
+    "go_to_eden_spawn": true,
+    "auto_eden_contract": true,
+    "eden_contract_button": [
+        708,
+        895
+    ],
+    "eden_contract_interval": "3",
+    "fishing_ui_nav_close": false,
+    "disabled_biomes_br_sc": [],
+    "teleport_portable_crack": true,
+    "compact_config": false
+}

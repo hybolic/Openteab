@@ -19,7 +19,7 @@ DEV_CONFIG_DIR = Path(openteab.config_folder)
 """ ./config_folder """
 EXE_CONFIG = Path(openteab.config_folder) / "config.json"
 """ ./config_folder/config.json """
-DEV_CONFIG = EXE_CONFIG
+DEV_CONFIG = Path(openteab.config_folder) / "config.otj"
 """ ./config_folder/config.json """
 
 APPDATA_BASE_CoteabMacro = Path(os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))) / "CoteabMacro"
@@ -276,6 +276,7 @@ def save_config(config_data: dict[str, Any]) -> None:
                 raise
         except Exception as e:
             print(f"Failed to save config: {e}")
+            
 def getDirs(dir:str):
     """
     @type dir:str REQUIRED

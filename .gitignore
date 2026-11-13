@@ -26,3 +26,6 @@
 #internal tools for stuff
 /tools/*
 /.vscode
+debug_test/*
+openteab/assets/images/biomes/*.png
+!openteab/assets/images/biomes/*75.png

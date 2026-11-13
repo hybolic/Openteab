@@ -1,5 +1,5 @@
-from os import getcwd, makedirs, getenv, getpid
-from os.path import join as join_path, exists as path_exists
+from os import getcwd, makedirs, getenv, getpid, listdir
+from os.path import join as join_path, exists as path_exists, getmtime as last_modified_time
 from PIL import Image
 from typing import Callable
 from time import sleep
@@ -306,6 +306,23 @@ class Roblox:
 
         except Exception as e:
             self.error_logging(e, "Error in terminate_roblox_processes function.")
+
+    def get_latest_log_file(self):
+        files = [join_path(roblox.logs, f) for f in listdir(roblox.logs) if f.endswith('.log')]
+        latest_file = None
+        latest_mtime = -1
+        for f in files:
+            try:
+                mt = last_modified_time(f)
+                if mt > latest_mtime:
+                    latest_mtime = mt
+                    latest_file = f
+            except (FileNotFoundError, OSError):
+                continue
+        if latest_file is None:
+            raise FileNotFoundError("No valid Roblox log files found")
+        return latest_file
+
 del join_path
 try: #if python version used is below recommended fallback to compat temporarily
     def join_path(top:Path, next:Path|str) -> Path:
@@ -562,3 +579,17 @@ def FROM_TOP(path):
 
 def FROM_PATH(path_start, path):
     return openteab._path(path_start, path)
+
+
+
+DEBUG:bool = True
+#debug only print
+def print_d(*args, **kwargs):
+    if DEBUG:
+        print("[DEBUG] ", *args,**kwargs)
+def print_e(*args, **kwargs):
+    print("[ERROR] ", *args,**kwargs)
+def print_i(*args, **kwargs):
+    print("[INFO]  ", *args,**kwargs)
+def print_w(*args, **kwargs):
+    print("[WARN]  ", *args,**kwargs)
